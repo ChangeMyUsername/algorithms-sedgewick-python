@@ -67,11 +67,15 @@ class BST(object):
             return 0
         return self._root.size
 
+    def node_size(self, node):
+        return 0 if not node else node.size
+
     def get(self, key):
         '''
         return the corresponding value with the given key, iterate the whole tree,
         if the current node's key is equal to the given key, then return the node's value.
-        if the current node's key is smaller than the given key, then jump to the right node of the current node,
+        if the current node's key is smaller than the given key,
+        then jump to the right node of the current node,
         else jump to the left node of the current node.
         '''
         temp = self._root
@@ -119,7 +123,8 @@ class BST(object):
             else:
                 inserted_node.left = new_node
 
-            inserted_node.size = self.size(inserted_node.left) + self.size(inserted_node.right) + 1
+        inserted_node.size = self.node_size(
+                inserted_node.left) + self.node_size(inserted_node.right) + 1
 
     def max_val(self):
         '''
@@ -130,6 +135,19 @@ class BST(object):
         tmp = self._root
         while tmp.right:
             tmp = tmp.right
+        return tmp.val
+
+    def min_sub_tree_val(self, node):
+        '''
+        find the minimum value in the binary search tree which start with specific node.
+        '''
+        if not node:
+            return None
+        assert isinstance(node, Node)
+
+        tmp = node
+        while tmp.left:
+            tmp = tmp.left
         return tmp.val
 
     def min_val(self):
@@ -145,7 +163,8 @@ class BST(object):
 
     def select(self, k):
         '''
-        find the kth node of the binary search tree, the solution is similar with get() or put() function.
+        find the kth node of the binary search tree,
+        the solution is similar with get() or put() function.
         '''
         assert isinstance(k, int) and k <= self.size()
 
@@ -181,3 +200,42 @@ class BST(object):
             elif tmp.key == key:
                 result = tmp.left.size
         return result
+
+    def delete_min(self):
+        self._root = self.__delete_min(self._root)
+
+    def __delete_min(self, node):
+        # find the minimum-value node.
+        if not node.left:
+            return node.right
+        node.left = self.__delete_min(node.left)
+        node.size = self.node_size(node.left) + self.node_size(node.right) + 1
+        return node
+
+    def delete(self, key):
+        self._root = self.__delete(self._root, key)
+
+    def __delete(self, node, key):
+        if not node:
+            return None
+        if key < node.key:
+            node.left = self.__delete(node.left, key)
+        elif key > node.key:
+            node.right = self.__delete(node.right, key)
+        else:
+            # node's left or right side is None.
+            if not node.left or not node.right:
+                return (node.left or node.right)
+            # node's both side is not None.
+            tmp = node
+            node = self.min_sub_tree_val(tmp.right)
+            node.right = self.__delete_min(tmp.right)
+            node.left = tmp.left
+        node.size = self.node_size(node.left) + self.node_size(node.right) + 1
+        return node
+
+    def keys(self):
+        return self.keys_range(self.min_val(), self.max_val())
+
+    def keys_range(self, low, high):
+        pass

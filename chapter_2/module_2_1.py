@@ -28,8 +28,10 @@ def insertion_sort(lst):
     '''
     insertion sort implementation, exchange the current element
     and the previous element util current element is larger than the previous element.
-    for a random list of N size, insertion sort need ~ N**2/4 comparisons and ~N**2/4 exchanges on average condition,
-    the worst-case scenario would be ~ N**2/2 comparisons and ~N**2/2 exchanges, the best-case scenario would be N-1
+    for a random list of N size, insertion sort need ~ N**2/4 comparisons
+    and ~N**2/4 exchanges on average condition,
+    the worst-case scenario would be ~ N**2/2 comparisons and ~N**2/2 exchanges,
+    the best-case scenario would be N-1
     comparisons and no exchange.
     >>> lst = [9, 4, 5, 1, 0, 3, 6]
     >>> insertion_sort(lst)

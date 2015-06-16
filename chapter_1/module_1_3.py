@@ -26,6 +26,7 @@ class BaseDataType:
 
 
 class Stack(object):
+
     '''
     stack LIFO data structure linked-list implementation
     >>> s = Stack()
@@ -58,6 +59,7 @@ class Stack(object):
     >>> s.is_empty()
     True
     '''
+
     def __init__(self):
         self._first = None
         self._size = 0
@@ -97,6 +99,7 @@ class Stack(object):
 
 
 class BaseConverter(object):
+
     '''
     convert decimal number to x base number using stack.
     >>> BaseConverter.convert_decimal_integer(50, 2)
@@ -123,6 +126,7 @@ class BaseConverter(object):
 
 
 class Evaluate(object):
+
     '''
     dijkstra infix evaluate algorithm, using stack for data structure.
     >>> evaluate = Evaluate()
@@ -131,6 +135,7 @@ class Evaluate(object):
     >>> evaluate.calculate('((1-2)*(8/4))')
     -2.0
     '''
+
     def __init__(self):
         self._ops_stack = Stack()
         self._vals_stack = Stack()
@@ -160,6 +165,7 @@ class Evaluate(object):
 
 
 class Queue(object):
+
     '''
     queue FIFO data structure linked-list implementation
     >>> q = Queue()
@@ -203,18 +209,20 @@ class Queue(object):
     >>> for i in new_queue:
     ...     print(i, end=' ')
     ...
-    0 1 2 3 4 
+    0 1 2 3 4
     >>> new_queue.enqueue(6)
     >>> for i in old:
     ...     print(i, end=' ')
     ...
-    0 1 2 3 4 
+    0 1 2 3 4
     >>> for i in new_queue:
     ...     print(i, end=' ')
     ...
-    0 1 2 3 4 6 
+    0 1 2 3 4 6
     '''
+
     # 1.3.41 practice
+
     def __init__(self, q=None):
         self._first = None
         self._last = None
@@ -257,6 +265,7 @@ class Queue(object):
 
 
 class Bag(object):
+
     '''
     bag data structure linked-list implementation.
     >>> bag = Bag()
@@ -282,6 +291,7 @@ class Bag(object):
     >>> bag.is_empty()
     False
     '''
+
     def __init__(self):
         self._first = None
         self._size = 0
@@ -309,6 +319,7 @@ class Bag(object):
 # stack example
 # 1.3.4 practice
 class Parentheses(object):
+
     '''
     using stack data structure for judging if parenthese is symmetric.
     >>> p = Parentheses()
@@ -321,13 +332,15 @@ class Parentheses(object):
     >>> p.is_parenthese_symmetric('{}}}}}}}{{{')
     False
     '''
+
     def __init__(self):
         self._left_parenthese_stack = Stack()
         self._left_parentheses = ('[', '{', '(')
         self._right_parentheses = (']', '}', ')')
 
     def __is_match(self, left_parenthese, right_parenthese):
-        return self._left_parentheses.index(left_parenthese) == self._right_parentheses.index(right_parenthese)
+        return (self._left_parentheses.index(left_parenthese) ==
+                self._right_parentheses.index(right_parenthese))
 
     def is_parenthese_symmetric(self, parenthese_string):
         for s in parenthese_string:
@@ -361,6 +374,7 @@ def get_binary(integer):
 
 # 1.3.9 practice
 class CompleteInfixString(object):
+
     '''
     using stack for complete infix string,
     the basic principle is similar to dijkstra infix arithmetic algorithm.
@@ -390,6 +404,7 @@ class CompleteInfixString(object):
 
 # 1.3.10 practice
 class InfixToPostfix(object):
+
     '''
     turn infix string to postfix string using stack.
     >>> itp = InfixToPostfix()
@@ -419,7 +434,8 @@ class InfixToPostfix(object):
                     postfix_list.append(token)
                     token = self._ops_stack.pop()
             else:
-                while not self._ops_stack.is_empty() and InfixToPostfix.ops[self._ops_stack.peek()] >= InfixToPostfix.ops[i]:
+                while (not self._ops_stack.is_empty() and
+                       InfixToPostfix.ops[self._ops_stack.peek()] >= InfixToPostfix.ops[i]):
                     postfix_list.append(self._ops_stack.pop())
                 self._ops_stack.push(i)
 
@@ -430,12 +446,14 @@ class InfixToPostfix(object):
 
 # 1.3.11 practice
 class PostfixEvaluate(object):
+
     '''
     using stack for postfix evaluation.
     >>> pfe = PostfixEvaluate()
     >>> pfe.evaluate('78+32+/')
     3
     '''
+
     def __init__(self):
         self._operand_stack = Stack()
 
@@ -459,6 +477,7 @@ class PostfixEvaluate(object):
 
 # 1.3.32 practice
 class Steque(object):
+
     '''
     steque data structure, combining stack operation and queue operation.
     >>> s = Steque()
@@ -473,7 +492,7 @@ class Steque(object):
     >>> for i in s:
     ...     print(i, end=' ')
     ...
-    7 6 5 4 3 2 1 10 
+    7 6 5 4 3 2 1 10
     >>> s2 = Steque()
     >>> for i in range(10):
     ...     s2.enqueue(i)
@@ -481,12 +500,13 @@ class Steque(object):
     >>> for j in s2:
     ...     print(j, end=' ')
     ...
-    0 1 2 3 4 5 6 7 8 9 
+    0 1 2 3 4 5 6 7 8 9
     >>> while not s2.is_empty():
     ...     print(s2.pop(), end=' ')
     ...
-    0 1 2 3 4 5 6 7 8 9 
+    0 1 2 3 4 5 6 7 8 9
     '''
+
     def __init__(self):
         self._top = None
         self._bottom = None
@@ -535,6 +555,7 @@ class Steque(object):
 
 # 1.3.33 practice deque implementation.
 class Deque(object):
+
     '''
     double queue datastructure implementaion.
     >>> d = Deque()
@@ -678,6 +699,7 @@ class RandomQueue(object):
 
 # 1.3.38
 class GeneralizeQueue(object):
+
     '''
     >>> queue = GeneralizeQueue()
     >>> for i in range(10):
@@ -692,8 +714,9 @@ class GeneralizeQueue(object):
     >>> for i in queue:
     ...     print(i, end=' ')
     ...
-    1 2 3 5 6 7 8 
+    1 2 3 5 6 7 8
     '''
+
     def __init__(self):
         self._first = None
         self._last = None
@@ -747,6 +770,7 @@ class GeneralizeQueue(object):
 
 # 1.3.40 practice
 class MoveToFront(object):
+
     '''
     move to front implementation, if insert new value into the list,
     then insert into the head of the list, else move the node to the head
@@ -769,6 +793,7 @@ class MoveToFront(object):
     4
     5
     '''
+
     def __init__(self):
         self._first = None
         self._set = set()

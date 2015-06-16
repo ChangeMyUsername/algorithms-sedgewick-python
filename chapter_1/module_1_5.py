@@ -5,10 +5,12 @@ import random
 
 
 class UnionFind(object):
+
     '''
     union find implementation, the algorithm is a little bit like tree algorithm but not the same.
     >>> uf = UnionFind(10)
-    >>> connections = [(4, 3), (3, 8), (6, 5), (9, 4), (2, 1), (8, 9), (5, 0), (7, 2), (6, 1), (1, 0), (6, 7)]
+    >>> connections = [(4, 3), (3, 8), (6, 5), (9, 4), (2, 1),
+    ... (8, 9), (5, 0), (7, 2), (6, 1), (1, 0), (6, 7)]
     >>> for i, j in connections:
     ...     uf.union(i, j)
     ...
@@ -21,6 +23,7 @@ class UnionFind(object):
     >>> uf.connected(1, 7)
     True
     '''
+
     def __init__(self, size):
         self._id = [i for i in range(size)]
         self._count = size
@@ -52,10 +55,12 @@ class UnionFind(object):
 
 
 class WeightedUnionFind(object):
+
     '''
     weighted union find algorithm, put the smaller tree into the larger tree, lower the tree size.
     >>> wuf = WeightedUnionFind(10)
-    >>> connections = [(4, 3), (3, 8), (6, 5), (9, 4), (2, 1), (8, 9), (5, 0), (7, 2), (6, 1), (1, 0), (6, 7)]
+    >>> connections = [(4, 3), (3, 8), (6, 5), (9, 4),
+    ... (2, 1), (8, 9), (5, 0), (7, 2), (6, 1), (1, 0), (6, 7)]
     >>> for i, j in connections:
     ...     wuf.union(i, j)
     ...
@@ -68,6 +73,7 @@ class WeightedUnionFind(object):
     >>> wuf.connected(1, 7)
     True
     '''
+
     def __init__(self, size):
         self._count = size
         self._id = [i for i in range(size)]
@@ -106,6 +112,7 @@ class WeightedUnionFind(object):
 
 # 1.5.14 practice
 class HeightedUnionFind(object):
+
     '''
     heighted union find algorithm,
     put the shorter tree into taller tree,
@@ -122,6 +129,7 @@ class HeightedUnionFind(object):
     >>> huf.connected(9, 8)
     True
     '''
+
     def __init__(self, size):
         self._id = [i for i in range(size)]
         self._height = [1] * size

@@ -18,6 +18,7 @@ class MergeSort(object):
     >>> lst
     [-1, 0, 1, 2, 3, 4, 5, 7, 7, 8, 9, 11, 13, 24, 31]
     '''
+
     def merge(self, aux, lst, low, mid, high):
         left, right = low, mid + 1
 
@@ -60,13 +61,15 @@ class MergeSort(object):
         mid = (low + high) / 2
         self.__sort(lst, aux, low, mid)
         self.__sort(lst, aux, mid + 1, high)
-        # 2.2.11 practice, if assistance array aux[mid] < aux[mid+1], copy the value into the origin list.
+        # 2.2.11 practice, if assistance array aux[mid] < aux[mid+1], copy the
+        # value into the origin list.
         if aux[mid] < aux[mid + 1]:
             lst[low:high - low + 1] = aux[low:high - low + 1]
         self.merge(aux, lst, low, mid, high)
 
 
 class MergeSortBU(object):
+
     '''
     bottom-up merge sort algorithm implementation, cut the whole N-size array into
     N/sz small arrays, then merge each two of them,
@@ -79,6 +82,7 @@ class MergeSortBU(object):
     >>> lst
     [-1, 0, 1, 2, 3, 4, 5, 7, 7, 8, 9]
     '''
+
     def sort(self, lst):
         length = len(lst)
         aux = [None] * length
@@ -148,7 +152,8 @@ def merge_list(lst1, lst2):
 
 
 # 2.2.15 practice bottom-up merge list using queue, make each element as sub queue,
-# merge first two sub queue in the large queue and enqueue the result util there is only one sub queue.
+# merge first two sub queue in the large queue and enqueue the result util
+# there is only one sub queue.
 def bu_merge_sort_q(lst):
     '''
     >>> bu_merge_sort_q([3, 2, 4, 7, 8, 9, 1, 0])
@@ -209,11 +214,13 @@ def linked_list_merge_sort(head):
 
 # 2.2.19 practice, using merge function from merge-sort to count the reverse number
 class ReverseCount(object):
+
     '''
     >>> rc = ReverseCount()
     >>> rc.reverse_count([1, 7, 2, 9, 6, 4, 5, 3])
     14
     '''
+
     def reverse_count(self, lst):
         sort_lst, aux_lst = lst[:], lst[:]
         return self.count(sort_lst, aux_lst, 0, len(lst) - 1)

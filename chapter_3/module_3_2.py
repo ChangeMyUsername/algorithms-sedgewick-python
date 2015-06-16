@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
 import doctest
+import random
 
 
 class Node(object):
@@ -17,7 +18,7 @@ class Node(object):
 
     @left.setter
     def left(self, node):
-        assert isinstance(node, Node)
+        assert isinstance(node, (Node, type(None)))
         self._left = node
 
     @property
@@ -26,7 +27,7 @@ class Node(object):
 
     @right.setter
     def right(self, node):
-        assert isinstance(node, Node)
+        assert isinstance(node, (Node, type(None)))
         self._right = node
 
     @property
@@ -60,10 +61,14 @@ class BST(object):
     '''
     binary search tree implementation.
     >>> bst = BST()
+    >>> bst.is_empty()
+    True
     >>> test_str = 'EASYQUESTION'
     >>> for (index, element) in enumerate(test_str):
     ...     bst.put(element, index)
     ...
+    >>> bst.is_binary_tree()
+    True
     >>> bst.get('Q')
     4
     >>> bst.get('E')
@@ -94,11 +99,42 @@ class BST(object):
     7
     >>> bst.rank('U')
     8
+    >>> bst.is_empty()
+    False
+    >>> node = bst.select(0)
+    >>> node.key
+    'A'
+    >>> node2 = bst.select(2)
+    >>> node2.key
+    'I'
+    >>> node3 = bst.select(9)
+    >>> node3.key
+    'Y'
+    >>> bst.keys()
+    ['A', 'E', 'I', 'N', 'O', 'Q', 'S', 'T', 'U', 'Y']
+    >>> bst.height()
+    5
+    >>> random_key = bst.random_key()
+    >>> random_key in test_str
+    True
+    >>> bst.delete_min()
+    >>> bst.min_val().key
+    'E'
+    >>> bst.delete_max()
+    >>> bst.max_val().key
+    'U'
+    >>> bst.delete('O')
+    >>> bst.delete('S')
+    >>> bst.keys()
+    ['E', 'I', 'N', 'Q', 'T', 'U']
+    >>> bst.is_binary_tree()
+    True
     '''
 
     def __init__(self):
         self._root = None
         self._exist_keys = set()
+        self._last_visited_node = None
 
     def size(self):
         '''
@@ -114,6 +150,7 @@ class BST(object):
     def node_size(self, node):
         return 0 if not node else node.size
 
+    # 3.2.13 practice, implement get method with iteration.
     def get(self, key):
         '''
         return the corresponding value with the given key, iterate the whole tree,
@@ -122,10 +159,16 @@ class BST(object):
         then jump to the right node of the current node,
         else jump to the left node of the current node.
         '''
+
+        # 3.2.28 practice add cache for bst.
+        if self._last_visited_node and self._last_visited_node.key == key:
+            return self._last_visited_node.val
+
         temp = self._root
 
         while temp:
             if temp.key == key:
+                self._last_visited_node = temp
                 return temp.val
 
             if temp.key > key:
@@ -133,8 +176,11 @@ class BST(object):
 
             if temp.key < key:
                 temp = temp.right
-        return temp if not temp else temp.key
+        return temp
 
+    # 3.2.13 practice, implement get method with iteration,
+    # use set data structure for recording exist keys, if new key exists, stop
+    # increment the node's size counter.
     def put(self, key, val):
         '''
         insert a new node into the binary search tree, iterate the whole tree,
@@ -161,7 +207,7 @@ class BST(object):
                 return
 
         if not inserted_node:
-            self._root = Node(key, val, 1)
+            self._root = new_node
             return
         else:
             if inserted_node.key < key:
@@ -172,6 +218,9 @@ class BST(object):
         inserted_node.size = self.node_size(
                 inserted_node.left) + self.node_size(inserted_node.right) + 1
 
+        self._last_visited_node = new_node
+
+    # 3.2.14 practice
     def max_val(self):
         '''
         find the maximum value in the binary search tree.
@@ -196,6 +245,7 @@ class BST(object):
             tmp = tmp.left
         return tmp
 
+    # 3.2.14 practice
     def min_val(self):
         '''
         find the minimum value in the binary search tree.
@@ -207,6 +257,7 @@ class BST(object):
             tmp = tmp.left
         return tmp
 
+    # 3.2.14 practice
     def select(self, k):
         '''
         find the kth node of the binary search tree,
@@ -228,6 +279,7 @@ class BST(object):
             else:
                 return tmp
 
+    # 3.2.14 practice
     def rank(self, key):
         '''
         find the rank of the node in the binary search tree by the given key.
@@ -256,6 +308,17 @@ class BST(object):
         if not node.left:
             return node.right
         node.left = self.__delete_min(node.left)
+        node.size = self.node_size(node.left) + self.node_size(node.right) + 1
+        return node
+
+    def delete_max(self):
+        self._root = self.__delete_max(self._root)
+
+    def __delete_max(self, node):
+        # find the maximum-value node.
+        if not node.right:
+            return node.left
+        node.right = self.__delete_max(node.right)
         node.size = self.node_size(node.left) + self.node_size(node.right) + 1
         return node
 
@@ -299,14 +362,35 @@ class BST(object):
         if high > node.key:
             self.__keys(node.right, queue, low, high)
 
+    # 3.2.6 practice, add height function for binary tree.
     def height(self):
         return self.__height(self._root)
 
     def __height(self, node):
         if not node:
             return -1
-        return 1 + self.__height(node.left) + self.__height(node.right)
+        return 1 + max(self.__height(node.left), self.__height(node.right))
 
+    # 3.2.21 randomly choose a node from bianry search tree.
+    def random_key(self):
+        if not self._root:
+            return None
+        total_size = self._root.size
+        rank = random.randint(0, total_size - 1)
+        random_node = self.select(rank)
+        return random_node.key
+
+    # 3.2.29 practice, check if each node's size is
+    # equals to the summation of left node's size and right node's size.
+    def is_binary_tree(self):
+        return self.__is_binary_tree(self._root)
+
+    def __is_binary_tree(self, node):
+        if not node:
+            return True
+        if node.size != self.node_size(node.left) + self.node_size(node.right) + 1:
+            return False
+        return self.__is_binary_tree(node.left) and self.__is_binary_tree(node.right)
 
 if __name__ == '__main__':
     doctest.testmod()

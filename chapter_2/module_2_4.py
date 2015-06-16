@@ -6,6 +6,7 @@ import bisect
 
 
 class MaxPQ(object):
+
     '''
     >>> mpq = MaxPQ(10)
     >>> lst = [i for i in range(10)]
@@ -22,6 +23,7 @@ class MaxPQ(object):
     >>> ' '.join(print_lst)
     '9 8 7 6 5 4 3 2 1 0'
     '''
+
     def __init__(self, size):
         self._pq = [None] * (size + 1)
         self._size = 0
@@ -86,6 +88,7 @@ class MaxPQ(object):
 
 
 class MinPQ(object):
+
     '''
     >>> mpq = MinPQ(10)
     >>> lst = [i for i in range(10)]
@@ -100,6 +103,7 @@ class MinPQ(object):
     >>> ' '.join(print_lst)
     '0 1 2 3 4 5 6 7 8 9'
     '''
+
     def __init__(self, size):
         self._pq = [None] * (size + 1)
         self._size = 0
@@ -144,6 +148,7 @@ class MinPQ(object):
 
 # 2.4.22 practice, a little change for python version, the queue's size is not limited.
 class MaxPQDynamic(object):
+
     '''
     >>> mpq = MaxPQDynamic()
     >>> lst = [i for i in range(10)]
@@ -158,6 +163,7 @@ class MaxPQDynamic(object):
     >>> ' '.join(print_lst)
     '9 8 7 6 5 4 3 2 1 0'
     '''
+
     def __init__(self):
         self._pq = []
 
@@ -200,6 +206,7 @@ class MaxPQDynamic(object):
 
 
 class MinPQDynamic(object):
+
     '''
     >>> mpq = MinPQDynamic()
     >>> lst = [i for i in range(10)]
@@ -214,6 +221,7 @@ class MinPQDynamic(object):
     >>> ' '.join(print_lst)
     '0 1 2 3 4 5 6 7 8 9'
     '''
+
     def __init__(self):
         self._pq = []
 
@@ -275,6 +283,7 @@ class MinPQDynamic(object):
 
 # 2.4.30 practice
 class MeanHeap(object):
+
     '''
     >>> mh = MeanHeap()
     >>> for i in range(9):
@@ -289,6 +298,7 @@ class MeanHeap(object):
     >>> mh.median()
     5
     '''
+
     def __init__(self):
         self._min_heap = MinPQDynamic()
         self._max_heap = MaxPQDynamic()

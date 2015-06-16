@@ -65,12 +65,14 @@ def dedup(lst):
 
 # 2.5.10 practice, implement a version class with __cmp__
 class Version(object):
+
     '''
     >>> lst = [Version(i) for i in ['115.1.1', '115.10.1', '115.10.2']]
     >>> lst.sort()
     >>> lst
     [Version(115.1.1), Version(115.10.1), Version(115.10.2)]
     '''
+
     def __init__(self, version):
         self._version = version
 
@@ -96,12 +98,15 @@ class Version(object):
 
 # 2.5.14 practice, implement a domain class with __cmp__, compare the reversed order domain.
 class Domain(object):
+
     '''
-    >>> lst = [Domain(i) for i in ['cs.princeton.edu', 'cs.harvard.edu', 'mail.python.org', 'cs.mit.edu']]
+    >>> test_list = ['cs.princeton.edu', 'cs.harvard.edu', 'mail.python.org', 'cs.mit.edu']
+    >>> lst = [Domain(i) for i in test_list]
     >>> lst.sort()
     >>> lst
     [Domain(cs.harvard.edu), Domain(cs.mit.edu), Domain(cs.princeton.edu), Domain(mail.python.org)]
     '''
+
     def __init__(self, domain):
         self._domain = domain
 
@@ -128,6 +133,7 @@ class Domain(object):
 
 # 2.5.16 practice, construct object which order by the name with a new alphabet order
 class California(object):
+
     '''
     >>> lst = [California(name) for name in ('RISBY', 'PATRICK', 'DAMIEN', 'GEORGE')]
     >>> lst.sort()
@@ -163,11 +169,13 @@ class California(object):
 
 # 2.5.19 practice, kendall tau algorithm implementation
 class KendallTau(object):
+
     '''
     >>> klt = KendallTau()
     >>> klt.kendall_tau_count((0, 3, 1, 6, 2, 5, 4), (1, 0, 3, 6, 4, 2, 5))
     4
     '''
+
     def kendall_tau_count(self, origin_list, count_list):
         lst = [origin_list.index(count_list[i]) for i in range(len(count_list))]
         aux = lst[:]

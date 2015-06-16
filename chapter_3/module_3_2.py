@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
+import doctest
 
 
 class Node(object):
@@ -56,8 +57,48 @@ class Node(object):
 
 class BST(object):
 
+    '''
+    binary search tree implementation.
+    >>> bst = BST()
+    >>> test_str = 'EASYQUESTION'
+    >>> for (index, element) in enumerate(test_str):
+    ...     bst.put(element, index)
+    ...
+    >>> bst.get('Q')
+    4
+    >>> bst.get('E')
+    6
+    >>> bst.get('N')
+    11
+    >>> bst.size()
+    10
+    >>> bst.max_val().key
+    'Y'
+    >>> bst.min_val().key
+    'A'
+    >>> bst.select(0).key
+    'A'
+    >>> bst.select(3).key
+    'N'
+    >>> bst.select(4).key
+    'O'
+    >>> bst.select(9).key
+    'Y'
+    >>> bst.rank('A')
+    0
+    >>> bst.rank('E')
+    1
+    >>> bst.rank('Y')
+    9
+    >>> bst.rank('T')
+    7
+    >>> bst.rank('U')
+    8
+    '''
+
     def __init__(self):
         self._root = None
+        self._exist_keys = set()
 
     def size(self):
         '''
@@ -66,6 +107,9 @@ class BST(object):
         if not self._root:
             return 0
         return self._root.size
+
+    def is_empty(self):
+        return self._root is None
 
     def node_size(self, node):
         return 0 if not node else node.size
@@ -79,8 +123,6 @@ class BST(object):
         else jump to the left node of the current node.
         '''
         temp = self._root
-        if not temp:
-            return None
 
         while temp:
             if temp.key == key:
@@ -91,20 +133,24 @@ class BST(object):
 
             if temp.key < key:
                 temp = temp.right
-        return None
+        return temp if not temp else temp.key
 
     def put(self, key, val):
         '''
         insert a new node into the binary search tree, iterate the whole tree,
         find the appropriate location for the new node and add the new node as the tree leaf.
         '''
+        key_exists = key in self._exist_keys
+        if not key_exists:
+            self._exist_keys.add(key)
         temp = self._root
         inserted_node = None
         new_node = Node(key, val, 1)
 
         while temp:
             inserted_node = temp
-            temp.size += 1
+            if not key_exists:
+                temp.size += 1
 
             if temp.key > key:
                 temp = temp.left
@@ -135,7 +181,7 @@ class BST(object):
         tmp = self._root
         while tmp.right:
             tmp = tmp.right
-        return tmp.val
+        return tmp
 
     def min_sub_tree_val(self, node):
         '''
@@ -148,7 +194,7 @@ class BST(object):
         tmp = node
         while tmp.left:
             tmp = tmp.left
-        return tmp.val
+        return tmp
 
     def min_val(self):
         '''
@@ -159,7 +205,7 @@ class BST(object):
         tmp = self._root
         while tmp.left:
             tmp = tmp.left
-        return tmp.val
+        return tmp
 
     def select(self, k):
         '''
@@ -173,7 +219,7 @@ class BST(object):
 
         tmp = self._root
         while tmp:
-            tmp_size = tmp.left.size
+            tmp_size = self.node_size(tmp.left)
             if tmp_size > k:
                 tmp = tmp.left
             elif tmp_size < k:
@@ -195,10 +241,11 @@ class BST(object):
             if tmp.key > key:
                 tmp = tmp.left
             elif tmp.key < key:
-                result += tmp.left.size + 1
+                result += self.node_size(tmp.left) + 1
                 tmp = tmp.right
             elif tmp.key == key:
-                result = tmp.left.size
+                result += self.node_size(tmp.left)
+                break
         return result
 
     def delete_min(self):
@@ -235,7 +282,31 @@ class BST(object):
         return node
 
     def keys(self):
-        return self.keys_range(self.min_val(), self.max_val())
+        return self.keys_range(self.min_val().key, self.max_val().key)
 
     def keys_range(self, low, high):
-        pass
+        queue = []
+        self.__keys(self._root, queue, low, high)
+        return queue
+
+    def __keys(self, node, queue, low, high):
+        if not node:
+            return
+        if low < node.key:
+            self.__keys(node.left, queue, low, high)
+        if low <= node.key and high >= node.key:
+            queue.append(node.key)
+        if high > node.key:
+            self.__keys(node.right, queue, low, high)
+
+    def height(self):
+        return self.__height(self._root)
+
+    def __height(self, node):
+        if not node:
+            return -1
+        return 1 + self.__height(node.left) + self.__height(node.right)
+
+
+if __name__ == '__main__':
+    doctest.testmod()

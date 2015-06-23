@@ -129,6 +129,12 @@ class BST(object):
     ['E', 'I', 'N', 'Q', 'T', 'U']
     >>> bst.is_binary_tree()
     True
+    >>> bst.is_ordered()
+    True
+    >>> bst.is_rank_consistent()
+    True
+    >>> bst.check()
+    True
     '''
 
     def __init__(self):
@@ -391,6 +397,43 @@ class BST(object):
         if node.size != self.node_size(node.left) + self.node_size(node.right) + 1:
             return False
         return self.__is_binary_tree(node.left) and self.__is_binary_tree(node.right)
+
+    # 3.2.30 practice, check if each node in binary search tree is ordered
+    # (less than right node and greater than left node)
+    def is_ordered(self):
+        return self.__is_ordered(self._root, None, None)
+
+    def __is_ordered(self, node, min_key, max_key):
+        if not node:
+            return True
+        if min_key and node.key <= min_key:
+            return False
+        if max_key and node.key >= max_key:
+            return False
+        return (self.__is_ordered(node.left, min_key, node.key)
+                and self.__is_ordered(node.right, node.key, max_key))
+
+    # 3.2.24 practice, check if each node's rank is correct.
+    def is_rank_consistent(self):
+        for i in range(self.size()):
+            if i != self.rank(self.select(i).key):
+                return False
+
+        for key in self.keys():
+            if key != self.select(self.rank(key)).key:
+                return False
+
+        return True
+
+    # 3.2.32 practice, check if a data structure is binary search tree.
+    def check(self):
+        if not self.is_binary_tree():
+            return False
+        if not self.is_ordered():
+            return False
+        if not self.is_rank_consistent():
+            return False
+        return True
 
 if __name__ == '__main__':
     doctest.testmod()

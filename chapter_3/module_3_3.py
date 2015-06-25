@@ -77,6 +77,9 @@ class RBTree(object):
             return BLACK
         return node.color == RED
 
+    def size(self):
+        return self.__node_size(self._root)
+
     def __node_size(self, node):
         return 0 if not node else node.size
 
@@ -99,6 +102,42 @@ class RBTree(object):
         rotate_node.size = node.size
         node.size = self.__node_size(node.left) + self.__node_size(node.right)
         return rotate_node
+
+    def __flip_colors(self, node):
+        node.color = RED
+        node.left.color = BLACK
+        node.right.color = BLACK
+
+    def put(self, key, value):
+        self._root = self.__put(self._root, key, value)
+        self._root.color = BLACK
+
+    def __put(self, node, key, value):
+        if not node:
+            return Node(key, value, 1, RED)
+        if key < node.key:
+            node.left = self.__put(node.left, key, value)
+        elif key > node.key:
+            node.right = self.__put(node.right, key, value)
+        else:
+            node.value = value
+
+        # according to the book's definition, red node only exists in left node,
+        # if right node is red, rotate left, make sure left node is red.
+        if self.__is_red(node.right) and not self.__is_red(node.left):
+            node = self.__rotate_left(node)
+
+        # a red-black tree could not exist two consecutive red left node,
+        # in this case, rotate right, then the left node and right node is both red,
+        # the next move would be flip both node's colors.
+        if self.__is_red(node.left) and self.__is_red(node.left.left):
+            node = self.__rotate_right(node)
+
+        if self.__is_red(node.left) and self.__is_red(node.right):
+            self.__flip_colors(node)
+
+        node.size = self.__node_size(node.left) + self.__node_size(node.right) + 1
+        return node
 
 if __name__ == '__main__':
     doctest.testmod()

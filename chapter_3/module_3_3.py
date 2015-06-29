@@ -80,6 +80,9 @@ class RBTree(object):
     def size(self):
         return self.__node_size(self._root)
 
+    def is_empty(self):
+        return self._root is None
+
     def __node_size(self, node):
         return 0 if not node else node.size
 
@@ -138,6 +141,71 @@ class RBTree(object):
 
         node.size = self.__node_size(node.left) + self.__node_size(node.right) + 1
         return node
+
+    def __balance(self, node):
+        if self.__is_red(node.right):
+            node = self.__rotate_left(node)
+
+        if self.__is_red(node.left) and self.__is_red(node.left.left):
+            node = self.__rotate_right(node)
+
+        if self.__is_red(node.left) and self.__is_red(node.right):
+            self.__flip_colors(node)
+
+        node.size = self.__node_size(node.left) + self.__node_size(node.right) + 1
+        return node
+
+    def __move_red_left(self, node):
+        self.__flip_colors(node)
+        if self.__is_red(node.right.left):
+            node.right = self.__rotate_right(node.right)
+            node = self.__rotate_left(node)
+        return node
+
+    # 3.3.39 delete minimum key in red-black tree, the java implementation is on the book,
+    # this is python implementation of the book's answer.
+    def delete_min(self):
+        # this is for keeping red-black tree's balance
+        if not self.__is_red(self._root.left) and not self.__is_red(self._root.right):
+            self._root.color = RED
+        self._root = self.__delete_min(self._root)
+        if not self.is_empty():
+            self._root.color = BLACK
+
+    def __delete_min(self, node):
+        if not node.left:
+            return None
+        if not self.__is_red(node.left) and not self.__is_red(node.left.left):
+            node = self.__move_red_left(node)
+        node.left = self.__delete_min(node.left)
+        return self.__balance(node)
+
+    def __move_red_right(self, node):
+        self.__flip_colors(node)
+        if not self.__is_red(node.left.left):
+            node = self.__rotate_right(node)
+        return node
+
+     # 3.3.39 delete maximum key in red-black tree, the java implementation is on the book,
+    # this is python implementation of the book's answer, there is a little bit different with
+    # delete_min function.
+    def delete_max(self):
+        # this is for keeping red-black tree's balance
+        if not self.__is_red(self._root.left) and not self.__is_red(self._root.right):
+            self._root.color = RED
+        self._root = self.__delete_max(self._root)
+        if not self.is_empty():
+            self._root.color = BLACK
+
+    def __delete_max(self, node):
+        if self.__is_red(node.left):
+            node = self.__rotate_right(node)
+        if not node.right:
+            return None
+        if not self.__is_red(node.right) and not self.__is_red(node.right.left):
+            node = self.__move_red_right(node)
+        node.right = self.__delete_max(node.right)
+        return self.__balance(node)
 
 if __name__ == '__main__':
     doctest.testmod()

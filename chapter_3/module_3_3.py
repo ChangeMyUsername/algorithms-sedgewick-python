@@ -111,6 +111,29 @@ class RBTree(object):
         node.left.color = BLACK
         node.right.color = BLACK
 
+    def get(self, key):
+        return self.__get(self._root)
+
+    def __get(self, node, key):
+        tmp = node
+        while tmp:
+            if tmp.key > key:
+                tmp = tmp.left
+            elif tmp.key < key:
+                tmp = tmp.right
+            else:
+                return tmp
+        return None
+
+    def min_val(self):
+        return self.__min_val(self._root)
+
+    def __min_val(self, node):
+        tmp = node
+        while tmp.left:
+            tmp = tmp.left
+        return tmp
+
     def put(self, key, value):
         self._root = self.__put(self._root, key, value)
         self._root.color = BLACK
@@ -186,7 +209,7 @@ class RBTree(object):
             node = self.__rotate_right(node)
         return node
 
-     # 3.3.39 delete maximum key in red-black tree, the java implementation is on the book,
+    # 3.3.39 delete maximum key in red-black tree, the java implementation is on the book,
     # this is python implementation of the book's answer, there is a little bit different with
     # delete_min function.
     def delete_max(self):
@@ -205,6 +228,36 @@ class RBTree(object):
         if not self.__is_red(node.right) and not self.__is_red(node.right.left):
             node = self.__move_red_right(node)
         node.right = self.__delete_max(node.right)
+        return self.__balance(node)
+
+    def delete(self, key):
+        if not self.__is_red(self._root.left) and not self.__is_red(self._root.right):
+            self._root.color = RED
+        self._root = self.__delete(self._root, key)
+        if not self.is_empty():
+            self._root.color = BLACK
+
+    def __delete(self, node, key):
+        if key  < node.key:
+            if not self.__is_red(node.left) and not self.__is_red(node.left.left):
+                node = self.__move_red_left(node)
+            node.left = self.__delete(node.left, key)
+        else:
+            if self.__is_red(node.left):
+                node = self.__rotate_right(node)
+
+            if key == node.key and node.right is None:
+                return None
+
+            if not self.__is_red(node.right) and not self.__is_red(node.right.left):
+                node = self.__move_red_right(node)
+
+            if key == node.key:
+                node.value = self.__get(node.right, self.__min_val(node.right).key)
+                node.key = self.__min_val(node.right).key
+                node.right = self.__delete_min(node.right)
+            else:
+                node.right = self.__delete(node.right, key)
         return self.__balance(node)
 
 if __name__ == '__main__':

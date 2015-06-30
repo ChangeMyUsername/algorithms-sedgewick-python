@@ -238,12 +238,10 @@ class BST(object):
             tmp = tmp.right
         return tmp
 
-    def min_sub_tree_val(self, node):
+    def __min_val(self, node):
         '''
         find the minimum value in the binary search tree which start with specific node.
         '''
-        if not node:
-            return None
         assert isinstance(node, Node)
 
         tmp = node
@@ -256,12 +254,7 @@ class BST(object):
         '''
         find the minimum value in the binary search tree.
         '''
-        if not self._root:
-            return None
-        tmp = self._root
-        while tmp.left:
-            tmp = tmp.left
-        return tmp
+        return self.__min_val(self._root)
 
     # 3.2.14 practice
     def select(self, k):
@@ -344,7 +337,7 @@ class BST(object):
                 return (node.left or node.right)
             # node's both side is not None.
             tmp = node
-            node = self.min_sub_tree_val(tmp.right)
+            node = self.__min_val(tmp.right)
             node.right = self.__delete_min(tmp.right)
             node.left = tmp.left
         node.size = self.node_size(node.left) + self.node_size(node.right) + 1

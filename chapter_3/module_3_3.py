@@ -158,8 +158,9 @@ class RBTree(object):
 
     def __flip_colors(self, node):
         assert node and node.left and node.right
-        assert (not self.__is_red(node) and self.__is_red(node.left) and self.__is_red(node.right) or
-         self.__is_red(node) and not self.__is_red(node.left) and not self.__is_red(node.right))
+        assert (not self.__is_red(node) and self.__is_red(node.left) and self.__is_red(node.right)
+                or self.__is_red(node)
+                and not self.__is_red(node.left) and not self.__is_red(node.right))
 
         node.color = RED if node.color == BLACK else BLACK
         node.left.color = RED if node.left.color == BLACK else BLACK
@@ -236,7 +237,8 @@ class RBTree(object):
 
     def __move_red_left(self, node):
         assert node is not None
-        assert self.__is_red(node) and not self.__is_red(node.left) and not self.__is_red(node.left.left)
+        assert (self.__is_red(node) and not self.__is_red(node.left)
+                and not self.__is_red(node.left.left))
 
         self.__flip_colors(node)
         # if node.right.left node is red, that means there is one more node can be "borrow",
@@ -380,18 +382,6 @@ class RBTree(object):
         tmp = self._root
         while tmp.right:
             tmp = tmp.right
-        return tmp
-
-    def min_val(self):
-        '''
-        find the minimum value in the binary search tree which start with specific node.
-        '''
-        if not self._root:
-            return None
-
-        tmp = self._root
-        while tmp.left:
-            tmp = tmp.left
         return tmp
 
     def keys(self):

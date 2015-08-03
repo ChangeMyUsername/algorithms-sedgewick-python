@@ -197,7 +197,7 @@ class LinearProbingHT(object):
     def keys(self):
         for index, k in enumerate(self._keys):
             if k:
-                yield self._vals[index]
+                yield k
 
 
 # 3.4.4 practice

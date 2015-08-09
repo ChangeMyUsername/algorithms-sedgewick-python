@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
+import copy
 import doctest
+import random
 from collections import defaultdict
 from basic_data_struct import Bag, Queue, Stack
 
@@ -37,7 +39,7 @@ class Graph(object):
     >>> g.number_of_self_loops()
     0
     >>> g
-    0 vertices, 13edges
+    0 vertices, 13 edges
     0: 6 2 1 5
     1: 0
     2: 0
@@ -52,10 +54,20 @@ class Graph(object):
     11: 9 12
     12: 11 9
     <BLANKLINE>
-    >>>
+    >>> g2 = Graph(graph=g)
+    >>> g2.add_edge(4, 9)
+    >>> g.has_edge(4, 9)
+    False
+    >>> g2.has_edge(4, 9)
+    True
+    >>> g2.has_edge(9, 4)
+    True
+    >>> g2.add_edge(4, 9)
+    >>> [i for i in g2.get_adjacent_vertices(4)]
+    [9, 5, 6, 3]
     """
 
-    def __init__(self, input_file=None):
+    def __init__(self, input_file=None, graph=None):
         self._vertex_size = 0
         self._edge_size = 0
         self._adj = {}
@@ -68,6 +80,11 @@ class Graph(object):
                 for i in range(1, self._edge_size):
                     a, b = lines[i].split()
                     self.add_edge(a, b)
+        # 4.1.3 practice, add a graph parameter for constructor method.
+        elif graph:
+            self._adj = copy.deepcopy(graph._adj)
+            self._vertex_size = graph.vertex_size()
+            self._edge_size = graph.edge_size()
 
     def vertex_size(self):
         if not self._vertex_size:
@@ -78,6 +95,9 @@ class Graph(object):
         return self._edge_size
 
     def add_edge(self, vertext_a, vertext_b):
+        # 4.1.5 practice, no self cycle or parallel edges.
+        if self.has_edge(vertext_a, vertext_b) or vertext_a == vertext_b:
+            return
         if vertext_a not in self._adj:
             self._adj[vertext_a] = Bag()
         if vertext_b not in self._adj:
@@ -86,6 +106,13 @@ class Graph(object):
         self._adj[vertext_b].add(vertext_a)
 
         self._edge_size += 1
+
+    # 4.1.4 practice, add has_edge method
+    def has_edge(self, vertext_a, vertext_b):
+        if vertext_a not in self._adj or vertext_b not in self._adj:
+            return False
+        edge = next((i for i in self._adj[vertext_a] if i == vertext_b), None)
+        return edge is not None
 
     def get_adjacent_vertices(self, vertex):
         return self._adj.get(vertex, None)
@@ -117,7 +144,7 @@ class Graph(object):
         return int(count / 2)
 
     def __repr__(self):
-        s = str(self._vertex_size) + ' vertices, ' + str(self._edge_size) + 'edges\n'
+        s = str(self._vertex_size) + ' vertices, ' + str(self._edge_size) + ' edges\n'
         for k in self._adj:
             try:
                 lst = ' '.join([vertex for vertex in self._adj[k]])
@@ -165,6 +192,9 @@ class DepthFirstPaths(object):
     def has_path_to(self, vertex):
         return self._marked[vertex]
 
+    def vertices_size(self):
+        return len(self._marked.keys())
+
     def path_to(self, vertex):
         if not self.has_path_to(vertex):
             return None
@@ -201,13 +231,21 @@ class BreadthFirstPaths(object):
     [0, 2, 4]
     >>> [i for i in bfp.path_to(5)]
     [0, 5]
+    >>> bfp.dist_to(4)
+    2
+    >>> bfp.dist_to(5)
+    1
+    >>> bfp.dist_to('not a vertex')
+    -1
     """
 
     def __init__(self, graph, start_vertex):
         self._marked = defaultdict(bool)
         self._edge_to = {}
+        self._dist = {}
         self._start = start_vertex
         self.bfs(graph, self._start)
+        self._distance = 1
 
     def bfs(self, graph, vertex):
         queue = Queue()
@@ -218,8 +256,10 @@ class BreadthFirstPaths(object):
             for v in graph.get_adjacent_vertices(tmp):
                 if not self._marked[v]:
                     self._edge_to[v] = tmp
+                    self._dist[v] = self._distance
                     self._marked[v] = True
                     queue.enqueue(v)
+            self._distance += 1
 
     def has_path_to(self, vertex):
         return self._marked[vertex]
@@ -235,6 +275,13 @@ class BreadthFirstPaths(object):
             tmp = self._edge_to[tmp]
         path.push(self._start)
         return path
+
+    # 4.1.13 practice, implement dist_to method which only takes constant time.
+    def dist_to(self, vertex):
+        return self._dist.get(vertex, -1)
+
+    def max_distance(self):
+        return self._distance
 
 
 class ConnectedComponent(object):
@@ -373,6 +420,45 @@ class TwoColor(object):
 
     def is_bipartite(self):
         return self._is_twocolorable
+
+
+# 4.1.16 practice, implement GraphProperties class.
+class GraphProperties(object):
+
+    def __init__(self, graph):
+        self._eccentricities = {}
+        self._diameter = 0
+        self._radius = 9999999999
+        dfp = DepthFirstPaths(graph, next(graph.vertices()))
+        if dfp.vertices_size() != graph.vertex_size():
+            raise Exception('graph is not connected.')
+
+        for vertex in graph.vertices():
+            bfp = BreadthFirstPaths(graph, vertex)
+            dist = bfp.max_distance()
+            if dist < self._radius:
+                self._radius = dist
+            if dist > self._diameter:
+                self._diameter = dist
+            self._eccentricities[vertex] = dist
+
+    def eccentricity(self, vertex):
+        return self._eccentricities.get(vertex, -1)
+
+    def diameter(self):
+        return self._diameter
+
+    def radius(self):
+        return self._radius
+
+    def center(self):
+        centers = [k for k, v in self._eccentricities.items() if v == self._radius]
+        random.shuffle(centers)
+        return centers[0]
+
+    # 4.1.17 practice
+    def girth(self):
+        pass
 
 if __name__ == '__main__':
     doctest.testmod()

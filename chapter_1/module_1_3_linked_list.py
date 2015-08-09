@@ -6,6 +6,7 @@ from common import Node
 
 
 class LinkedList(object):
+
     '''
     linked list practice.
     >>> ######### init linked list test case.
@@ -85,8 +86,9 @@ class LinkedList(object):
     ...    print(node.val, end=' ')
     ...    node = node.next_node
     ...
-    9 8 7 6 5 4 3 2 1 
+    9 8 7 6 5 4 3 2 1
     '''
+
     def __init__(self):
         self._first = None
         self._size = 0

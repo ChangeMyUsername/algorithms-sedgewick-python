@@ -53,24 +53,11 @@ class LinkedList(object):
     ...
     >>> lst.remove(1)
     >>> lst.remove(3)
-    >>> for i in lst:
-    ...     print(i, end=' ')
-    ...
-    2 0 2 4 5 6 7 8 9 
+    >>> [i for i in lst]
+    [2, 0, 2, 4, 5, 6, 7, 8, 9]
     >>> lst.remove(2)
-    >>> for i in lst:
-    ...     print(i, end=' ')
-    ...
-    0 4 5 6 7 8 9 
-    >>> lst2  = LinkedList()
-    >>> for i in range(10):
-    ...     lst2.push_back(3)
-    ...
-    >>> lst2.remove(3)
-    >>> lst2.size()
-    1
-    >>> lst2.is_empty()
-    False
+    >>> [i for i in lst]
+    [0, 4, 5, 6, 7, 8, 9]
     '''
 
     def __init__(self):

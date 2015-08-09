@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- encoding:UTF-8 -*-
+
+
 class Node(object):
 
     def __init__(self, val):

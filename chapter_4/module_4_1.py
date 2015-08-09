@@ -2,17 +2,57 @@
 # -*- encoding:UTF-8 -*-
 import doctest
 from collections import defaultdict
-from chapter_1.module_1_3 import Bag, Queue, Stack
+from basic_data_struct import Bag, Queue, Stack
 
 
 class Graph(object):
 
     """
-      Undirected graph implementation. The space is about O(V + E)
+      Undirected graph implementation. The cost of space is proportional to O(V + E)
     (V is the number of vertices and E is the number of edges). Adding
     an edge only takes constant time. The running time of
     Checking if node v is adjacent to w and traveling all adjacent point of v
-     is related to the degree of v.
+    is related to the degree of v. This implementation supports multiple
+    input data types(immutable).
+    TODO: Test file input.
+    >>> g = Graph()
+    >>> test_data = [(0, 5), (4, 3), (0, 1), (9, 12), (6, 4), (5, 4), (0, 2),  # from book tinyG.txt
+    ...              (11, 12), (9, 10), (0, 6), (7, 8), (9, 11), (5, 3)]
+    >>> for a, b in test_data:
+    ...     g.add_edge(a, b)
+    ...
+    >>> g.vertex_size()
+    13
+    >>> len(test_data) == g.edge_size()
+    True
+    >>> adjacent_vertices = ' '.join([str(v) for v in g.get_adjacent_vertices(0)])
+    >>> adjacent_vertices
+    '6 2 1 5'
+    >>> g.degree(0)
+    4
+    >>> g.degree(9)
+    3
+    >>> g.max_degree()
+    4
+    >>> g.number_of_self_loops()
+    0
+    >>> g
+    0 vertices, 13edges
+    0: 6 2 1 5
+    1: 0
+    2: 0
+    3: 5 4
+    4: 5 6 3
+    5: 3 4 0
+    6: 0 4
+    7: 8
+    8: 7
+    9: 11 10 12
+    10: 9
+    11: 9 12
+    12: 11 9
+    <BLANKLINE>
+    >>>
     """
 
     def __init__(self, input_file=None):
@@ -30,6 +70,8 @@ class Graph(object):
                     self.add_edge(a, b)
 
     def vertex_size(self):
+        if not self._vertex_size:
+            return len(self._adj.keys())
         return self._vertex_size
 
     def edge_size(self):
@@ -72,29 +114,45 @@ class Graph(object):
             for vertex in self._adj[k]:
                 if vertex == k:
                     count += 1
-        return count / 2
+        return int(count / 2)
 
-    def __str__(self):
+    def __repr__(self):
         s = str(self._vertex_size) + ' vertices, ' + str(self._edge_size) + 'edges\n'
         for k in self._adj:
             try:
                 lst = ' '.join([vertex for vertex in self._adj[k]])
-            except ValueError:
+            except TypeError:
                 lst = ' '.join([str(vertex) for vertex in self._adj[k]])
-            s += '{}: {}'.format(k, lst)
+            s += '{}: {}\n'.format(k, lst)
         return s
 
 
 class DepthFirstPaths(object):
 
     """
-    Undirected graph depth-first searching algorithms implementation.
+      Undirected graph depth-first searching algorithms implementation.
+    Depth-First-Search recurvisely reaching all vertices that are adjacent to it,
+    and then treat these adjacent_vertices as start_vertex and searching again util all the
+    connected vertices is marked.
+    >>> g = Graph()
+    >>> test_data = [(0, 5), (2, 4), (2, 3), (1, 2), (0, 1), (3, 4), (3, 5), (0, 2)]
+    >>> for a, b in test_data:
+    ...     g.add_edge(a, b)
+    ...
+    >>> dfp = DepthFirstPaths(g,  0)
+    >>> [dfp.has_path_to(i) for i in range(6)]
+    [True, True, True, True, True, True]
+    >>> [i for i in dfp.path_to(4)]
+    [0, 2, 3, 4]
+    >>> [i for i in dfp.path_to(1)]
+    [0, 2, 1]
     """
 
     def __init__(self, graph, start_vertex):
         self._marked = defaultdict(bool)
         self._edge_to = {}
         self._start = start_vertex
+        self.dfs(graph, self._start)
 
     def dfs(self, graph, vertex):
         self._marked[vertex] = True
@@ -123,6 +181,26 @@ class DepthFirstPaths(object):
 class BreadthFirstPaths(object):
 
     """
+      Breadth-First-Search algorithm implementation. This algorithm
+    uses queue as assist data structure. First enqueue the start_vertex,
+    marked it as visited and dequeue the vertex, then marked all the
+    adjacent vertices of start_vertex and enqueue them. Continue this process
+    util all connected vertices are marked.
+      With Breadth-First-Search algorithm, we can find the shortest path from x to y.
+    The worst scenario of running time is proportional to O(V + E) (V is the number
+    of vertices and E is the number of edges).
+    >>> g = Graph()
+    >>> test_data = [(0, 5), (2, 4), (2, 3), (1, 2), (0, 1), (3, 4), (3, 5), (0, 2)]
+    >>> for a, b in test_data:
+    ...     g.add_edge(a, b)
+    ...
+    >>> bfp = BreadthFirstPaths(g, 0)
+    >>> [bfp.has_path_to(i) for i in range(6)]
+    [True, True, True, True, True, True]
+    >>> [i for i in bfp.path_to(4)]
+    [0, 2, 4]
+    >>> [i for i in bfp.path_to(5)]
+    [0, 5]
     """
 
     def __init__(self, graph, start_vertex):
@@ -162,6 +240,32 @@ class BreadthFirstPaths(object):
 class ConnectedComponent(object):
 
     """
+      Construct connected components using Depth-First-Search algorithm.
+    Using this algorithm we need to construct all the connected components
+    from the beginning which the cost of running time and space are both
+    proportional to O(V + E). But it takes only constant time for querying
+    if two vertices are connected.
+    >>> g = Graph()
+    >>> test_data = [(0, 5), (4, 3), (0, 1), (9, 12), (6, 4), (5, 4), (0, 2),
+    ...              (11, 12), (9, 10), (0, 6), (7, 8), (9, 11), (5, 3)]
+    >>> for a, b in test_data:
+    ...     g.add_edge(a, b)
+    ...
+    >>> cc = ConnectedComponent(g)
+    >>> cc.connected(0, 8)
+    False
+    >>> cc.connected(0, 4)
+    True
+    >>> cc.connected(0, 9)
+    False
+    >>> cc.vertex_id(0)
+    0
+    >>> cc.vertex_id(7)
+    1
+    >>> cc.vertex_id(11)
+    2
+    >>> cc.count()
+    3
     """
 
     def __init__(self, graph):
@@ -178,8 +282,8 @@ class ConnectedComponent(object):
         self._marked[vertex] = True
         self._id[vertex] = self._count
         for s in graph.get_adjacent_vertices(vertex):
-            if not self._marked[vertex]:
-                self.dfs(graph, vertex)
+            if not self._marked[s]:
+                self.dfs(graph, s)
 
     def connected(self, vertex_1, vertex_2):
         return self._id[vertex_1] == self._id[vertex_2]
@@ -192,6 +296,27 @@ class ConnectedComponent(object):
 
 
 class Cycle(object):
+
+    """
+    Using Depth-First-Search algorithm to check whether a graph has a cycle.
+    if a graph is tree-like structure(no cycle), then has_cycle is never reached.
+    >>> g = Graph()
+    >>> test_data = [(0, 1), (0, 2), (0, 6), (0, 5), (3, 5), (6, 4)]
+    >>> for a, b in test_data:
+    ...     g.add_edge(a, b)
+    ...
+    >>> cycle = Cycle(g)
+    >>> cycle.has_cycle()
+    False
+    >>> g2 = Graph()
+    >>> has_cycle_data = [(0, 1), (0, 2), (0, 6), (0, 5), (3, 5), (6, 4), (3, 4)]
+    >>> for a, b in has_cycle_data:
+    ...     g2.add_edge(a, b)
+    ...
+    >>> cycle2 = Cycle(g2)
+    >>> cycle2.has_cycle()
+    True
+    """
 
     def __init__(self, graph):
         self._marked = defaultdict(bool)
@@ -207,13 +332,25 @@ class Cycle(object):
                 self.dfs(graph, adj, vertex_1)
             else:
                 if adj != vertex_2:
-                    self.has_cycle = True
+                    self._has_cycle = True
 
     def has_cycle(self):
         return self._has_cycle
 
 
 class TwoColor(object):
+
+    """
+    Using Depth-First-Search algorithm to solve Two-Color problems.
+    >>> g = Graph()
+    >>> test_data = [(0, 5), (2, 4), (2, 3), (1, 2), (0, 1), (3, 4), (3, 5), (0, 2)]
+    >>> for a, b in test_data:
+    ...     g.add_edge(a, b)
+    ...
+    >>> tc = TwoColor(g)
+    >>> tc.is_bipartite()
+    False
+    """
 
     def __init__(self, graph):
         self._marked = defaultdict(bool)

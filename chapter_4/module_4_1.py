@@ -143,6 +143,18 @@ class Graph(object):
                     count += 1
         return int(count / 2)
 
+    # 4.1.31 check the number of parallel edges with linear running time.
+    def number_of_parallel_edges(self):
+        count = 0
+        for k in self._adj:
+            tmp = set()
+            for vertex in self._adj[k]:
+                if vertex not in tmp:
+                    tmp.add(vertex)
+                else:
+                    count += 1
+        return int(count / 2)
+
     def __repr__(self):
         s = str(self._vertex_size) + ' vertices, ' + str(self._edge_size) + ' edges\n'
         for k in self._adj:
@@ -242,10 +254,10 @@ class BreadthFirstPaths(object):
     def __init__(self, graph, start_vertex):
         self._marked = defaultdict(bool)
         self._edge_to = {}
-        self._dist = {}
+
         self._start = start_vertex
+        self._dist = {start_vertex: 0}
         self.bfs(graph, self._start)
-        self._distance = 1
 
     def bfs(self, graph, vertex):
         queue = Queue()
@@ -256,10 +268,9 @@ class BreadthFirstPaths(object):
             for v in graph.get_adjacent_vertices(tmp):
                 if not self._marked[v]:
                     self._edge_to[v] = tmp
-                    self._dist[v] = self._distance
+                    self._dist[v] = self._dist[tmp] + 1
                     self._marked[v] = True
                     queue.enqueue(v)
-            self._distance += 1
 
     def has_path_to(self, vertex):
         return self._marked[vertex]
@@ -281,7 +292,7 @@ class BreadthFirstPaths(object):
         return self._dist.get(vertex, -1)
 
     def max_distance(self):
-        return self._distance
+        return max(self._dist.values())
 
 
 class ConnectedComponent(object):
@@ -425,11 +436,28 @@ class TwoColor(object):
 # 4.1.16 practice, implement GraphProperties class.
 class GraphProperties(object):
 
+    """
+    >>> g = Graph()
+    >>> test_data = [(0, 5), (2, 4), (2, 3), (1, 2), (0, 1), (3, 4), (3, 5), (0, 2)]
+    >>> for a, b in test_data:
+    ...     g.add_edge(a, b)
+    ...
+    >>> gp = GraphProperties(g)
+    >>> gp.eccentricity(0)
+    2
+    >>> gp.eccentricity(1)
+    2
+    >>> gp.diameter()
+    2
+    >>> gp.radius()
+    2
+    """
+
     def __init__(self, graph):
         self._eccentricities = {}
         self._diameter = 0
         self._radius = 9999999999
-        dfp = DepthFirstPaths(graph, next(graph.vertices()))
+        dfp = DepthFirstPaths(graph, random.sample(graph.vertices(), 1)[0])
         if dfp.vertices_size() != graph.vertex_size():
             raise Exception('graph is not connected.')
 
@@ -459,6 +487,7 @@ class GraphProperties(object):
     # 4.1.17 practice
     def girth(self):
         pass
+
 
 if __name__ == '__main__':
     doctest.testmod()

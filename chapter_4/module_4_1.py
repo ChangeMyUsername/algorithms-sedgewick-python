@@ -70,8 +70,9 @@ class Graph(object):
     def __init__(self, input_file=None, graph=None):
         self._vertex_size = 0
         self._edge_size = 0
-        self._adj = {}
+        self._adj = defaultdict(Bag)
 
+        # this is not tested yet.
         if input_file:
             with open(input_file) as f:
                 lines = [l.rstrip('\n') for l in f]
@@ -98,10 +99,6 @@ class Graph(object):
         # 4.1.5 practice, no self cycle or parallel edges.
         if self.has_edge(vertext_a, vertext_b) or vertext_a == vertext_b:
             return
-        if vertext_a not in self._adj:
-            self._adj[vertext_a] = Bag()
-        if vertext_b not in self._adj:
-            self._adj[vertext_b] = Bag()
         self._adj[vertext_a].add(vertext_b)
         self._adj[vertext_b].add(vertext_a)
 
@@ -115,7 +112,7 @@ class Graph(object):
         return edge is not None
 
     def get_adjacent_vertices(self, vertex):
-        return self._adj.get(vertex, None)
+        return self._adj[vertex]
 
     def vertices(self):
         return self._adj.keys()

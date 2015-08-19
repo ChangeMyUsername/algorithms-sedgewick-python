@@ -3,7 +3,7 @@
 import copy
 import doctest
 from collections import defaultdict
-from basic_data_struct import Bag
+from basic_data_struct import Bag, Stack, Queue
 
 
 class Digragh(object):
@@ -104,16 +104,32 @@ class Digragh(object):
 class DirectedDFS(object):
 
     """
+      Depth-First-Search algorithm with directed graph, which can solve directed
+    graph reachable problem.
+    >>> graph = Digragh()
+    >>> test_data = [(4, 2), (2, 3), (3, 2), (6, 0), (0, 1), (2, 0),
+    ...              (11, 12), (12, 9), (9, 10), (9, 11), (8, 9), (10, 12),
+    ...              (11, 4), (4, 3), (3, 5), (7, 8), (8, 7), (5, 4), (0, 5),
+    ...              (6, 4), (6, 9), (7, 6)]
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> dfs = DirectedDFS(graph, 1)
+    >>> [i for i in graph.vertices() if dfs.marked(i)]
+    [1]
+    >>> dfs1 = DirectedDFS(graph, 2)
+    >>> [i for i in graph.vertices() if dfs1.marked(i)]
+    [0, 1, 2, 3, 4, 5]
+    >>> dfs2 = DirectedDFS(graph, 1, 2, 6)
+    >>> [i for i in graph.vertices() if dfs2.marked(i)]
+    [0, 1, 2, 3, 4, 5, 6, 9, 10, 11, 12]
     """
 
-    def __init__(self, graph, start=None, sources=None):
+    def __init__(self, graph, *sources):
         self._marked = defaultdict(bool)
-        if start:
-            self.dfs(graph, start)
-        elif sources:
-            for vertex in sources:
-                if not self._marked[vertex]:
-                    self.dfs(graph, vertex)
+        for vertex in sources:
+            if not self._marked[vertex]:
+                self.dfs(graph, vertex)
 
     def dfs(self, graph, vertex):
         self._marked[vertex] = True
@@ -123,6 +139,127 @@ class DirectedDFS(object):
 
     def marked(self, vertex):
         return self._marked[vertex]
+
+
+class DirectedCycle(object):
+
+    """
+      Using Depth-First-Search algorithm to check
+    whether a cycle exists in a directed graph.
+    There is an assist attribute call _on_stack,
+    if an adjacent vertext is in _on_stack(True),
+    that means a cycle exists.
+    >>> graph = Digragh()
+    >>> test_data = [(4, 2), (2, 3), (3, 2), (6, 0), (0, 1), (2, 0),
+    ...              (11, 12), (12, 9), (9, 10), (9, 11), (8, 9), (10, 12),
+    ...              (11, 4), (4, 3), (3, 5), (7, 8), (8, 7), (5, 4), (0, 5),
+    ...              (6, 4), (6, 9), (7, 6)]
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> dc = DirectedCycle(graph)
+    >>> dc.has_cycle()
+    True
+    >>> [i for i in dc.cycle()]
+    [3, 5, 4, 3]
+    """
+
+    def __init__(self, graph):
+        self._marked = defaultdict(bool)
+        self._edge_to = {}
+        self._on_stack = defaultdict(bool)
+        self._cycle = Stack()
+        for v in graph.vertices():
+            if not self._marked[v]:
+                self.dfs(graph, v)
+
+    def dfs(self, graph, vertex):
+        self._on_stack[vertex] = True
+        self._marked[vertex] = True
+
+        for v in graph.get_adjacent_vertices(vertex):
+            if self.has_cycle():
+                return
+            elif not self._marked[v]:
+                self._edge_to[v] = vertex
+                self.dfs(graph, v)
+            elif self._on_stack[v]:
+                tmp = vertex
+                while tmp != v:
+                    self._cycle.push(tmp)
+                    tmp = self._edge_to[tmp]
+                self._cycle.push(v)
+                self._cycle.push(vertex)
+        self._on_stack[vertex] = False
+
+    def has_cycle(self):
+        return not self._cycle.is_empty()
+
+    def cycle(self):
+        return self._cycle
+
+
+class DepthFirstOrder(object):
+
+    def __init__(self, graph):
+        self._pre = Queue()
+        self._post = Queue()
+        self._reverse_post = Stack()
+        self._marked = defaultdict(bool)
+
+        for v in graph.vertices():
+            if not self._marked[v]:
+                self.dfs(graph, v)
+
+    def dfs(self, graph, vertex):
+        self._pre.enqueue(vertex)
+        self._marked[vertex] = True
+        for v in graph.get_adjacent_vertices(vertex):
+            if not self._marked[v]:
+                self.dfs(graph, v)
+
+        self._post.enqueue(vertex)
+        self._reverse_post.push(vertex)
+
+    def prefix(self):
+        return self._pre
+
+    def postfix(self):
+        return self._post
+
+    def reverse_postfix(self):
+        return self._reverse_post
+
+
+class Topological(object):
+
+    """
+    >>> test_data = [(2, 3), (0, 6), (0, 1), (2, 0), (11, 12),
+    ...              (9, 12), (9, 10), (9, 11), (3, 5), (8, 7),
+    ...              (5, 4), (0, 5), (6, 4), (6, 9), (7, 6)]
+    >>> graph = Digragh()
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> topo = Topological(graph)
+    >>> topo.is_DAG()
+    True
+    >>> [i for i in topo.order()]
+    [8, 7, 2, 3, 0, 6, 9, 10, 11, 12, 1, 5, 4]
+    """
+
+    def __init__(self, graph):
+        cycle_finder = DirectedCycle(graph)
+        self._order = None
+        if not cycle_finder.has_cycle():
+            df_order = DepthFirstOrder(graph)
+            self._order = df_order.reverse_postfix()
+
+    def order(self):
+        return self._order
+
+    def is_DAG(self):
+        return self._order is not None
 
 if __name__ == '__main__':
     doctest.testmod()

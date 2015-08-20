@@ -15,6 +15,7 @@ class Digragh(object):
     self._adj.keys() is only for the vertices which outdegree is not 0.
     Directed graph is almost the same with Undirected graph,many codes
     from Gragh can be reusable.
+    >>> # 4.2.6 practice
     >>> graph = Digragh()
     >>> test_data = [(4, 2), (2, 3), (3, 2), (6, 0), (0, 1), (2, 0),
     ...              (11, 12), (12, 9), (9, 10), (9, 11), (8, 9), (10, 12),
@@ -56,6 +57,7 @@ class Digragh(object):
         self._adj = defaultdict(Bag)
         self._vertices = set()
 
+        # 4.2.3 practice, generate graph from another graph.
         if graph:
             self._adj = copy.deepcopy(graph._adj)
             self._vertex_size = graph.vertex_size()
@@ -68,6 +70,9 @@ class Digragh(object):
         return self._edge_size
 
     def add_edge(self, start, end):
+        # 4.2.5 practice, parallel edge and self cycle are not allowed
+        if self.has_edge(start, end) or start == end:
+            return
         self._vertices.add(start)
         self._vertices.add(end)
         self._adj[start].add(end)
@@ -86,6 +91,7 @@ class Digragh(object):
                 reverse_graph.add_edge(adjacent_vertext, vertex)
         return reverse_graph
 
+    # 4.2.4 practice, add has_edge method for Digraph
     def has_edge(self, start, end):
         edge = next((i for i in self._adj[start] if i == end), None)
         return edge is not None
@@ -260,6 +266,86 @@ class Topological(object):
 
     def is_DAG(self):
         return self._order is not None
+
+
+class KosarajuSCC(object):
+
+    """
+    >>> test_data = ((4, 2), (2, 3), (3, 2), (6, 0), (0, 1), (2, 0),
+    ...              (11, 12), (12, 9), (9, 10), (9, 11), (7, 9), (10, 12),
+    ...              (11, 4), (4, 3), (3, 5), (6, 8), (8, 6), (5, 4), (0, 5),
+    ...              (6, 4), (6, 9), (7, 6))
+    >>> graph = Digragh()
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> scc = KosarajuSCC(graph)
+    >>> count = scc.count()
+    >>> output = defaultdict(Queue)
+    >>> for v in graph.vertices():
+    ...     output[scc.vertex_id(v)].enqueue(v)
+    ...
+    >>> ['{}: {}'.format(k, ', '.join(map(str, v))) for k, v in output.items()]
+    ['0: 1', '1: 0, 2, 3, 4, 5', '2: 9, 10, 11, 12', '3: 6, 8', '4: 7']
+    """
+
+    def __init__(self, graph):
+        self._marked = defaultdict(bool)
+        self._id = {}
+        self._count = 0
+        order = DepthFirstOrder(graph.reverse())
+        for v in order.reverse_postfix():
+            if not self._marked[v]:
+                self.dfs(graph, v)
+                self._count += 1
+
+    def dfs(self, graph, vertex):
+        self._marked[vertex] = True
+        self._id[vertex] = self._count
+        for v in graph.get_adjacent_vertices(vertex):
+            if not self._marked[v]:
+                self.dfs(graph, v)
+
+    def strongly_connected(self, vertex_1, vertex_2):
+        return self._id[vertex_1] == self._id[vertex_2]
+
+    def vertex_id(self, vertex):
+        return self._id[vertex]
+
+    def count(self):
+        return self._count
+
+
+# 4.2.7 practice, implement Degrees class
+# which compute degrees of vertices in a directed graph.
+class Degrees(object):
+
+    def __init__(self, graph):
+        self._indegree = defaultdict(int)
+        self._outdegree = defaultdict(int)
+        for v in graph.vertices():
+            for adj in graph.get_adjacent_vertices(v):
+                self._indegree[adj] += 1
+                self._outdegree[v] += 1
+
+        self._sources = (k for k, v in self._indegree.iteritems() if v == 0)
+        self._sinks = (k for k, v in self._outdegree.iteritems() if v == 0)
+        self._is_map = any(k for k, v in self._outdegree.iteritems() if v == 1)
+
+    def indegree(self, vertex):
+        return self._indegree[vertex]
+
+    def outdegree(self, vertex):
+        return self._outdegree[vertex]
+
+    def sources(self):
+        return self._sources
+
+    def sinks(self):
+        return self._sinks
+
+    def is_map(self):
+        return self._is_map
 
 if __name__ == '__main__':
     doctest.testmod()

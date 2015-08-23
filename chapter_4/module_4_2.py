@@ -87,8 +87,8 @@ class Digragh(object):
     def reverse(self):
         reverse_graph = Digragh()
         for vertex in self.vertices():
-            for adjacent_vertext in self.get_adjacent_vertices(vertex):
-                reverse_graph.add_edge(adjacent_vertext, vertex)
+            for adjacent_vertex in self.get_adjacent_vertices(vertex):
+                reverse_graph.add_edge(adjacent_vertex, vertex)
         return reverse_graph
 
     # 4.2.4 practice, add has_edge method for Digraph
@@ -139,9 +139,9 @@ class DirectedDFS(object):
 
     def dfs(self, graph, vertex):
         self._marked[vertex] = True
-        for adjacent_vertext in graph.get_adjacent_vertices(vertex):
-            if not self._marked[adjacent_vertext]:
-                self.dfs(graph, adjacent_vertext)
+        for adjacent_vertex in graph.get_adjacent_vertices(vertex):
+            if not self._marked[adjacent_vertex]:
+                self.dfs(graph, adjacent_vertex)
 
     def marked(self, vertex):
         return self._marked[vertex]
@@ -153,7 +153,7 @@ class DirectedCycle(object):
       Using Depth-First-Search algorithm to check
     whether a cycle exists in a directed graph.
     There is an assist attribute call _on_stack,
-    if an adjacent vertext is in _on_stack(True),
+    if an adjacent vertex is in _on_stack(True),
     that means a cycle exists.
     >>> graph = Digragh()
     >>> test_data = [(4, 2), (2, 3), (3, 2), (6, 0), (0, 1), (2, 0),
@@ -240,6 +240,16 @@ class DepthFirstOrder(object):
 class Topological(object):
 
     """
+      Topological-Sorting implementation. Topological-Sorting
+    has to be applied on a directed acyclic graph. If there is
+    an edge u->w, then u is before w. This implementation is using
+    Depth-First-Search algorithm, for any edge v->w, dfs(w)
+    will return before dfs(v), because the input graph should
+    not contain any cycle.
+      Another Topological-Sorting implementation is using queue to
+    enqueue a vertex which indegree is 0. Then dequeue and marked
+    it, enqueue all its adjacent vertex util all the vertices in the
+    graph is marked. This implementation is not given.
     >>> test_data = [(2, 3), (0, 6), (0, 1), (2, 0), (11, 12),
     ...              (9, 12), (9, 10), (9, 11), (3, 5), (8, 7),
     ...              (5, 4), (0, 5), (6, 4), (6, 9), (7, 6)]
@@ -316,21 +326,92 @@ class KosarajuSCC(object):
         return self._count
 
 
+class TransitiveClosure(object):
+
+    """
+      This class can check if v is reachable
+    from w in a directed graph using DirectedDFS.
+    The cost of running time is proportional to
+    O(V(V + E)), and the cost of space is proportional
+    to O(V*V), so this is not a good solution for
+    large scale graphs.
+    >>> test_data = ((4, 2), (2, 3), (3, 2), (6, 0), (0, 1), (2, 0),
+    ...              (11, 12), (12, 9), (9, 10), (9, 11), (7, 9), (10, 12),
+    ...              (11, 4), (4, 3), (3, 5), (6, 8), (8, 6), (5, 4), (0, 5),
+    ...              (6, 4), (6, 9), (7, 6))
+    >>> graph = Digragh()
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> tc = TransitiveClosure(graph)
+    >>> tc.reachable(1, 5)
+    False
+    >>> tc.reachable(1, 0)
+    False
+    >>> tc.reachable(0, 1)
+    True
+    >>> tc.reachable(0, 9)
+    False
+    >>> tc.reachable(8, 12)
+    True
+    """
+
+    def __init__(self, graph):
+        self._all = {}
+        for vertex in graph.vertices():
+            self._all[vertex] = DirectedDFS(graph, vertex)
+
+    def reachable(self, start, end):
+        return self._all[start].marked(end)
+
+
 # 4.2.7 practice, implement Degrees class
 # which compute degrees of vertices in a directed graph.
 class Degrees(object):
 
+    """
+    >>> test_data = ((4, 2), (2, 3), (3, 2), (6, 0), (0, 1), (2, 0),
+    ...              (11, 12), (12, 9), (9, 10), (9, 11), (7, 9), (10, 12),
+    ...              (11, 4), (4, 3), (3, 5), (6, 8), (8, 6), (5, 4), (0, 5),
+    ...              (6, 4), (6, 9), (7, 6))
+    >>> graph = Digragh()
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> degree = Degrees(graph)
+    >>> degree.indegree(0)
+    2
+    >>> degree.outdegree(0)
+    2
+    >>> degree.indegree(1)
+    1
+    >>> degree.outdegree(1)
+    0
+    >>> degree.indegree(9)
+    3
+    >>> degree.outdegree(9)
+    2
+    >>> degree.is_map()
+    False
+    >>> [i for i in degree.sources()]
+    []
+    >>> [j for j in degree.sinks()]
+    [1]
+    """
+
     def __init__(self, graph):
         self._indegree = defaultdict(int)
         self._outdegree = defaultdict(int)
+        length = 0
         for v in graph.vertices():
+            length += 1
             for adj in graph.get_adjacent_vertices(v):
                 self._indegree[adj] += 1
                 self._outdegree[v] += 1
 
-        self._sources = (k for k, v in self._indegree.iteritems() if v == 0)
-        self._sinks = (k for k, v in self._outdegree.iteritems() if v == 0)
-        self._is_map = any(k for k, v in self._outdegree.iteritems() if v == 1)
+        self._sources = (k for k, v in self._indegree.items() if v == 0)
+        self._sinks = (k for k, v in self._outdegree.items() if v == 0)
+        self._is_map = len([k for k, v in self._outdegree.items() if v == 1]) == length
 
     def indegree(self, vertex):
         return self._indegree[vertex]
@@ -346,6 +427,41 @@ class Degrees(object):
 
     def is_map(self):
         return self._is_map
+
+
+# 4.2.20 practice, check if euler cycle exists.
+class Euler(object):
+
+    """
+    >>> test_data = ((4, 2), (2, 3), (3, 2), (6, 0), (0, 1), (2, 0),
+    ...              (11, 12), (12, 9), (9, 10), (9, 11), (7, 9), (10, 12),
+    ...              (11, 4), (4, 3), (3, 5), (6, 8), (8, 6), (5, 4), (0, 5),
+    ...              (6, 4), (6, 9), (7, 6))
+    >>> graph = Digragh()
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> euler = Euler(graph)
+    >>> euler.is_euler_cycle_exists()
+    False
+    """
+
+    def __init__(self, graph):
+        self._indegree = defaultdict(int)
+        self._outdegree = defaultdict(int)
+        length = 0
+        for v in graph.vertices():
+            length += 1
+            for adj in graph.get_adjacent_vertices(v):
+                self._indegree[adj] += 1
+                self._outdegree[v] += 1
+
+        self._euler_cycle_exists = len([k for k, v in self._indegree.items()
+                                        if self._outdegree[k] == v]) == length
+
+    def is_euler_cycle_exists(self):
+        return self._euler_cycle_exists
+
 
 if __name__ == '__main__':
     doctest.testmod()

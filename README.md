@@ -1,2 +1,5 @@
 # algorithms-sedgewick-python #
->    Algorthms(4th edition) by Robert Sedgewick and Kevin Wayne exercises in python, all the codes can be run with doctest. Those non-programming exercises will be excluded, and some exercises are still unsolved. If there are more python solutions for this book, please bring it up, pull requests and issues are always welcomed.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://algs4.cs.princeton.edu/home/">Algorthms(4th edition) by Robert Sedgewick and Kevin Wayne</a> exercises in python, all the codes can be run with doctest. Those non-programming exercises will be excluded, and some exercises need to take more time to figure it out.
+
+More python algorithms can be found in <a  href="http://interactivepython.org/runestone/static/pythonds/index.html">here</a>

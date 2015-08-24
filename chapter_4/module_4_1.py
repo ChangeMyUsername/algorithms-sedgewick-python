@@ -39,7 +39,7 @@ class Graph(object):
     >>> g.number_of_self_loops()
     0
     >>> g
-    0 vertices, 13 edges
+    13 vertices, 13 edges
     0: 6 2 1 5
     1: 0
     2: 0
@@ -153,7 +153,7 @@ class Graph(object):
         return int(count / 2)
 
     def __repr__(self):
-        s = str(self._vertex_size) + ' vertices, ' + str(self._edge_size) + ' edges\n'
+        s = str(self.vertex_size()) + ' vertices, ' + str(self._edge_size) + ' edges\n'
         for k in self._adj:
             try:
                 lst = ' '.join([vertex for vertex in self._adj[k]])

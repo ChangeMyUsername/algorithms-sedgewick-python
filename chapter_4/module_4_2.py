@@ -62,6 +62,7 @@ class Digragh(object):
             self._adj = copy.deepcopy(graph._adj)
             self._vertex_size = graph.vertex_size()
             self._edge_size = graph.edge_size()
+            self._vertices = copy.copy(graph.vertices())
 
     def vertex_size(self):
         return len(self._vertices)
@@ -395,8 +396,6 @@ class Degrees(object):
     False
     >>> [i for i in degree.sources()]
     []
-    >>> [j for j in degree.sinks()]
-    [1]
     """
 
     def __init__(self, graph):
@@ -461,6 +460,47 @@ class Euler(object):
 
     def is_euler_cycle_exists(self):
         return self._euler_cycle_exists
+
+
+# 4.2.24 practice, check if a graph contains hamilton path,
+# the following step is very simple and is given in the book.
+def hamilton_path_exists(graph):
+    """
+    >>> test_data = [(2, 3), (0, 6), (0, 1), (2, 0), (11, 12),
+    ...              (9, 12), (9, 10), (9, 11), (3, 5), (8, 7),
+    ...              (5, 4), (0, 5), (6, 4), (6, 9), (7, 6)]
+    >>> graph = Digragh()
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> graph = Digragh()
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> hamilton_path_exists(graph)
+    False
+    >>> graph_2 = Digragh(graph)
+    >>> graph_2.add_edge(7, 2)
+    >>> graph_2.add_edge(3, 0)
+    >>> graph_2.add_edge(12, 1)
+    >>> graph_2.add_edge(1, 5)
+    >>> graph_2.add_edge(10, 11)
+    >>> hamilton_path_exists(graph_2)
+    True
+    """
+
+    ts = Topological(graph)
+    vertices = [v for v in ts.order()]
+    has_path = True
+    for i in range(len(vertices) - 1):
+        if not graph.has_edge(vertices[i], vertices[i+1]):
+            has_path = False
+    return has_path
+
+
+# 4.2.25 practice
+def unique_topologial_sort_order(graph):
+    return hamilton_path_exists(graph)
 
 
 if __name__ == '__main__':

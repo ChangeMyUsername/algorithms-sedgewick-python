@@ -24,9 +24,9 @@ class Digragh(object):
     >>> for a, b in test_data:
     ...     graph.add_edge(a, b)
     ...
-    >>> graph.vertex_size()
+    >>> graph.vertices_size()
     13
-    >>> graph.edge_size()
+    >>> graph.edges_size()
     22
     >>> [i for i in graph.get_adjacent_vertices(2)]
     [0, 3]
@@ -53,22 +53,22 @@ class Digragh(object):
     """
 
     def __init__(self, graph=None):
-        self._edge_size = 0
+        self._edges_size = 0
         self._adj = defaultdict(Bag)
         self._vertices = set()
 
         # 4.2.3 practice, generate graph from another graph.
         if graph:
             self._adj = copy.deepcopy(graph._adj)
-            self._vertex_size = graph.vertex_size()
-            self._edge_size = graph.edge_size()
+            self._vertices_size = graph.vertices_size()
+            self._edges_size = graph.edges_size()
             self._vertices = copy.copy(graph.vertices())
 
-    def vertex_size(self):
+    def vertices_size(self):
         return len(self._vertices)
 
-    def edge_size(self):
-        return self._edge_size
+    def edges_size(self):
+        return self._edges_size
 
     def add_edge(self, start, end):
         # 4.2.5 practice, parallel edge and self cycle are not allowed
@@ -77,7 +77,7 @@ class Digragh(object):
         self._vertices.add(start)
         self._vertices.add(end)
         self._adj[start].add(end)
-        self._edge_size += 1
+        self._edges_size += 1
 
     def get_adjacent_vertices(self, vertex):
         return self._adj[vertex]
@@ -98,7 +98,7 @@ class Digragh(object):
         return edge is not None
 
     def __repr__(self):
-        s = str(len(self._vertices)) + ' vertices, ' + str(self._edge_size) + ' edges\n'
+        s = str(len(self._vertices)) + ' vertices, ' + str(self._edges_size) + ' edges\n'
         for k in self._adj:
             try:
                 lst = ' '.join([vertex for vertex in self._adj[k]])

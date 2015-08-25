@@ -23,9 +23,9 @@ class Graph(object):
     >>> for a, b in test_data:
     ...     g.add_edge(a, b)
     ...
-    >>> g.vertex_size()
+    >>> g.vertices_size()
     13
-    >>> len(test_data) == g.edge_size()
+    >>> len(test_data) == g.edges_size()
     True
     >>> adjacent_vertices = ' '.join([str(v) for v in g.get_adjacent_vertices(0)])
     >>> adjacent_vertices
@@ -68,32 +68,18 @@ class Graph(object):
     """
 
     def __init__(self, input_file=None, graph=None):
-        self._vertex_size = 0
-        self._edge_size = 0
+        self._edges_size = 0
         self._adj = defaultdict(Bag)
-
-        # this is not tested yet.
-        if input_file:
-            with open(input_file) as f:
-                lines = [l.rstrip('\n') for l in f]
-                self._vertex_size = int(lines[0])
-                self._edge_size = int(lines[1])
-                for i in range(1, self._edge_size):
-                    a, b = lines[i].split()
-                    self.add_edge(a, b)
         # 4.1.3 practice, add a graph parameter for constructor method.
-        elif graph:
+        if graph:
             self._adj = copy.deepcopy(graph._adj)
-            self._vertex_size = graph.vertex_size()
-            self._edge_size = graph.edge_size()
+            self._edges_size = graph.edges_size()
 
-    def vertex_size(self):
-        if not self._vertex_size:
-            return len(self._adj.keys())
-        return self._vertex_size
+    def vertices_size(self):
+        return len(self._adj.keys())
 
-    def edge_size(self):
-        return self._edge_size
+    def edges_size(self):
+        return self._edges_size
 
     def add_edge(self, vertext_a, vertext_b):
         # 4.1.5 practice, no self cycle or parallel edges.
@@ -102,7 +88,7 @@ class Graph(object):
         self._adj[vertext_a].add(vertext_b)
         self._adj[vertext_b].add(vertext_a)
 
-        self._edge_size += 1
+        self._edges_size += 1
 
     # 4.1.4 practice, add has_edge method
     def has_edge(self, vertext_a, vertext_b):
@@ -130,7 +116,7 @@ class Graph(object):
         return result
 
     def avg_degree(self):
-        return float(2 * self._edge_size) / self._vertex_size
+        return float(2 * self._edges_size) / self.vertices_size()
 
     def number_of_self_loops(self):
         count = 0
@@ -153,7 +139,7 @@ class Graph(object):
         return int(count / 2)
 
     def __repr__(self):
-        s = str(self.vertex_size()) + ' vertices, ' + str(self._edge_size) + ' edges\n'
+        s = str(self.vertices_size()) + ' vertices, ' + str(self._edges_size) + ' edges\n'
         for k in self._adj:
             try:
                 lst = ' '.join([vertex for vertex in self._adj[k]])
@@ -455,7 +441,7 @@ class GraphProperties(object):
         self._diameter = 0
         self._radius = 9999999999
         dfp = DepthFirstPaths(graph, random.sample(graph.vertices(), 1)[0])
-        if dfp.vertices_size() != graph.vertex_size():
+        if dfp.vertices_size() != graph.vertices_size():
             raise Exception('graph is not connected.')
 
         for vertex in graph.vertices():

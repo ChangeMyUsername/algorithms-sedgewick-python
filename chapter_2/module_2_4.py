@@ -350,19 +350,23 @@ class MeanHeap(object):
                 self._min_heap.insert(val)
 
 
-# 2.4.33 index minimum priority queue.
+# 2.4.33, 2.4.34 index minimum priority queue.
 class IndexMinPQ(object):
 
-    def __init__(self):
-        self._pq = []
-        self._qp = []
-        self._keys = []
+    def __init__(self, max_size):
+        self._index = [None] * max_size
+        self._elements = [-1] * max_size
+        self._keys = [None] * max_size
+        self._size = 0
 
     def is_empty(self):
-        return len(self._pq) == 0
+        return self._size == 0
 
     def contains(self, k):
-        return k in self._qp
+        return k in self._elements
+
+    def insert(self, k, key):
+        self._size += 1
 
 
 class Node(object):
@@ -392,7 +396,6 @@ def cubesum():
 
     while not min_pq.is_empty():
         node = min_pq.del_min()
-        print(node)
         if node.j < n:
             min_pq.insert(Node(node.i, node.j + 1))
 

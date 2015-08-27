@@ -5,14 +5,14 @@ import doctest
 
 
 def two_sum_fast(lst):
-    '''
-    count the number of pair of numbers add up to zero. first sort the list,
+    """
+      Count the number of pair of numbers add up to zero. first sort the list,
     then use binary_search the get the other number which could add up to zero,
     if in the list, then increase the counter.
     >>> lst = [-1, 1, -2, 3, 5, -5, 0, 4]
     >>> two_sum_fast(lst)
     2
-    '''
+    """
     lst.sort()
     cnt = 0
     for i in range(len(lst)):
@@ -22,13 +22,13 @@ def two_sum_fast(lst):
 
 
 def three_sum_fast(lst):
-    '''
-    count how many three numbers add up to zero. first sort the list,
+    """
+      Count how many three numbers add up to zero. first sort the list,
     then using two for-loop and binary search algorithm get the opposite number.
     >>> lst = [-1, 2, 1, 3, 0, 4, -4, 5, 9, -5]
     >>> three_sum_fast(lst)
     8
-    '''
+    """
     lst.sort()
     cnt = 0
     for i in range(len(lst)):
@@ -49,8 +49,8 @@ def four_sum_fast(lst):
 
 # 1.4.16 practice
 def closest_pair(lst):
-    '''
-    get two closest number in a list, first sort the list,
+    """
+      Get two closest number in a list, first sort the list,
     then iterate through the list compare each summation of two adjacent numbers in the list,
     then get the result.
     >>> lst = [1, 0, 3, 4, 5, 9, 1]
@@ -58,7 +58,7 @@ def closest_pair(lst):
     (1, 1)
     >>> lst
     [0, 1, 1, 3, 4, 5, 9]
-    '''
+    """
     lst.sort()
     max_val = 9999999999
     a, b = None, None
@@ -77,16 +77,16 @@ def farthest_pair(lst):
 
 # 1.4.18 practice
 def partial_minimum(lst):
-    '''
-    find the partial minimum number in the list,
+    """
+      Find the partial minimum number in the list,
     the whole process is similar to binary search algorithm.
     >>> lst = [5, 2, 3, 4, 3, 5, 6, 8, 7, 1, 9]
     >>> partial_minimum(lst)
     2
-    '''
+    """
     start, end = 0, len(lst) - 1
     while start <= end:
-        mid = (end + start) / 2
+        mid = int((end + start) / 2)
         left = lst[mid - 1]
         right = lst[mid + 1]
         if lst[mid] <= left and lst[mid] <= right:
@@ -100,7 +100,7 @@ def partial_minimum(lst):
 
 # 1.4.20 practice
 def bitonic_list_search(key, lst):
-    '''
+    """
     >>> lst = [1, 2, 3, 9, 8, 7, 6, 5, 4, -1]
     >>> bitonic_list_search(2, lst)
     1
@@ -108,11 +108,11 @@ def bitonic_list_search(key, lst):
     3
     >>> bitonic_list_search(7, lst)
     5
-    '''
+    """
     def find_the_point(lst):
         low, high = 0, len(lst) - 1
         while low < high:
-            mid = (low + high) / 2
+            mid = int((low + high) / 2)
             if lst[mid] < lst[mid + 1]:
                 low = mid + 1
             elif lst[mid] > lst[mid + 1]:
@@ -121,7 +121,7 @@ def bitonic_list_search(key, lst):
 
     def find_left(key, start, end, lst):
         while start <= end:
-            mid = (start + end) / 2
+            mid = int((start + end) / 2)
             if lst[mid] < key:
                 start = mid + 1
             elif lst[mid] > key:
@@ -132,7 +132,7 @@ def bitonic_list_search(key, lst):
 
     def find_right(key, start, end, lst):
         while start <= end:
-            mid = (start + end) / 2
+            mid = int((start + end) / 2)
             if lst[mid] < key:
                 end = mid - 1
             elif lst[mid] > key:

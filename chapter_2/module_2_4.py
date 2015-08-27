@@ -115,8 +115,8 @@ class MinPQ(object):
         return self._size
 
     def swim(self, pos):
-        while pos > 1 and self._pq[pos / 2] > self._pq[pos]:
-            self._pq[pos / 2], self._pq[pos] = self._pq[pos], self._pq[pos / 2]
+        while pos > 1 and self._pq[int(pos / 2)] > self._pq[pos]:
+            self._pq[int(pos / 2)], self._pq[pos] = self._pq[pos], self._pq[int(pos / 2)]
             pos /= 2
 
     def sink(self, pos):
@@ -293,7 +293,7 @@ class MeanHeap(object):
     4
     >>> mh.insert(9)
     >>> mh.median()
-    4.5
+    4
     >>> mh.insert(10)
     >>> mh.median()
     5
@@ -318,7 +318,7 @@ class MeanHeap(object):
         if self._max_heap.size() < self._min_heap.size():
             return self._min_heap.min_val()
 
-        return float(self._min_heap.min_val() + self._max_heap.max_val()) / 2
+        return int(self._min_heap.min_val() + self._max_heap.max_val() / 2)
 
     def insert(self, val):
         if self._min_heap.is_empty():
@@ -353,20 +353,100 @@ class MeanHeap(object):
 # 2.4.33, 2.4.34 index minimum priority queue.
 class IndexMinPQ(object):
 
+    """
+    >>> test_data = 'testexmaple'
+    >>> imp = IndexMinPQ(len(test_data))
+    >>> imp.is_empty()
+    True
+    >>> for index, s in enumerate(test_data):
+    ...     imp.insert(index, s)
+    ...
+    >>> imp.is_empty()
+    False
+    >>> imp.size()
+    11
+    >>> [imp.contains(i) for i in (12, -1, 1, 4, 10)]
+    [False, False, True, True, True]
+    >>> imp.min_index()
+    7
+    """
+
     def __init__(self, max_size):
-        self._index = [None] * max_size
-        self._elements = [-1] * max_size
+        assert max_size > 0
+        self._max_size = max_size
+        self._index = [-1] * max_size
+        self._reverse_index = [-1] * max_size
         self._keys = [None] * max_size
-        self._size = 0
+        self._keys_size = 0
 
     def is_empty(self):
-        return self._size == 0
+        return self._keys_size == 0
 
-    def contains(self, k):
-        return k in self._elements
+    def size(self):
+        return self._keys_size
 
-    def insert(self, k, key):
-        self._size += 1
+    def contains(self, index):
+        if index < 0 or index > self._max_size:
+            return False
+        return self._reverse_index[index] != -1
+
+    def insert(self, index, element):
+        if index < 0 or index > self._max_size or self.contains(index):
+            return
+
+        self._index[self._keys_size] = index
+        self._reverse_index[index] = self._keys_size
+        self._keys[index] = element
+        self._keys_size += 1
+        self.swim(self._keys_size)
+
+    def min_index(self):
+        return None if self._keys_size == 0 else self._index[0]
+
+    def min_key(self):
+        return None if self._keys_size == 0 else self._keys[self._index[0]]
+
+    def exchange(self, pos_a, pos_b):
+        self._index[pos_a], self._index[pos_b] = self._index[pos_b], self._index[pos_a]
+        self._reverse_index[self._index[pos_a]] = pos_a
+        self._reverse_index[self._index[pos_b]] = pos_b
+
+    def swim(self, pos):
+        while (pos > 0 and
+               self._keys[self._index[int((pos - 1) / 2)]] > self._keys[self._index[pos]]):
+            self.exchange(int((pos - 1) / 2), pos)
+            pos = (pos - 1) / 2
+
+    def sink(self, pos):
+        length = self._keys_size - 1
+        while 2 * pos + 1 <= length:
+            tmp = 2 * pos + 1
+            if(tmp < length and self._keys[self._index[tmp]] > self._keys[self._index[tmp + 1]]):
+                tmp += 1
+            if self._keys[self._index[tmp]] < self._keys[self._index[pos]]:
+                break
+            self.exchange(tmp, pos)
+            pos = tmp
+
+    def change_key(self, i, key):
+        if i < 0 or i > self._max_size or not self.contains(i):
+            return
+        self._keys[i] = key
+        self.swim(self._reverse_index[i])
+        self.sink(self._reverse_index[i])
+
+    def delete_min(self):
+        if self._keys_size == 0:
+            return
+        min_index = self._index[0]
+        self.exchange(0, self._keys_size)
+
+        self.sink(0)
+        self._reverse_index[min_index] = -1
+        self._keys[self._index[self._keys_size]] = None
+        self._index[self._keys_size] = -1
+        self._keys_size -= 1
+        return min_index
 
 
 class Node(object):

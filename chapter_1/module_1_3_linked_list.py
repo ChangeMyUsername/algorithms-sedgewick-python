@@ -8,7 +8,7 @@ from common import Node
 class LinkedList(object):
 
     '''
-    linked list practice.
+      Linked list practice.
     >>> ######### init linked list test case.
     >>> lst = LinkedList()
     >>> for i in range(1, 5):
@@ -82,11 +82,13 @@ class LinkedList(object):
     ...      lst3.append(i)
     ...
     >>> node = lst3.reverse()
+    >>> lst = []
     >>> while node:
-    ...    print(node.val, end=' ')
+    ...    lst.append(node.val)
     ...    node = node.next_node
     ...
-    9 8 7 6 5 4 3 2 1
+    >>> lst
+    [9, 8, 7, 6, 5, 4, 3, 2, 1]
     '''
 
     def __init__(self):

@@ -6,8 +6,8 @@ import random
 
 class UnionFind(object):
 
-    '''
-    union find implementation, the algorithm is a little bit like tree algorithm but not the same.
+    """
+      Union find implementation, the algorithm is a little bit like tree algorithm but not the same.
     >>> uf = UnionFind(10)
     >>> connections = [(4, 3), (3, 8), (6, 5), (9, 4), (2, 1),
     ... (8, 9), (5, 0), (7, 2), (6, 1), (1, 0), (6, 7)]
@@ -22,7 +22,7 @@ class UnionFind(object):
     True
     >>> uf.connected(1, 7)
     True
-    '''
+    """
 
     def __init__(self, size):
         self._id = [i for i in range(size)]
@@ -56,8 +56,8 @@ class UnionFind(object):
 
 class WeightedUnionFind(object):
 
-    '''
-    weighted union find algorithm, put the smaller tree into the larger tree, lower the tree size.
+    """
+      Weighted union find algorithm, put the smaller tree into the larger tree, lower the tree size.
     >>> wuf = WeightedUnionFind(10)
     >>> connections = [(4, 3), (3, 8), (6, 5), (9, 4),
     ... (2, 1), (8, 9), (5, 0), (7, 2), (6, 1), (1, 0), (6, 7)]
@@ -72,7 +72,7 @@ class WeightedUnionFind(object):
     True
     >>> wuf.connected(1, 7)
     True
-    '''
+    """
 
     def __init__(self, size):
         self._count = size
@@ -113,8 +113,8 @@ class WeightedUnionFind(object):
 # 1.5.14 practice
 class HeightedUnionFind(object):
 
-    '''
-    heighted union find algorithm,
+    """
+      Heighted union find algorithm,
     put the shorter tree into taller tree,
     the tree's height won't be taller than log(n).
     >>> huf = HeightedUnionFind(10)
@@ -128,7 +128,7 @@ class HeightedUnionFind(object):
     True
     >>> huf.connected(9, 8)
     True
-    '''
+    """
 
     def __init__(self, size):
         self._id = [i for i in range(size)]
@@ -163,9 +163,9 @@ class HeightedUnionFind(object):
 
 # 1.5.17 practice
 def erdos_renyi(size):
-    '''
+    """
     >>> erdos_renyi(1000)
-    '''
+    """
     uf = UnionFind(size)
     while uf.count() > 1:
         a = random.randint(0, size - 1)

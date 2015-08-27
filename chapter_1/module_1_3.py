@@ -8,8 +8,7 @@ from abc import ABCMeta, abstractmethod
 from common import Node, DoubleNode
 
 
-class BaseDataType:
-    __metaclass__ = ABCMeta
+class BaseDataType(metaclass=ABCMeta):
 
     @abstractmethod
     def __iter__(self):
@@ -27,8 +26,8 @@ class BaseDataType:
 
 class Stack(object):
 
-    '''
-    stack LIFO data structure linked-list implementation
+    """
+      Stack LIFO data structure linked-list implementation.
     >>> s = Stack()
     >>> s.peek()
     >>> s.push(1)
@@ -58,7 +57,7 @@ class Stack(object):
     0
     >>> s.is_empty()
     True
-    '''
+    """
 
     def __init__(self):
         self._first = None
@@ -100,8 +99,8 @@ class Stack(object):
 
 class BaseConverter(object):
 
-    '''
-    convert decimal number to x base number using stack.
+    """
+      Convert decimal number to x base number using stack.
     >>> BaseConverter.convert_decimal_integer(50, 2)
     '110010'
     >>> BaseConverter.convert_decimal_integer(8, 2)
@@ -110,7 +109,7 @@ class BaseConverter(object):
     'F'
     >>> BaseConverter.convert_decimal_integer(9, 8)
     '11'
-    '''
+    """
     digits = '0123456789ABCDEF'
 
     @staticmethod
@@ -127,14 +126,14 @@ class BaseConverter(object):
 
 class Evaluate(object):
 
-    '''
-    dijkstra infix evaluate algorithm, using stack for data structure.
+    """
+      Dijkstra infix evaluate algorithm, using stack for data structure.
     >>> evaluate = Evaluate()
     >>> evaluate.calculate('(1+((2+3)*(4*5)))')
     101.0
     >>> evaluate.calculate('((1-2)*(8/4))')
     -2.0
-    '''
+    """
 
     def __init__(self):
         self._ops_stack = Stack()
@@ -166,8 +165,8 @@ class Evaluate(object):
 
 class Queue(object):
 
-    '''
-    queue FIFO data structure linked-list implementation
+    """
+      Queue FIFO data structure linked-list implementation.
     >>> q = Queue()
     >>> q.is_empty()
     True
@@ -181,14 +180,8 @@ class Queue(object):
     4
     >>> q.is_empty()
     False
-    >>> for item in q:
-    ...     print(item)
-    ...
-    1
-    2
-    3
-    4
-    >>>
+    >>> [item for item in q]
+    [1, 2, 3, 4]
     >>> q.dequeue()
     1
     >>> q.dequeue()
@@ -206,20 +199,14 @@ class Queue(object):
     ...     old.enqueue(i)
     ...
     >>> new_queue = Queue(old)
-    >>> for i in new_queue:
-    ...     print(i, end=' ')
-    ...
-    0 1 2 3 4
+    >>> [i for i in new_queue]
+    [0, 1, 2, 3, 4]
     >>> new_queue.enqueue(6)
-    >>> for i in old:
-    ...     print(i, end=' ')
-    ...
-    0 1 2 3 4
-    >>> for i in new_queue:
-    ...     print(i, end=' ')
-    ...
-    0 1 2 3 4 6
-    '''
+    >>> [i for i in old]
+    [0, 1, 2, 3, 4]
+    >>> [i for i in new_queue]
+    [0, 1, 2, 3, 4, 6]
+    """
 
     # 1.3.41 practice
 
@@ -267,27 +254,19 @@ class Queue(object):
 class Bag(object):
 
     '''
-    bag data structure linked-list implementation.
+      Bag data structure linked-list implementation.
     >>> bag = Bag()
     >>> bag.size()
     0
     >>> bag.is_empty()
     True
-    >>> bag.add(1)
-    >>> bag.add(2)
-    >>> bag.add(3)
-    >>> bag.add(4)
-    >>> bag.add(5)
+    >>> for i in range(1, 6):
+    ...     bag.add(i)
+    ...
     >>> bag.size()
     5
-    >>> for i in bag:
-    ...     print(i)
-    ...
-    5
-    4
-    3
-    2
-    1
+    >>> [i for i in bag]
+    [5, 4, 3, 2, 1]
     >>> bag.is_empty()
     False
     '''
@@ -321,7 +300,7 @@ class Bag(object):
 class Parentheses(object):
 
     '''
-    using stack data structure for judging if parenthese is symmetric.
+      Using stack data structure for judging if parenthese is symmetric.
     >>> p = Parentheses()
     >>> p.is_parenthese_symmetric('[()]{}{[()()]()}')
     True
@@ -359,7 +338,7 @@ class Parentheses(object):
 # 1.3.5 practice
 def get_binary(integer):
     '''
-    using stack for getting integer binary representation.
+      Using stack for getting integer binary representation.
     >>> get_binary(50)
     '110010'
     >>> get_binary(8)
@@ -368,7 +347,7 @@ def get_binary(integer):
     s = Stack()
     while integer:
         s.push(integer % 2)
-        integer /= 2
+        integer //= 2
     return ''.join([str(i) for i in s])
 
 
@@ -376,7 +355,7 @@ def get_binary(integer):
 class CompleteInfixString(object):
 
     '''
-    using stack for complete infix string,
+      Using stack for complete infix string,
     the basic principle is similar to dijkstra infix arithmetic algorithm.
     >>> cis = CompleteInfixString()
     >>> cis.complete_string('1+2)*3-4)*5-6)))')
@@ -406,7 +385,7 @@ class CompleteInfixString(object):
 class InfixToPostfix(object):
 
     '''
-    turn infix string to postfix string using stack.
+      Turn infix string to postfix string using stack.
     >>> itp = InfixToPostfix()
     >>> itp.infix_to_postfix("(A+B)*(C+D)")
     'A B + C D + *'
@@ -448,10 +427,10 @@ class InfixToPostfix(object):
 class PostfixEvaluate(object):
 
     '''
-    using stack for postfix evaluation.
+      Using stack for postfix evaluation.
     >>> pfe = PostfixEvaluate()
     >>> pfe.evaluate('78+32+/')
-    3
+    3.0
     '''
 
     def __init__(self):
@@ -478,8 +457,8 @@ class PostfixEvaluate(object):
 # 1.3.32 practice
 class Steque(object):
 
-    '''
-    steque data structure, combining stack operation and queue operation.
+    """
+      Steque data structure, combining stack operation and queue operation.
     >>> s = Steque()
     >>> for i in range(1, 10):
     ...     s.push(i)
@@ -489,23 +468,21 @@ class Steque(object):
     >>> s.pop()
     8
     >>> s.enqueue(10)
-    >>> for i in s:
-    ...     print(i, end=' ')
-    ...
-    7 6 5 4 3 2 1 10
+    >>> ' '.join([str(i) for i in s])
+    '7 6 5 4 3 2 1 10'
     >>> s2 = Steque()
     >>> for i in range(10):
     ...     s2.enqueue(i)
     ...
-    >>> for j in s2:
-    ...     print(j, end=' ')
-    ...
-    0 1 2 3 4 5 6 7 8 9
+    >>> ' '.join([str(i) for i in s2])
+    '0 1 2 3 4 5 6 7 8 9'
+    >>> print_list = []
     >>> while not s2.is_empty():
-    ...     print(s2.pop(), end=' ')
+    ...     print_list.append(s2.pop())
     ...
-    0 1 2 3 4 5 6 7 8 9
-    '''
+    >>> print_list
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    """
 
     def __init__(self):
         self._top = None
@@ -557,19 +534,14 @@ class Steque(object):
 class Deque(object):
 
     '''
-    double queue datastructure implementaion.
+      Double queue datastructure implementaion.
     >>> d = Deque()
     >>> d.push_left(1)
     >>> d.push_right(2)
     >>> d.push_right(3)
     >>> d.push_left(0)
-    >>> for i in d:
-    ...     print(i)
-    ...
-    0
-    1
-    2
-    3
+    >>> [i for i in d]
+    [0, 1, 2, 3]
     >>> d.pop_left()
     0
     >>> d.pop_right()
@@ -700,7 +672,7 @@ class RandomQueue(object):
 # 1.3.38
 class GeneralizeQueue(object):
 
-    '''
+    """
     >>> queue = GeneralizeQueue()
     >>> for i in range(10):
     ...     queue.insert(i)
@@ -711,11 +683,9 @@ class GeneralizeQueue(object):
     0
     >>> queue.delete(4)
     4
-    >>> for i in queue:
-    ...     print(i, end=' ')
-    ...
-    1 2 3 5 6 7 8
-    '''
+    >>> ' '.join([str(i) for i in queue])
+    '1 2 3 5 6 7 8'
+    """
 
     def __init__(self):
         self._first = None
@@ -771,8 +741,8 @@ class GeneralizeQueue(object):
 # 1.3.40 practice
 class MoveToFront(object):
 
-    '''
-    move to front implementation, if insert new value into the list,
+    """
+      Move to front implementation, if insert new value into the list,
     then insert into the head of the list, else move the node to the head
     >>> mtf = MoveToFront()
     >>> mtf.push(5)
@@ -792,7 +762,7 @@ class MoveToFront(object):
     2
     4
     5
-    '''
+    """
 
     def __init__(self):
         self._first = None
@@ -845,7 +815,7 @@ BaseDataType.register(Queue)
 if __name__ == '__main__':
     doctest.testmod()
 
-    # random bag test case.
+    # # random bag test case.
     # random_bag = RandomBag()
     # for i in range(10):
     #     random_bag.add(i)

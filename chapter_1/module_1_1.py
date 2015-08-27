@@ -71,7 +71,7 @@ def harmonic(number):
     >>> harmonic(3)
     1.8333333333333333
     '''
-    return sum([float(1) / i for i in range(1, number + 1)])
+    return sum([1 / i for i in range(1, number + 1)])
 
 
 def binary_search(key, lst):
@@ -91,7 +91,7 @@ def binary_search(key, lst):
 
     low, high = 0, len(lst) - 1
     while low <= high:
-        mid = (high + low) / 2
+        mid = int((high + low) / 2)
         if lst[mid] == key:
             return mid
         elif lst[mid] > key:
@@ -138,7 +138,7 @@ def rank(key, lst):
 
     low, high = 0, len(lst) - 1
     while low <= high:
-        mid = (high + low) / 2
+        mid = int((high + low) / 2)
         if lst[mid] == key:
             index = mid
             while lst[index] == key:

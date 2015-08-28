@@ -9,7 +9,7 @@ INSERTION_SORT_LENGTH = 8
 
 class QuickSort(object):
 
-    '''
+    """
     >>> qs = QuickSort()
     >>> lst = [3, 2, 4, 7, 8, 9, 1, 0, 14, 11, 23, 50, 26]
     >>> qs.sort(lst)
@@ -19,7 +19,7 @@ class QuickSort(object):
     >>> qs.sort(lst2)
     >>> lst2
     ['A', 'E', 'E', 'I', 'N', 'O', 'Q', 'S', 'S', 'T', 'U', 'Y']
-    '''
+    """
 
     def sort(self, lst):
         random.shuffle(lst)
@@ -81,13 +81,13 @@ class QuickSort(object):
 
 class QuickThreeWay(object):
 
-    '''
+    """
     >>> qtw = QuickThreeWay()
     >>> lst = [3, 2, 4, 7, 8, 9, 1, 0]
     >>> qtw.sort(lst)
     >>> lst
     [0, 1, 2, 3, 4, 7, 8, 9]
-    '''
+    """
 
     def sort(self, lst):
         random.shuffle(lst)

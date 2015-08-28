@@ -6,8 +6,8 @@ import random
 
 class MergeSort(object):
 
-    '''
-    top-bottom merge sort implementation, merge the two sub arrays
+    """
+      Top-bottom merge sort implementation, merge the two sub arrays
     of the whole list and make the list partial ordered,
     and the recursion process make sure the whole list is ordered.
     for a N-size array, top-bottom merge sort need 1/2NlgN to NlgN comparisons,
@@ -17,7 +17,7 @@ class MergeSort(object):
     >>> ms.sort(lst)
     >>> lst
     [-1, 0, 1, 2, 3, 4, 5, 7, 7, 8, 9, 11, 13, 24, 31]
-    '''
+    """
 
     def merge(self, aux, lst, low, mid, high):
         left, right = low, mid + 1
@@ -58,7 +58,7 @@ class MergeSort(object):
         if high - low <= 7:
             self.insertion_sort(lst, low, high)
             return
-        mid = (low + high) / 2
+        mid = int((low + high) / 2)
         self.__sort(lst, aux, low, mid)
         self.__sort(lst, aux, mid + 1, high)
         # 2.2.11 practice, if assistance array aux[mid] < aux[mid+1], copy the
@@ -70,8 +70,8 @@ class MergeSort(object):
 
 class MergeSortBU(object):
 
-    '''
-    bottom-up merge sort algorithm implementation, cut the whole N-size array into
+    """
+      Bottom-up merge sort algorithm implementation, cut the whole N-size array into
     N/sz small arrays, then merge each two of them,
     the sz parameter will be twice after merge all the subarrays,
     util the sz parameter is larger than N.
@@ -81,7 +81,7 @@ class MergeSortBU(object):
     >>> ms.sort(lst)
     >>> lst
     [-1, 0, 1, 2, 3, 4, 5, 7, 7, 8, 9]
-    '''
+    """
 
     def sort(self, lst):
         length = len(lst)
@@ -114,7 +114,7 @@ class MergeSortBU(object):
 
 # 2.2.14 practice merge two sorted list
 def merge_list(lst1, lst2):
-    '''
+    """
     >>> merge_list([1, 2, 3, 4], [])
     [1, 2, 3, 4]
     >>> merge_list([], [1, 2, 3, 4])
@@ -127,7 +127,7 @@ def merge_list(lst1, lst2):
     [1, 2, 5, 6, 7, 8]
     >>> merge_list([2, 3, 5, 9], [2, 7, 11])
     [2, 2, 3, 5, 7, 9, 11]
-    '''
+    """
     assert lst1 or lst2
     if not lst1 or not lst2:
         return lst1[:] if not lst2 else lst2[:]
@@ -155,14 +155,14 @@ def merge_list(lst1, lst2):
 # merge first two sub queue in the large queue and enqueue the result util
 # there is only one sub queue.
 def bu_merge_sort_q(lst):
-    '''
+    """
     >>> bu_merge_sort_q([3, 2, 4, 7, 8, 9, 1, 0])
     [0, 1, 2, 3, 4, 7, 8, 9]
     >>> test_lst = [i for i in range(10)]
     >>> random.shuffle(test_lst)
     >>> bu_merge_sort_q(test_lst)
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    '''
+    """
     for i in range(len(lst)):
         lst[i] = [lst[i]]
     while len(lst) != 1:
@@ -215,11 +215,11 @@ def linked_list_merge_sort(head):
 # 2.2.19 practice, using merge function from merge-sort to count the reverse number
 class ReverseCount(object):
 
-    '''
+    """
     >>> rc = ReverseCount()
     >>> rc.reverse_count([1, 7, 2, 9, 6, 4, 5, 3])
     14
-    '''
+    """
 
     def reverse_count(self, lst):
         sort_lst, aux_lst = lst[:], lst[:]
@@ -228,7 +228,7 @@ class ReverseCount(object):
     def count(self, lst, assist, low, high):
         if low >= high:
             return 0
-        mid = (high + low) / 2
+        mid = int((high + low) / 2)
         lc = self.count(lst, assist, low, mid)
         rc = self.count(lst, assist, mid + 1, high)
         mc = self.merge_count(lst, assist, low, mid, high)

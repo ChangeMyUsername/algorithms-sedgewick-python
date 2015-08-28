@@ -4,8 +4,8 @@ import doctest
 
 
 def selection_sort(lst):
-    '''
-    selection sort implemention, select the minimum value in the list and put it in first place,
+    """
+      Selection sort implemention, select the minimum value in the list and put it in first place,
     then scan the whole list but exclude the first one element,
     pick the second minimum value in the list and so on util the list is sorted.
     every selection sort need N TIMES EXCHANGES,
@@ -14,7 +14,7 @@ def selection_sort(lst):
     >>> selection_sort(lst)
     >>> lst
     [0, 1, 3, 4, 5, 6, 9]
-    '''
+    """
     length = len(lst)
     for i in range(length):
         min_index = i
@@ -25,8 +25,8 @@ def selection_sort(lst):
 
 
 def insertion_sort(lst):
-    '''
-    insertion sort implementation, exchange the current element
+    """
+      Insertion sort implementation, exchange the current element
     and the previous element util current element is larger than the previous element.
     for a random list of N size, insertion sort need ~ N**2/4 comparisons
     and ~N**2/4 exchanges on average condition,
@@ -37,7 +37,7 @@ def insertion_sort(lst):
     >>> insertion_sort(lst)
     >>> lst
     [0, 1, 3, 4, 5, 6, 9]
-    '''
+    """
     length = len(lst)
     for i in range(1, length):
         j = i
@@ -47,15 +47,15 @@ def insertion_sort(lst):
 
 
 def shell_sort(lst):
-    '''
-    shell sort implementation, exchange the j element
+    """
+      Shell sort implementation, exchange the j element
     and j-h element util i element is larger than i-1 element.
     the algorithms performance is depend on h
     >>> lst = [9, 4, 5, 1, 0, 3, 6]
     >>> shell_sort(lst)
     >>> lst
     [0, 1, 3, 4, 5, 6, 9]
-    '''
+    """
     length = len(lst)
     h = 1
 
@@ -68,7 +68,7 @@ def shell_sort(lst):
             while j >= h and lst[j] < lst[j - h]:
                 lst[j], lst[j - h] = lst[j - h], lst[j]
                 j -= h
-        h /= 3
+        h //= 3
 
 if __name__ == '__main__':
     doctest.testmod()

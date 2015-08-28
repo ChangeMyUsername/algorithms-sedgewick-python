@@ -71,7 +71,7 @@ class Node(object):
 
 class RBTree(object):
 
-    '''
+    """
     >>> rbt = RBTree()
     >>> rbt.is_empty()
     True
@@ -93,8 +93,8 @@ class RBTree(object):
     10
     >>> rbt.is_empty()
     False
-    >>> rbt.size()
-    11
+    >>> rbt.size() ### duplicate values 'I'
+    10
     >>> rbt.min_val().value
     1
     >>> rbt.max_val().value
@@ -113,7 +113,7 @@ class RBTree(object):
     7
     >>> rbt.check()
     True
-    '''
+    """
 
     def __init__(self):
         self._root = None
@@ -333,10 +333,10 @@ class RBTree(object):
         return self.__balance(node)
 
     def select(self, k):
-        '''
-        find the kth node of the binary search tree,
+        """
+          Find the kth node of the binary search tree,
         the solution is similar with get() or put() function.
-        '''
+        """
         assert isinstance(k, int) and k <= self.size()
 
         if not self._root:
@@ -354,9 +354,9 @@ class RBTree(object):
                 return tmp
 
     def rank(self, key):
-        '''
-        find the rank of the node in the binary search tree by the given key.
-        '''
+        """
+          Find the rank of the node in the binary search tree by the given key.
+        """
         result = 0
         if not self._root:
             return -1
@@ -374,9 +374,9 @@ class RBTree(object):
         return result
 
     def max_val(self):
-        '''
-        find the maximum value in the binary search tree.
-        '''
+        """
+          Find the maximum value in the binary search tree.
+        """
         if not self._root:
             return None
         tmp = self._root

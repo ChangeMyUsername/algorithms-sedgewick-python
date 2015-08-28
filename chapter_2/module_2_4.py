@@ -7,7 +7,7 @@ import bisect
 
 class MaxPQ(object):
 
-    '''
+    """
     >>> mpq = MaxPQ(10)
     >>> lst = [i for i in range(10)]
     >>> random.shuffle(lst)
@@ -22,7 +22,7 @@ class MaxPQ(object):
     ...
     >>> ' '.join(print_lst)
     '9 8 7 6 5 4 3 2 1 0'
-    '''
+    """
 
     def __init__(self, size):
         self._pq = [None] * (size + 1)
@@ -36,9 +36,9 @@ class MaxPQ(object):
         return self._size
 
     def swim(self, pos):
-        while pos > 1 and self._pq[pos / 2] < self._pq[pos]:
-            self._pq[pos / 2], self._pq[pos] = self._pq[pos], self._pq[pos / 2]
-            pos /= 2
+        while pos > 1 and self._pq[pos // 2] < self._pq[pos]:
+            self._pq[pos // 2], self._pq[pos] = self._pq[pos], self._pq[pos // 2]
+            pos //= 2
 
     def sink(self, pos):
         while 2 * pos <= self._size:
@@ -71,9 +71,9 @@ class MaxPQ(object):
     # 2.4.26 practice
     def swim_effective(self, pos):
         val = self._pq[pos]
-        while pos > 1 and self._pq[pos / 2] < val:
-            self._pq[pos] = self._pq[pos / 2]
-            pos /= 2
+        while pos > 1 and self._pq[pos // 2] < val:
+            self._pq[pos] = self._pq[pos // 2]
+            pos //= 2
         self._pq[pos] = val
 
     def insert_effective(self, val):
@@ -89,7 +89,7 @@ class MaxPQ(object):
 
 class MinPQ(object):
 
-    '''
+    """
     >>> mpq = MinPQ(10)
     >>> lst = [i for i in range(10)]
     >>> random.shuffle(lst)
@@ -102,7 +102,7 @@ class MinPQ(object):
     ...
     >>> ' '.join(print_lst)
     '0 1 2 3 4 5 6 7 8 9'
-    '''
+    """
 
     def __init__(self, size):
         self._pq = [None] * (size + 1)
@@ -117,7 +117,7 @@ class MinPQ(object):
     def swim(self, pos):
         while pos > 1 and self._pq[int(pos / 2)] > self._pq[pos]:
             self._pq[int(pos / 2)], self._pq[pos] = self._pq[pos], self._pq[int(pos / 2)]
-            pos /= 2
+            pos //= 2
 
     def sink(self, pos):
         while 2 * pos <= self._size:
@@ -149,7 +149,7 @@ class MinPQ(object):
 # 2.4.22 practice, a little change for python version, the queue's size is not limited.
 class MaxPQDynamic(object):
 
-    '''
+    """
     >>> mpq = MaxPQDynamic()
     >>> lst = [i for i in range(10)]
     >>> random.shuffle(lst)
@@ -162,7 +162,7 @@ class MaxPQDynamic(object):
     ...
     >>> ' '.join(print_lst)
     '9 8 7 6 5 4 3 2 1 0'
-    '''
+    """
 
     def __init__(self):
         self._pq = []
@@ -174,9 +174,9 @@ class MaxPQDynamic(object):
         return len(self._pq)
 
     def swim(self, pos):
-        while pos > 0 and self._pq[(pos - 1) / 2] < self._pq[pos]:
-            self._pq[(pos - 1) / 2], self._pq[pos] = self._pq[pos], self._pq[(pos - 1) / 2]
-            pos = (pos - 1) / 2
+        while pos > 0 and self._pq[(pos - 1) // 2] < self._pq[pos]:
+            self._pq[(pos - 1) // 2], self._pq[pos] = self._pq[pos], self._pq[(pos - 1) // 2]
+            pos = (pos - 1) // 2
 
     def sink(self, pos):
         length = len(self._pq) - 1
@@ -207,7 +207,7 @@ class MaxPQDynamic(object):
 
 class MinPQDynamic(object):
 
-    '''
+    """
     >>> mpq = MinPQDynamic()
     >>> lst = [i for i in range(10)]
     >>> random.shuffle(lst)
@@ -220,7 +220,7 @@ class MinPQDynamic(object):
     ...
     >>> ' '.join(print_lst)
     '0 1 2 3 4 5 6 7 8 9'
-    '''
+    """
 
     def __init__(self):
         self._pq = []
@@ -232,16 +232,16 @@ class MinPQDynamic(object):
         return len(self._pq)
 
     def swim(self, pos):
-        while pos > 0 and self._pq[(pos - 1) / 2] > self._pq[pos]:
-            self._pq[(pos - 1) / 2], self._pq[pos] = self._pq[pos], self._pq[(pos - 1) / 2]
-            pos = (pos - 1) / 2
+        while pos > 0 and self._pq[(pos - 1) // 2] > self._pq[pos]:
+            self._pq[(pos - 1) // 2], self._pq[pos] = self._pq[pos], self._pq[(pos - 1) // 2]
+            pos = (pos - 1) // 2
 
     def binary_swim(self, pos):
         index, vals, temp, target = [], [], pos, self._pq[pos]
         while temp:
             index.append(temp)
             vals.append(self._pq[temp])
-            temp = (temp - 1) / 2
+            temp = (temp - 1) // 2
 
         insert_pos = bisect.bisect_left(vals, target)
         if insert_pos == len(vals):
@@ -284,7 +284,7 @@ class MinPQDynamic(object):
 # 2.4.30 practice
 class MeanHeap(object):
 
-    '''
+    """
     >>> mh = MeanHeap()
     >>> for i in range(9):
     ...     mh.insert(i)
@@ -293,11 +293,11 @@ class MeanHeap(object):
     4
     >>> mh.insert(9)
     >>> mh.median()
-    4
+    4.5
     >>> mh.insert(10)
     >>> mh.median()
     5
-    '''
+    """
 
     def __init__(self):
         self._min_heap = MinPQDynamic()
@@ -318,7 +318,7 @@ class MeanHeap(object):
         if self._max_heap.size() < self._min_heap.size():
             return self._min_heap.min_val()
 
-        return int(self._min_heap.min_val() + self._max_heap.max_val() / 2)
+        return (self._min_heap.min_val() + self._max_heap.max_val()) / 2
 
     def insert(self, val):
         if self._min_heap.is_empty():
@@ -413,9 +413,9 @@ class IndexMinPQ(object):
 
     def swim(self, pos):
         while (pos > 0 and
-               self._keys[self._index[int((pos - 1) / 2)]] > self._keys[self._index[pos]]):
-            self.exchange(int((pos - 1) / 2), pos)
-            pos = (pos - 1) / 2
+               self._keys[self._index[(pos - 1) // 2]] > self._keys[self._index[pos]]):
+            self.exchange((pos - 1) // 2, pos)
+            pos = (pos - 1) // 2
 
     def sink(self, pos):
         length = self._keys_size - 1
@@ -481,8 +481,8 @@ def cubesum():
 
 
 def heap_sort(lst):
-    '''
-    heap-sort implementation, using priority queue sink() method as util function,
+    """
+      Heap-sort implementation, using priority queue sink() method as util function,
     first build the maximum priority queue, and exchange list[0] and lst[size], then size minus one,
     and sink the list[0] again, util size equals zero.
 
@@ -492,7 +492,7 @@ def heap_sort(lst):
     >>> heap_sort(lst)
     >>> lst
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    '''
+    """
     def sink(lst, pos, size):
         while 2 * pos + 1 <= size:
             index = 2 * pos + 1
@@ -504,7 +504,7 @@ def heap_sort(lst):
             pos = index
 
     size = len(lst) - 1
-    for i in range(size / 2, -1, -1):
+    for i in range(size // 2, -1, -1):
         sink(lst, i, size)
 
     while size:

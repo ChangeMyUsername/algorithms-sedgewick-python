@@ -4,10 +4,10 @@ import doctest
 
 
 def rank(lst, k):
-    '''
+    """
     >>> rank([i for i in range(10)], 5)
     4
-    '''
+    """
     def partition(lst, low, high):
         val = lst[low]
         left, right = low + 1, high
@@ -35,7 +35,7 @@ def rank(lst, k):
 
 # 2.5.4 practice, return a sorted and non-duplicated-item list
 def dedup(lst):
-    '''
+    """
     >>> lst = [i for i in dedup([2, 1, 3, 1, 1, 3, 2, 3, 4, 7])]
     >>> lst
     [1, 2, 3, 4, 7]
@@ -45,7 +45,7 @@ def dedup(lst):
     >>> lst3 = [i for i in dedup([2, 1, 1, 4, 3, 5])]
     >>> lst3
     [1, 2, 3, 4, 5]
-    '''
+    """
     assert lst and len(lst) >= 2
 
     new_list = sorted(lst)
@@ -66,22 +66,21 @@ def dedup(lst):
 # 2.5.10 practice, implement a version class with __cmp__
 class Version(object):
 
-    '''
+    """
     >>> lst = [Version(i) for i in ['115.1.1', '115.10.1', '115.10.2']]
     >>> lst.sort()
     >>> lst
     [Version(115.1.1), Version(115.10.1), Version(115.10.2)]
-    '''
+    """
 
     def __init__(self, version):
         self._version = version
 
-    def __cmp__(self, other):
-        if self._version < other.version:
-            return -1
-        elif self._version > other.version:
-            return 1
-        return 0
+    def __eq__(self, other):
+        return self._version == other._version
+
+    def __lt__(self, other):
+        return self._version < other._version
 
     def __repr__(self):
         return 'Version({})'.format(self._version)
@@ -99,25 +98,23 @@ class Version(object):
 # 2.5.14 practice, implement a domain class with __cmp__, compare the reversed order domain.
 class Domain(object):
 
-    '''
+    """
     >>> test_list = ['cs.princeton.edu', 'cs.harvard.edu', 'mail.python.org', 'cs.mit.edu']
     >>> lst = [Domain(i) for i in test_list]
     >>> lst.sort()
     >>> lst
     [Domain(cs.harvard.edu), Domain(cs.mit.edu), Domain(cs.princeton.edu), Domain(mail.python.org)]
-    '''
+    """
 
     def __init__(self, domain):
         self._domain = domain
+        self._cmp_domain = '.'.join(reversed(self._domain.split('.')))
 
-    def __cmp__(self, other):
-        self_domain = '.'.join(reversed(self._domain.split('.')))
-        other_domain = '.'.join(reversed(other.domain.split('.')))
-        if self_domain < other_domain:
-            return -1
-        elif self_domain > other_domain:
-            return 1
-        return 0
+    def __eq__(self, other):
+        return self._cmp_domain == other._cmp_domain
+
+    def __lt__(self, other):
+        return self._cmp_domain < other._cmp_domain
 
     def __repr__(self):
         return 'Domain({})'.format(self._domain)
@@ -129,31 +126,30 @@ class Domain(object):
     @domain.setter
     def domain(self, val):
         self._domain = val
+        self._cmp_domain = '.'.join(reversed(self._domain.split('.')))
 
 
 # 2.5.16 practice, construct object which order by the name with a new alphabet order
 class California(object):
 
-    '''
+    """
     >>> lst = [California(name) for name in ('RISBY', 'PATRICK', 'DAMIEN', 'GEORGE')]
     >>> lst.sort()
     >>> lst
     [California(RISBY), California(GEORGE), California(PATRICK), California(DAMIEN)]
-    '''
+    """
     alphabet = ('R', 'W', 'Q', 'O', 'J', 'M', 'V', 'A', 'H', 'B', 'S', 'G', 'Z', 'X', 'N',
                 'T', 'C', 'I', 'E', 'K', 'U', 'P', 'D', 'Y', 'F', 'L')
 
     def __init__(self, name):
         self._name = name
+        self._cmp_tuple = tuple(California.alphabet.index(i) for i in self._name)
 
-    def __cmp__(self, other):
-        self_tuple = [California.alphabet.index(i) for i in self._name]
-        other_tuple = [California.alphabet.index(i) for i in other.name]
-        if self_tuple > other_tuple:
-            return 1
-        if self_tuple < other_tuple:
-            return -1
-        return 0
+    def __eq__(self, other):
+        return self._cmp_tuple == other._cmp_tuple
+
+    def __lt__(self, other):
+        return self._cmp_tuple < other._cmp_tuple
 
     def __repr__(self):
         return 'California({})'.format(self._name)
@@ -165,16 +161,17 @@ class California(object):
     @name.setter
     def name(self, val):
         self._name = val
+        self._cmp_tuple = tuple(California.alphabet.index(i) for i in self._name)
 
 
 # 2.5.19 practice, kendall tau algorithm implementation
 class KendallTau(object):
 
-    '''
+    """
     >>> klt = KendallTau()
     >>> klt.kendall_tau_count((0, 3, 1, 6, 2, 5, 4), (1, 0, 3, 6, 4, 2, 5))
     4
-    '''
+    """
 
     def kendall_tau_count(self, origin_list, count_list):
         lst = [origin_list.index(count_list[i]) for i in range(len(count_list))]
@@ -184,7 +181,7 @@ class KendallTau(object):
     def count(self, lst, aux, low, high):
         if low >= high:
             return 0
-        mid = (low + high) / 2
+        mid = (low + high) // 2
         lc = self.count(lst, aux, low, mid)
         rc = self.count(lst, aux, mid + 1, high)
         mc = self.merge_count(lst, aux, low, mid, high)

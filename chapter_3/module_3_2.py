@@ -58,8 +58,8 @@ class Node(object):
 
 class BST(object):
 
-    '''
-    binary search tree implementation.
+    """
+      Binary search tree implementation.
     >>> bst = BST()
     >>> bst.is_empty()
     True
@@ -135,7 +135,7 @@ class BST(object):
     True
     >>> bst.check()
     True
-    '''
+    """
 
     def __init__(self):
         self._root = None
@@ -143,9 +143,9 @@ class BST(object):
         self._last_visited_node = None
 
     def size(self):
-        '''
-        return the node's amount of the binary search tree.
-        '''
+        """
+          Return the node's amount of the binary search tree.
+        """
         if not self._root:
             return 0
         return self._root.size
@@ -158,13 +158,13 @@ class BST(object):
 
     # 3.2.13 practice, implement get method with iteration.
     def get(self, key):
-        '''
-        return the corresponding value with the given key, iterate the whole tree,
+        """
+          Return the corresponding value with the given key, iterate the whole tree,
         if the current node's key is equal to the given key, then return the node's value.
         if the current node's key is smaller than the given key,
         then jump to the right node of the current node,
         else jump to the left node of the current node.
-        '''
+        """
 
         # 3.2.28 practice add cache for bst.
         if self._last_visited_node and self._last_visited_node.key == key:
@@ -188,10 +188,10 @@ class BST(object):
     # use set data structure for recording exist keys, if new key exists, stop
     # increment the node's size counter.
     def put(self, key, val):
-        '''
-        insert a new node into the binary search tree, iterate the whole tree,
+        """
+          Insert a new node into the binary search tree, iterate the whole tree,
         find the appropriate location for the new node and add the new node as the tree leaf.
-        '''
+        """
         key_exists = key in self._exist_keys
         if not key_exists:
             self._exist_keys.add(key)
@@ -228,9 +228,9 @@ class BST(object):
 
     # 3.2.14 practice
     def max_val(self):
-        '''
-        find the maximum value in the binary search tree.
-        '''
+        """
+          Find the maximum value in the binary search tree.
+        """
         if not self._root:
             return None
         tmp = self._root
@@ -239,9 +239,9 @@ class BST(object):
         return tmp
 
     def __min_val(self, node):
-        '''
-        find the minimum value in the binary search tree which start with specific node.
-        '''
+        """
+          Find the minimum value in the binary search tree which start with specific node.
+        """
         assert isinstance(node, Node)
 
         tmp = node
@@ -251,17 +251,17 @@ class BST(object):
 
     # 3.2.14 practice
     def min_val(self):
-        '''
-        find the minimum value in the binary search tree.
-        '''
+        """
+          Find the minimum value in the binary search tree.
+        """
         return self.__min_val(self._root)
 
     # 3.2.14 practice
     def select(self, k):
-        '''
-        find the kth node of the binary search tree,
+        """
+          Find the kth node of the binary search tree,
         the solution is similar with get() or put() function.
-        '''
+        """
         assert isinstance(k, int) and k <= self.size()
 
         if not self._root:
@@ -280,9 +280,9 @@ class BST(object):
 
     # 3.2.14 practice
     def rank(self, key):
-        '''
-        find the rank of the node in the binary search tree by the given key.
-        '''
+        """
+          Find the rank of the node in the binary search tree by the given key.
+        """
         result = 0
         if not self._root:
             return -1

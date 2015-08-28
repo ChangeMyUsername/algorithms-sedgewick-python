@@ -503,5 +503,84 @@ def unique_topologial_sort_order(graph):
     return hamilton_path_exists(graph)
 
 
+# 4.2.30 practice, see http://algs4.cs.princeton.edu/42digraph/TopologicalX.java.html.
+class TopologicalWithDegree(object):
+
+    """
+    >>> test_data = [(2, 3), (0, 6), (0, 1), (2, 0), (11, 12),
+    ...              (9, 12), (9, 10), (9, 11), (3, 5), (8, 7),
+    ...              (5, 4), (0, 5), (6, 4), (6, 9), (7, 6)]
+    >>> graph = Digragh()
+    >>> for a, b in test_data:
+    ...     graph.add_edge(a, b)
+    ...
+    >>> twd = TopologicalWithDegree(graph)
+    >>> twd.has_order()
+    True
+    >>> [v for v in twd.order()]
+    [2, 8, 0, 3, 7, 1, 5, 6, 9, 4, 11, 10, 12]
+    >>> twd.rank(8)
+    1
+    >>> twd.rank(10)
+    11
+    """
+
+    def __init__(self, graph):
+        indegree = defaultdict(int)
+        self._order = Queue()
+        self._rank = defaultdict(int)
+        count = 0
+        for v in graph.vertices():
+            for adj in graph.get_adjacent_vertices(v):
+                indegree[adj] += 1
+        queue = Queue()
+        for v in graph.vertices():
+            if indegree[v] == 0:
+                queue.enqueue(v)
+
+        while not queue.is_empty():
+            vertex = queue.dequeue()
+            self._order.enqueue(vertex)
+            self._rank[vertex] = count
+            count += 1
+            for v in graph.get_adjacent_vertices(vertex):
+                indegree[v] -= 1
+                if indegree[v] == 0:
+                    queue.enqueue(v)
+
+        if count != graph.vertices_size():
+            self._order = None
+
+        assert self.check(graph)
+
+    def has_order(self):
+        return self._order is not None
+
+    def order(self):
+        return self._order
+
+    def rank(self, vertex):
+        if vertex not in self._rank:
+            return -1
+        return self._rank[vertex]
+
+    def check(self, graph):
+        # digraph is acyclic
+        if self.has_order():
+            # check that ranks provide a valid topological order
+            for vertex in graph.vertices():
+                # check that vertex has a rank number
+                if vertex not in self._rank:
+                    return 1
+                for adj in graph.get_adjacent_vertices(vertex):
+                    if self._rank[vertex] > self._rank[adj]:
+                        return 2
+            # check that ranks provide a valid topological order
+            for index, v in enumerate(self._order):
+                if index != self._rank[v]:
+                    return 3
+            return True
+        return False
+
 if __name__ == '__main__':
     doctest.testmod()

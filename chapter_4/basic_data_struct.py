@@ -149,9 +149,9 @@ class MinPQ(object):
         return len(self._pq)
 
     def swim(self, pos):
-        while pos > 0 and self._pq[(pos - 1) / 2] > self._pq[pos]:
-            self._pq[(pos - 1) / 2], self._pq[pos] = self._pq[pos], self._pq[(pos - 1) / 2]
-            pos = (pos - 1) / 2
+        while pos > 0 and self._pq[(pos - 1) // 2] > self._pq[pos]:
+            self._pq[(pos - 1) // 2], self._pq[pos] = self._pq[pos], self._pq[(pos - 1) // 2]
+            pos = (pos - 1) // 2
 
     def sink(self, pos):
         length = len(self._pq) - 1
@@ -166,7 +166,7 @@ class MinPQ(object):
 
     def insert(self, val):
         self._pq.append(val)
-        self.binary_swim(len(self._pq) - 1)
+        self.swim(len(self._pq) - 1)
 
     def del_min(self):
         min_val = self._pq[0]

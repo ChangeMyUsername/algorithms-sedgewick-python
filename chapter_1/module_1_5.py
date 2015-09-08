@@ -22,6 +22,10 @@ class UnionFind(object):
     True
     >>> uf.connected(1, 7)
     True
+    >>> uf.find(4)
+    8
+    >>> uf.find(8)
+    8
     """
 
     def __init__(self, size):

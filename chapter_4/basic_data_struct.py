@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
+import doctest
+
 """
     copy from module_1_3.py, this is for avoiding package import problems.
 """
@@ -139,8 +141,11 @@ class Bag(object):
 
 class MinPQ(object):
 
-    def __init__(self):
+    def __init__(self, data=None):
         self._pq = []
+        if data:
+            for item in data:
+                self.insert(data)
 
     def is_empty(self):
         return len(self._pq) == 0
@@ -178,3 +183,96 @@ class MinPQ(object):
 
     def min_val(self):
         return self._pq[0]
+
+
+class DisjointNode(object):
+
+    def __init__(self, parent, size=1):
+        self._parent = parent
+        self._size = size
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, new_parent):
+        self._parent = new_parent
+
+    @property
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self, val):
+        assert val > 0
+        self._size = val
+
+
+class GenericUnionFind(object):
+
+    """
+    >>> guf = GenericUnionFind()
+    >>> connections = [(4, 3), (3, 8), (6, 5), (9, 4),
+    ...                (2, 1), (8, 9), (5, 0), (7, 2), (6, 1), (1, 0), (6, 7)]
+    >>> for i, j in connections:
+    ...     guf.union(i, j)
+    ...
+    >>> guf.connected(1, 4)
+    False
+    >>> guf.connected(8, 4)
+    True
+    >>> guf.connected(1, 5)
+    True
+    >>> guf.connected(1, 7)
+    True
+    """
+
+    def __init__(self):
+        self._id = {}
+
+    def count(self):
+        pass
+
+    def connected(self, p, q):
+        return self.find(p) == self.find(q)
+
+    def find(self, node):
+        if node not in self._id:
+            return None
+        tmp = node
+        while self._id[tmp].parent != tmp:
+            tmp = self._id[tmp].parent
+        return self._id[tmp].parent
+
+    def union(self, p, q):
+        p_root = self.find(p)
+        q_root = self.find(q)
+
+        if p_root == q_root:
+            if p_root is None and q_root is None:
+                self._id[p] = DisjointNode(q)
+                self._id[q] = DisjointNode(q, 2)
+                return
+            return
+
+        if p_root is None:
+            self._id[p] = DisjointNode(q_root, 1)
+            self._id[q_root].size += 1
+            return
+
+        if q_root is None:
+            self._id[q] = DisjointNode(p_root, 1)
+            self._id[p_root].size += 1
+            return
+
+        if self._id[p_root].size < self._id[q_root].size:
+            self._id[p_root].parent = q_root
+            self._id[q_root].size += self._id[p_root].size
+        else:
+            self._id[q_root].parent = p_root
+            self._id[p_root].size += self._id[q_root].size
+
+
+if __name__ == '__main__':
+    doctest.testmod()

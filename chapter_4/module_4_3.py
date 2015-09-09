@@ -3,7 +3,7 @@
 import doctest
 import copy
 from collections import defaultdict
-from basic_data_struct import Bag, Queue, MinPQ
+from basic_data_struct import Bag, Queue, MinPQ, GenericUnionFind
 import heapq
 
 
@@ -115,6 +115,7 @@ class EdgeWeightedGraph(object):
                     result.add(edge)
         return result
 
+    # 4.3.17 practice, implement a method printing out the whole graph.
     def __repr__(self):
         print_string = '{} vertices, {} edges.\n'.format(
             self.vertices_size(), self.edges_size())
@@ -123,6 +124,77 @@ class EdgeWeightedGraph(object):
                 lst = ', '.join([vertex for vertex in self._adj[v]])
             except TypeError:
                 lst = ', '.join([str(vertex) for vertex in self._adj[v]])
+            print_string += '{}: {}\n'.format(v, lst)
+        return print_string
+
+
+# 4.3.10 practice, implement weighted graph matrix
+class WeightedGraphMatrix(object):
+
+    """
+    >>> test_data = ((4, 5, 0.35), (4, 7, 0.37), (5, 7, 0.28), (0, 7, 0.16), (1, 5, 0.32),
+    ...              (0, 4, 0.38), (2, 3, 0.17), (1, 7, 0.19), (0, 2, 0.26), (1, 2, 0.36),
+    ...              (1, 3, 0.29), (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58),
+    ...              (6, 4, 0.93))
+    >>> wgm = WeightedGraphMatrix()
+    >>> for a, b, weight in test_data:
+    ...    wgm.add_edge(a, b, weight)
+    ...
+    >>> wgm.edges_size()
+    16
+    >>> wgm.vertices_size()
+    8
+    >>> [(5, v, w) for v, w in wgm.adjacent_edges(5).items()]
+    [(5, 1, 0.32), (5, 4, 0.35), (5, 7, 0.28)]
+    >>> wgm
+    8 vertices, 16 edges.
+    0: 0-2 0.26, 0-4 0.38, 0-6 0.58, 0-7 0.16
+    1: 1-2 0.36, 1-3 0.29, 1-5 0.32, 1-7 0.19
+    2: 2-0 0.26, 2-1 0.36, 2-3 0.17, 2-6 0.4, 2-7 0.34
+    3: 3-1 0.29, 3-2 0.17, 3-6 0.52
+    4: 4-0 0.38, 4-5 0.35, 4-6 0.93, 4-7 0.37
+    5: 5-1 0.32, 5-4 0.35, 5-7 0.28
+    6: 6-0 0.58, 6-2 0.4, 6-3 0.52, 6-4 0.93
+    7: 7-0 0.16, 7-1 0.19, 7-2 0.34, 7-4 0.37, 7-5 0.28
+    <BLANKLINE>
+    """
+
+    def __init__(self, graph=None):
+        self._matrix = defaultdict(dict)
+        self._edges_size = 0
+
+    def edges_size(self):
+        return self._edges_size
+
+    def vertices_size(self):
+        return len(self._matrix.keys())
+
+    def add_edge(self, a, b, weight):
+        self._matrix[a][b] = weight
+        self._matrix[b][a] = weight
+        self._edges_size += 1
+
+    def adjacent_edges(self, vertex):
+        return self._matrix[vertex]
+
+    def vertices(self):
+        return self._matrix.keys()
+
+    def edges(self):
+        result = Bag()
+        for v in self.vertices():
+            for adj_verx, weight in self.adjacent_edges(v).items():
+                if adj_verx != v:
+                    result.add((v, adj_verx, weight))
+        return result
+
+    def __repr__(self):
+        print_string = '{} vertices, {} edges.\n'.format(
+            self.vertices_size(), self.edges_size())
+        output_edge = '{}-{} {}'
+        for v in self.vertices():
+            lst = ', '.join([output_edge.format(v, vrtx, w)
+                             for vrtx, w in self._matrix[v].items()])
             print_string += '{}: {}\n'.format(v, lst)
         return print_string
 
@@ -235,6 +307,67 @@ class PrimMST(object):
     # 4.3.31 practice
     def weight(self):
         return round(sum(val for val in self._dist_to.values()), 2)
+
+
+class KruskalMST(object):
+
+    """
+      Kruskal-Minimum-Spanning-Tree algorithm. This is a greedy stategy algorithm. First
+    put all edges into the priority queue, then delete the minimum-weight edge in the
+    priority queue. Check if those vertices on the both side of the edge is connected.
+    If connected, ignore the edge, if not, then use a disjoint set to connect two vertices
+    and put the edge into the result. This algorithm is a little bit slower than Prim's algorithm,
+    because the cost of connect operation is expensive. The running time of this algorithm
+    is proportional to O(ElogE) (E is the number of the edges). And the cost of the space
+    is proportional to E.
+    >>> test_data = ((4, 5, 0.35), (4, 7, 0.37), (5, 7, 0.28), (0, 7, 0.16), (1, 5, 0.32),
+    ...              (0, 4, 0.38), (2, 3, 0.17), (1, 7, 0.19), (0, 2, 0.26), (1, 2, 0.36),
+    ...              (1, 3, 0.29), (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58),
+    ...              (6, 4, 0.93))
+    >>> ewg = EdgeWeightedGraph()
+    >>> for a, b, weight in test_data:
+    ...    edge = Edge(a, b, weight)
+    ...    ewg.add_edge(edge)
+    ...
+    >>> kruskal_mst = KruskalMST(ewg)
+    >>> [edge for edge in kruskal_mst.edges()]
+    [0-7 0.16, 2-3 0.17, 1-7 0.19, 0-2 0.26, 5-7 0.28, 4-5 0.35, 6-2 0.4]
+    >>> kruskal_mst.weight()
+    1.81
+    """
+
+    def __init__(self, graph):
+        self._mst = Queue()
+        pq = self._init_priority_queue(graph)
+        uf = GenericUnionFind()
+
+        while not pq.is_empty() and self._mst.size() < graph.vertices_size() - 1:
+            edge = pq.del_min()
+            a = edge.either()
+            b = edge.other(a)
+            if uf.connected(a, b):
+                continue
+            uf.union(a, b)
+            self._mst.enqueue(edge)
+
+    def _init_priority_queue(self, graph):
+        pq = MinPQ()
+        for edge in graph.edges():
+            pq.insert(edge)
+        return pq
+
+    def edges(self):
+        return self._mst
+
+    def weight(self):
+        return sum(i.weight for i in self._mst)
+
+
+# 4.3.14 practice
+def generate_new_mst_with_less_edges(graph, mst, delete_edge):
+    if delete_edge not in mst:
+        return copy.deepcopy(mst)
+
 
 if __name__ == '__main__':
     doctest.testmod()

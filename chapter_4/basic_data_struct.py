@@ -125,6 +125,13 @@ class Bag(object):
             yield node.val
             node = node.next_node
 
+    def __contains__(self, item):
+        tmp = self._first
+        while tmp:
+            if tmp == item:
+                return True
+        return False
+
     def add(self, val):
         node = Node(val)
         old = self._first
@@ -235,7 +242,7 @@ class GenericUnionFind(object):
         pass
 
     def connected(self, p, q):
-        return self.find(p) == self.find(q)
+        return self.find(p) and self.find(q) and self.find(p) == self.find(q)
 
     def find(self, node):
         if node not in self._id:

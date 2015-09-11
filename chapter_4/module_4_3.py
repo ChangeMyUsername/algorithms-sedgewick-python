@@ -35,6 +35,9 @@ class Edge(object):
     def __le__(self, other):
         return self._weight <= other._weight
 
+    def __hash__(self):
+        return hash('{} {} {}'.format(self._vertex_a, self._vertex_b, self._weight))
+
     @property
     def weight(self):
         return self._weight
@@ -365,6 +368,52 @@ class KruskalMST(object):
 
 class DynamicMST(object):
 
+    """
+    >>> test_data = ((4, 5, 0.35), (4, 7, 0.37), (5, 7, 0.28), (0, 7, 0.16), (1, 5, 0.32),
+    ...              (0, 4, 0.38), (2, 3, 0.17), (1, 7, 0.19), (0, 2, 0.26), (1, 2, 0.36),
+    ...              (1, 3, 0.29), (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58),
+    ...              (6, 4, 0.93))
+    >>> ewg = EdgeWeightedGraph()
+    >>> for a, b, weight in test_data:
+    ...    edge = Edge(a, b, weight)
+    ...    ewg.add_edge(edge)
+    ...
+    >>> dmst = DynamicMST(ewg)
+    >>> new_edge = Edge(1, 6, 0.65) # add a new edge that doesn't change the mst result
+    >>> ewg.add_edge(new_edge)
+    >>> [e for e in dmst.incr_edge(ewg, new_edge)]
+    [0-7 0.16, 2-3 0.17, 1-7 0.19, 0-2 0.26, 5-7 0.28, 4-5 0.35, 6-2 0.4]
+    >>> new_edge2 = Edge(3, 4, 0.3)
+    >>> ewg.add_edge(new_edge2)
+    >>> # add a new edge that change the mst result
+    >>> # and if the new edge is in the mst, then it must be in the end of the queue.
+    >>> [e for e in dmst.incr_edge(ewg, new_edge2)]
+    [0-7 0.16, 2-3 0.17, 1-7 0.19, 0-2 0.26, 5-7 0.28, 6-2 0.4, 3-4 0.3]
+    >>> # delete edge operation, the edge is not actually deleted
+    >>> # delete a edge that is out of the mst
+    >>> [e for e in dmst.del_edge(ewg, new_edge)]
+    [0-7 0.16, 2-3 0.17, 1-7 0.19, 0-2 0.26, 5-7 0.28, 6-2 0.4, 3-4 0.3]
+    >>> # really sad that the order of the edges is not weight-increased
+    >>> [e for e in dmst.del_edge(ewg, new_edge2)]
+    [0-7 0.16, 2-3 0.17, 1-7 0.19, 0-2 0.26, 5-7 0.28, 6-2 0.4, 4-5 0.35]
+    >>> test_data = ((4, 5, 0.35), (4, 7, 0.37), (5, 7, 0.28), (0, 7, 0.16), (1, 5, 0.32),
+    ...              (0, 4, 0.38), (2, 3, 0.17), (1, 7, 0.19), (0, 2, 0.26), (1, 2, 0.36),
+    ...              (1, 3, 0.29), (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58),
+    ...              (6, 4, 0.93))
+    >>> ewg2 = EdgeWeightedGraph()
+    >>> for a, b, weight in test_data:
+    ...    edge = Edge(a, b, weight)
+    ...    ewg2.add_edge(edge)
+    ...
+    >>> dmst2 = DynamicMST(ewg2)
+    >>> dmst2.edge_add_to_mst(ewg, Edge(1, 6, 0.41))
+    False
+    >>> dmst2.edge_add_to_mst(ewg, Edge(1, 6, 0.29))
+    True
+    >>> dmst2.edge_add_to_mst(ewg, Edge(4, 2, 0.3))
+    True
+    """
+
     def __init__(self, graph):
         self._mst = Queue()
         pq = self._init_priority_queue(graph)
@@ -385,55 +434,75 @@ class DynamicMST(object):
             pq.insert(edge)
         return pq
 
+    def _get_max_cycle_edge(self, graph, new_edge):
+        # put the new edge into the mst creates a unique cycle
+        tmp = Queue(self._mst)
+        tmp.enqueue(new_edge)
+        mst_query_set = set(tmp)
+        cycle = Queue()
+        cycle.enqueue([new_edge])
+
+        start_vertex = new_edge.either()
+        end_vertex = new_edge.other(start_vertex)
+
+        while start_vertex != end_vertex:
+            path = cycle.dequeue()
+            last_edge = path[-1]
+            a, b = last_edge.either(), last_edge.other(last_edge.either())
+            start_vertex = b if a == start_vertex else a
+            for edge in graph.adjacent_edges(start_vertex):
+                if edge is not new_edge and edge in mst_query_set:
+                    path.append(edge)
+                    cycle.enqueue(path)
+        max_edge = max(cycle.dequeue())
+        return max_edge
+
+    # 4.3.16 practice, the solution is similar with 4.3.15
+    def edge_add_to_mst(self, graph, new_edge):
+        max_cycle_edge = self._get_max_cycle_edge(graph, new_edge)
+        return new_edge < max_cycle_edge
+
     # 4.3.15 practice, the solution is given on the website,
     # see http://algs4.cs.princeton.edu/43mst/
     def incr_edge(self, graph, edge):
+        max_cycle_edge = self._get_max_cycle_edge(graph, edge)
         self._mst.enqueue(edge)
-        max_weight = -1
-        tmp = None
-        for e in self._mst:
-            if e.weight > max_weight:
-                tmp, max_weight = e, e.weight
-
-        result = Queue()
-        for e in self._mst:
-            if e is tmp:
-                continue
-            result.add(e)
+        result = Queue([e for e in self._mst if e is not max_cycle_edge])
         self._mst = result
         return result
 
     # 4.3.14 practice, the solution is given on the website,
     # see http://algs4.cs.princeton.edu/43mst/
     def del_edge(self, graph, edge):
-        uf = GenericUnionFind()
-        for e in self._mst:
-            if e is edge:
-                continue
-            uf.union(e.other(), e.either(e.other()))
+
+        if edge not in set(self._mst):
+            return self._mst
+
+        # init disjoint set with iterable object
+        uf = GenericUnionFind([(e.either(), e.other(e.either()))
+                               for e in self._mst if e is not edge])
 
         pq = MinPQ()
         for e in graph.edges():
-            pq.insert(e)
+            if e is not edge:
+                pq.insert(e)
 
+        tmp = Queue([e for e in self._mst if e is not edge])
+
+        # find the minimum edge with both vertices is not connected
         while not pq.is_empty():
             min_edge = pq.del_min()
-            vertx_a = min_edge.other()
-            vertx_b = min_edge.either(vertx_a)
+            vertx_a = min_edge.either()
+            vertx_b = min_edge.other(vertx_a)
 
             if uf.connected(vertx_a, vertx_b):
                 continue
-            self._mst.enqueue(min_edge)
+            # only need one edge
+            tmp.enqueue(min_edge)
             break
 
-        new_mst = Queue()
-
-        for e in self._mst:
-            if e is edge:
-                continue
-            new_mst.enqueue(e)
-        self._mst = new_mst
-        return new_mst
+        self._mst = tmp
+        return self._mst
 
 if __name__ == '__main__':
     doctest.testmod()

@@ -238,8 +238,11 @@ class GenericUnionFind(object):
     True
     """
 
-    def __init__(self):
+    def __init__(self, tuple_data=None):
         self._id = {}
+        if tuple_data:
+            for a, b in tuple_data:
+                self.union(a, b)
 
     def count(self):
         pass

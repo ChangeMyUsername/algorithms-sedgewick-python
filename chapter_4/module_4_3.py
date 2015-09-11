@@ -363,11 +363,77 @@ class KruskalMST(object):
         return sum(i.weight for i in self._mst)
 
 
-# 4.3.14 practice
-def generate_new_mst_with_less_edges(graph, mst, delete_edge):
-    if delete_edge not in mst:
-        return copy.deepcopy(mst)
+class DynamicMST(object):
 
+    def __init__(self, graph):
+        self._mst = Queue()
+        pq = self._init_priority_queue(graph)
+        uf = GenericUnionFind()
+
+        while not pq.is_empty() and self._mst.size() < graph.vertices_size() - 1:
+            edge = pq.del_min()
+            a = edge.either()
+            b = edge.other(a)
+            if uf.connected(a, b):
+                continue
+            uf.union(a, b)
+            self._mst.enqueue(edge)
+
+    def _init_priority_queue(self, graph):
+        pq = MinPQ()
+        for edge in graph.edges():
+            pq.insert(edge)
+        return pq
+
+    # 4.3.15 practice, the solution is given on the website,
+    # see http://algs4.cs.princeton.edu/43mst/
+    def incr_edge(self, graph, edge):
+        self._mst.enqueue(edge)
+        max_weight = -1
+        tmp = None
+        for e in self._mst:
+            if e.weight > max_weight:
+                tmp, max_weight = e, e.weight
+
+        result = Queue()
+        for e in self._mst:
+            if e is tmp:
+                continue
+            result.add(e)
+        self._mst = result
+        return result
+
+    # 4.3.14 practice, the solution is given on the website,
+    # see http://algs4.cs.princeton.edu/43mst/
+    def del_edge(self, graph, edge):
+        uf = GenericUnionFind()
+        for e in self._mst:
+            if e is edge:
+                continue
+            uf.union(e.other(), e.either(e.other()))
+
+        pq = MinPQ()
+        for e in graph.edges():
+            pq.insert(e)
+
+        while not pq.is_empty():
+            min_edge = pq.del_min()
+            vertx_a = min_edge.other()
+            vertx_b = min_edge.either(vertx_a)
+
+            if uf.connected(vertx_a, vertx_b):
+                continue
+            self._mst.enqueue(min_edge)
+            break
+
+        new_mst = Queue()
+
+        for e in self._mst:
+            if e is edge:
+                continue
+            new_mst.enqueue(e)
+        self._mst = new_mst
+        return new_mst
 
 if __name__ == '__main__':
     doctest.testmod()

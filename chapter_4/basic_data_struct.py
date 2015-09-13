@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
 import doctest
-from collections import defaultdict
-from itertools import groupby
-from operator import itemgetter
 
 """
     copy from module_1_3.py, this is for avoiding package import problems.
@@ -286,62 +283,6 @@ class GenericUnionFind(object):
             self._id[q_root].parent = p_root
             self._id[p_root].size += self._id[q_root].size
 
-
-class EdgeConnectedComponent(object):
-
-    """
-    >>> g = Graph()
-    >>> test_data = [(0, 5), (4, 3), (0, 1), (9, 12), (6, 4), (5, 4), (0, 2),
-    ...              (11, 12), (9, 10), (0, 6), (7, 8), (9, 11), (5, 3)]
-    >>> for a, b in test_data:
-    ...     g.add_edge(a, b)
-    ...
-    >>> ecc = ConnectedComponent(g)
-    >>> cc.connected(0, 8)
-    False
-    >>> cc.connected(0, 4)
-    True
-    >>> cc.connected(0, 9)
-    False
-    >>> cc.vertex_id(0)
-    0
-    >>> cc.vertex_id(7)
-    1
-    >>> cc.vertex_id(11)
-    2
-    >>> cc.count()
-    3
-    """
-
-    def __init__(self, graph):
-        self._marked = defaultdict(bool)
-        self._id = defaultdict(int)
-        self._count = 0
-
-        for edge in graph.edges():
-            if not self._marked[edge.other()]:
-                self.dfs(graph, edge.other())
-                self._count += 1
-
-    def dfs(self, graph, vertex):
-        self._marked[vertex] = True
-        self._id[vertex] = self._count
-        for edge in graph.adjacent_edges(vertex):
-            if not self._marked[edge.either(vertex)]:
-                self.dfs(graph, edge.either(vertex))
-
-    def connected(self, vertex_1, vertex_2):
-        return self._id[vertex_1] == self._id[vertex_2]
-
-    def vertex_id(self, vertex):
-        return self._id[vertex]
-
-    def count(self):
-        return self._count
-
-    def get_components(self):
-        for k, v in groupby(sorted(self._id), key=itemgetter(1)):
-            yield tuple(v)
 
 if __name__ == '__main__':
     doctest.testmod()

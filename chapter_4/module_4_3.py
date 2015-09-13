@@ -2,9 +2,9 @@
 # -*- encoding:UTF-8 -*-
 import doctest
 import copy
+import heapq
 from collections import defaultdict
 from basic_data_struct import Bag, Queue, MinPQ, GenericUnionFind
-import heapq
 
 
 class Edge(object):
@@ -111,7 +111,7 @@ class EdgeWeightedGraph(object):
         return self._adj.keys()
 
     def edges(self):
-        result = Bag()
+        result = set()
         for v in self.vertices():
             for edge in self.adjacent_edges(v):
                 if edge.other(v) != v:
@@ -503,6 +503,115 @@ class DynamicMST(object):
 
         self._mst = tmp
         return self._mst
+
+
+class EdgeConnectedComponent(object):
+
+    """
+    >>> g = EdgeWeightedGraph()
+    >>> test_data = [(0, 5, 0.28), (4, 3, 0.88), (0, 1, 0.2), (9, 12, 0.95),
+    ...              (6, 4, 0.47), (5, 4, 0.74), (0, 2, 0.43),
+    ...              (11, 12, 0.57), (9, 10, 0.03), (0, 6, 0.86),
+    ...              (7, 8, 0.23), (9, 11, 0.32), (5, 3, 0.46)]
+    >>> for a, b, w in test_data:
+    ...     e = Edge(a, b, w)
+    ...     g.add_edge(e)
+    ...
+    >>> ecc = EdgeConnectedComponent(g)
+    >>> ecc.connected(0, 8)
+    False
+    >>> ecc.connected(0, 4)
+    True
+    >>> ecc.connected(0, 9)
+    False
+    >>> ecc.count()
+    3
+    >>> sorted([comp for comp in ecc.get_components()])
+    [[0, 1, 2, 3, 4, 5, 6], [7, 8], [9, 10, 11, 12]]
+    """
+
+    def __init__(self, graph):
+        self._marked = defaultdict(bool)
+        self._id = defaultdict(int)
+        self._count = 0
+
+        for edge in graph.edges():
+            if not self._marked[edge.either()]:
+                self.dfs(graph, edge.either())
+                self._count += 1
+
+    def dfs(self, graph, vertex):
+        self._marked[vertex] = True
+        self._id[vertex] = self._count
+        for edge in graph.adjacent_edges(vertex):
+            if not self._marked[edge.other(vertex)]:
+                self.dfs(graph, edge.other(vertex))
+
+    def connected(self, vertex_1, vertex_2):
+        return self._id[vertex_1] == self._id[vertex_2]
+
+    def count(self):
+        return self._count
+
+    def get_components(self):
+        components = defaultdict(list)
+        for k, v in self._id.items():
+            components[v].append(k)
+        return components.values()
+
+
+class KruskalMSF(object):
+
+    """
+    >>> test_data = ((4, 5, 0.35), (4, 7, 0.37), (5, 7, 0.28), (0, 7, 0.16), (1, 5, 0.32),
+    ...              (0, 4, 0.38), (2, 3, 0.17), (1, 7, 0.19), (0, 2, 0.26), (1, 2, 0.36),
+    ...              (1, 3, 0.29), (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58),
+    ...              (6, 4, 0.93), (8, 12, 0.61), (8, 11, 0.77), (11, 12, 0.12), (8, 9, 0.99),
+    ...              (9, 11, 0.36), (9, 10, 0.39), (8, 10, 0.04), (10, 12, 0.14))
+    >>> ewg = EdgeWeightedGraph()
+    >>> for a, b, weight in test_data:
+    ...    edge = Edge(a, b, weight)
+    ...    ewg.add_edge(edge)
+    ...
+    >>> kmsf = KruskalMSF(ewg)
+    >>> sorted([[e for e in mst] for mst in kmsf.edges()])
+    [[8-10 0.04, 11-12 0.12, 10-12 0.14, 9-11 0.36], [0-7 0.16, 2-3 0.17, 1-7 0.19, 0-2 0.26, 5-7 0.28, 4-5 0.35, 6-2 0.4]]
+    """
+
+    def __init__(self, forest):
+        ecc = EdgeConnectedComponent(forest)
+        self._msf = Queue()
+
+        for vertices in ecc.get_components():
+            pq = self._init_priority_queue(vertices, forest)
+            uf = GenericUnionFind()
+            mst = Queue()
+            while not pq.is_empty() and mst.size() < len(vertices) - 1:
+                edge = pq.del_min()
+                a = edge.either()
+                b = edge.other(a)
+                if uf.connected(a, b):
+                    continue
+                uf.union(a, b)
+                mst.enqueue(edge)
+            self._msf.enqueue(mst)
+
+    def _init_priority_queue(self, vertices, forest):
+        dup_set = set()
+        pq = MinPQ()
+        for v in vertices:
+            for edge in forest.adjacent_edges(v):
+                if edge not in dup_set:
+                    pq.insert(edge)
+                    dup_set.add(edge)
+        return pq
+
+    def edges(self):
+        return self._msf
+
+    def weight(self):
+        return sum(i.weight for i in self._mst)
+
 
 if __name__ == '__main__':
     doctest.testmod()

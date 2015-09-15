@@ -4,7 +4,7 @@ import doctest
 import copy
 import heapq
 from collections import defaultdict
-from basic_data_struct import Bag, Queue, MinPQ, GenericUnionFind
+from basic_data_struct import Bag, Queue, MinPQ, GenericUnionFind, MaxPQ
 
 
 class Edge(object):
@@ -560,6 +560,7 @@ class EdgeConnectedComponent(object):
         return components.values()
 
 
+# 4.3.22 practice, implement minimum spanning forest
 class KruskalMSF(object):
 
     """
@@ -612,6 +613,57 @@ class KruskalMSF(object):
     def weight(self):
         return sum(i.weight for i in self._mst)
 
+
+# 4.3.24 practice, implement an algorithm delete a maximum-weight
+# edge that the graph is still connected every time
+class ReverseDeleteMST(object):
+
+    """
+    >>> test_data = ((4, 5, 0.35), (4, 7, 0.37), (5, 7, 0.28), (0, 7, 0.16), (1, 5, 0.32),
+    ...              (0, 4, 0.38), (2, 3, 0.17), (1, 7, 0.19), (0, 2, 0.26), (1, 2, 0.36),
+    ...              (1, 3, 0.29), (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58),
+    ...              (6, 4, 0.93))
+    >>> ewg = EdgeWeightedGraph()
+    >>> for a, b, weight in test_data:
+    ...    edge = Edge(a, b, weight)
+    ...    ewg.add_edge(edge)
+    ...
+    >>> rd_mst = ReverseDeleteMST(ewg)
+    >>> sorted([edge for edge in rd_mst.edges()])
+    [0-7 0.16, 2-3 0.17, 1-7 0.19, 0-2 0.26, 5-7 0.28, 4-5 0.35, 6-2 0.4]
+    """
+
+    def __init__(self, graph):
+        deleted_edges = set()
+        max_pq = MaxPQ(graph.edges())
+        self._mst = Queue()
+        while not max_pq.is_empty():
+            edge = max_pq.del_max()
+            if self._graph_connected(graph, edge, deleted_edges):
+                deleted_edges.add(edge)
+            else:
+                self._mst.enqueue(edge)
+
+    def _graph_connected(self, graph, canidate_edge, deleted_edges):
+        self._marked = defaultdict(bool)
+        start_vertex = canidate_edge.either()
+        self._marked[start_vertex] = True
+        for edge in graph.adjacent_edges(start_vertex):
+            a = edge.other(start_vertex)
+            if edge is not canidate_edge and edge not in deleted_edges and not self._marked[a]:
+                self._dfs(graph, a, canidate_edge, deleted_edges)
+        connected_vertices = len([v for v in self._marked if self._marked[v]])
+        return graph.vertices_size() == connected_vertices
+
+    def _dfs(self, graph, vertex, canidate_edge, deleted_edges):
+        self._marked[vertex] = True
+        for edge in graph.adjacent_edges(vertex):
+            v = edge.other(vertex)
+            if edge is not canidate_edge and edge not in deleted_edges and not self._marked[v]:
+                self._dfs(graph, v, canidate_edge, deleted_edges)
+
+    def edges(self):
+        return self._mst
 
 if __name__ == '__main__':
     doctest.testmod()

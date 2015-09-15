@@ -284,5 +284,51 @@ class GenericUnionFind(object):
             self._id[p_root].size += self._id[q_root].size
 
 
+class MaxPQ(object):
+
+    def __init__(self, data=None):
+        self._pq = []
+        if data:
+            for item in data:
+                self.insert(item)
+
+    def is_empty(self):
+        return len(self._pq) == 0
+
+    def size(self):
+        return len(self._pq)
+
+    def swim(self, pos):
+        while pos > 0 and self._pq[(pos - 1) // 2] < self._pq[pos]:
+            self._pq[(pos - 1) // 2], self._pq[pos] = self._pq[pos], self._pq[(pos - 1) // 2]
+            pos = (pos - 1) // 2
+
+    def sink(self, pos):
+        length = len(self._pq) - 1
+        while 2 * pos + 1 <= length:
+            index = 2 * pos + 1
+            if index < length and self._pq[index] < self._pq[index + 1]:
+                index += 1
+            if self._pq[pos] >= self._pq[index]:
+                break
+            self._pq[index], self._pq[pos] = self._pq[pos], self._pq[index]
+            pos = index
+
+    def insert(self, val):
+        self._pq.append(val)
+        self.swim(len(self._pq) - 1)
+
+    def del_max(self):
+        max_val = self._pq[0]
+        last_index = len(self._pq) - 1
+        self._pq[0], self._pq[last_index] = self._pq[last_index], self._pq[0]
+        self._pq.pop(last_index)
+        self.sink(0)
+        return max_val
+
+    def max_val(self):
+        return self._pq[0]
+
+
 if __name__ == '__main__':
     doctest.testmod()

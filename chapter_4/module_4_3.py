@@ -184,7 +184,7 @@ class WeightedGraphMatrix(object):
         return self._matrix.keys()
 
     def edges(self):
-        result = Bag()
+        result = set()
         for v in self.vertices():
             for adj_verx, weight in self.adjacent_edges(v).items():
                 if adj_verx != v:
@@ -200,6 +200,58 @@ class WeightedGraphMatrix(object):
                              for vrtx, w in self._matrix[v].items()])
             print_string += '{}: {}\n'.format(v, lst)
         return print_string
+
+
+# 4.3.28 practice, using primitive data structure with EdgeWeightedGraph
+class WeightedGraph(object):
+
+    """
+    >>> test_data = ((0.35, 4, 5), (0.37, 4, 7), (0.28, 5, 7), (0.16, 0, 7), (0.32, 1, 5),
+    ...              (0.38, 0, 4), (0.17, 2, 3), (0.19, 1, 7), (0.26, 0, 2), (0.36, 1, 2),
+    ...              (0.29, 1, 3), (0.34, 2, 7), (0.4, 6, 2), (0.52, 3, 6), (0.58, 6, 0),
+    ...              (0.93, 6, 4))
+    >>> wg = WeightedGraph()
+    >>> for edge in test_data:
+    ...     wg.add_edge(edge)
+    ...
+    >>> wg.edges_size()
+    16
+    >>> wg.vertices_size()
+    8
+    >>> [(a, b, w) for w, a, b in wg.adjacent_edges(5)]
+    [(4, 5, 0.35), (5, 7, 0.28), (1, 5, 0.32)]
+    >>> [(a, b, w) for w, a, b in wg.adjacent_edges(7)]
+    [(4, 7, 0.37), (5, 7, 0.28), (0, 7, 0.16), (1, 7, 0.19), (2, 7, 0.34)]
+    """
+
+    def __init__(self):
+        self._adj = defaultdict(list)
+        self._edges_size = 0
+
+    def add_edge(self, edge):
+        self._adj[edge[1]].append(edge)
+        self._adj[edge[2]].append(edge)
+        self._edges_size += 1
+
+    def vertices_size(self):
+        return len(self._adj.keys())
+
+    def edges_size(self):
+        return self._edges_size
+
+    def adjacent_edges(self, vertex):
+        return self._adj[vertex]
+
+    def vertices(self):
+        return self._adj.keys()
+
+    def edges(self):
+        result = set()
+        for v in self.vertices():
+            for a, b, weight in self.adjacent_edges(v):
+                if a != b:
+                    result.add((a, b, weight))
+        return result
 
 
 class LazyPrimMST(object):
@@ -664,6 +716,103 @@ class ReverseDeleteMST(object):
 
     def edges(self):
         return self._mst
+
+
+# 4.3.28 practice
+class PrimitiveLazyPrimMST(object):
+
+    """
+    >>> test_data = ((0.35, 4, 5), (0.37, 4, 7), (0.28, 5, 7), (0.16, 0, 7), (0.32, 1, 5),
+    ...              (0.38, 0, 4), (0.17, 2, 3), (0.19, 1, 7), (0.26, 0, 2), (0.36, 1, 2),
+    ...              (0.29, 1, 3), (0.34, 2, 7), (0.4, 6, 2), (0.52, 3, 6), (0.58, 6, 0),
+    ...              (0.93, 6, 4))
+    >>> wg = WeightedGraph()
+    >>> for edge in test_data:
+    ...     wg.add_edge(edge)
+    ...
+    >>> primitive_mst = PrimitiveLazyPrimMST(wg, 0)
+    >>> [edge for edge in primitive_mst.edges()]
+    [(0.16, 0, 7), (0.19, 1, 7), (0.26, 0, 2), (0.17, 2, 3), (0.28, 5, 7), (0.35, 4, 5), (0.4, 6, 2)]
+    """
+
+    def __init__(self, graph, start_vertex):
+        self._marked = defaultdict(bool)
+        self._mst = Queue()
+        self.pq = MinPQ()
+        self.visit(graph, start_vertex)
+        while not self.pq.is_empty():
+            edge = self.pq.del_min()
+            if self._marked[edge[1]] and self._marked[edge[2]]:
+                continue
+            self._mst.enqueue(edge)
+            if not self._marked[edge[1]]:
+                self.visit(graph, edge[1])
+            if not self._marked[edge[2]]:
+                self.visit(graph, edge[2])
+
+    def visit(self, graph, vertex):
+        self._marked[vertex] = True
+        for edge in graph.adjacent_edges(vertex):
+            if edge[1] == vertex and not self._marked[edge[2]]:
+                self.pq.insert(edge)
+            elif edge[2] == vertex and not self._marked[edge[1]]:
+                self.pq.insert(edge)
+
+    def edges(self):
+        return self._mst
+
+    def weight(self):
+        return sum(edge[0] for edge in self._mst)
+
+
+# 4.3.32 practice, generate a mst with given edges(no cycle included)
+class EdgeSetMST(object):
+
+    """
+    >>> test_data = ((4, 5, 0.35), (4, 7, 0.37), (5, 7, 0.28), (0, 7, 0.16), (1, 5, 0.32),
+    ...              (0, 4, 0.38), (2, 3, 0.17), (1, 7, 0.19), (0, 2, 0.26), (1, 2, 0.36),
+    ...              (1, 3, 0.29), (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58),
+    ...              (6, 4, 0.93))
+    >>> ewg = EdgeWeightedGraph()
+    >>> for a, b, weight in test_data:
+    ...    edge = Edge(a, b, weight)
+    ...    ewg.add_edge(edge)
+    ...
+    >>> contain_edges = set(edge for edge in ewg.adjacent_edges(6))
+    >>> mst = EdgeSetMST(ewg, contain_edges)
+    >>> [edge for edge in mst.edges()]
+    [6-4 0.93, 3-6 0.52, 6-2 0.4, 6-0 0.58, 0-7 0.16, 1-7 0.19, 5-7 0.28]
+    """
+
+    def __init__(self, graph, contain_edges):
+        self._mst = Queue([edge for edge in contain_edges])
+        pq = self._init_priority_queue(graph, contain_edges)
+        uf = GenericUnionFind()
+        for edge in contain_edges:
+            uf.union(edge.either(), edge.other(edge.either()))
+
+        while not pq.is_empty() and self._mst.size() < graph.vertices_size() - 1:
+            edge = pq.del_min()
+            a = edge.either()
+            b = edge.other(a)
+            if uf.connected(a, b):
+                continue
+            uf.union(a, b)
+            self._mst.enqueue(edge)
+
+    def _init_priority_queue(self, graph, contain_edges):
+        pq = MinPQ()
+        for edge in graph.edges():
+            if edge not in contain_edges:
+                pq.insert(edge)
+        return pq
+
+    def edges(self):
+        return self._mst
+
+    def weight(self):
+        return sum(i.weight for i in self._mst)
+
 
 if __name__ == '__main__':
     doctest.testmod()

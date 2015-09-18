@@ -100,6 +100,9 @@ class EdgeWeightedDigraph(object):
                 result.add(edge)
         return result
 
+    def vertices(self):
+        return self._vertices
+
     def vertices_size(self):
         return len(self._vertices)
 
@@ -147,6 +150,46 @@ class ShortestPath(metaclass=ABCMeta):
             path.push(edge)
             edge = self._edge_to[edge.start]
         return path
+
+
+class DijkstraSP(ShortestPath):
+
+    """
+    >>> test_data = ((4, 5, 0.35), (5, 4, 0.35), (4, 7, 0.37), (5, 7, 0.28), (7, 5, 0.28),
+    ...              (5, 1, 0.32), (0, 4, 0.38), (0, 2, 0.26), (7, 3, 0.39), (1, 3, 0.29),
+    ...              (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58), (6, 4, 0.93))
+    >>> ewd = EdgeWeightedDigraph()
+    >>> for a, b, weight in test_data:
+    ...     edge = DirectedEdge(a, b, weight)
+    ...     ewd.add_edge(edge)
+    ...
+    >>> sp = DijkstraSP(ewd, 0)
+    >>> [sp.has_path_to(i) for i in range(1, 8)]
+    [True, True, True, True, True, True, True]
+    """
+
+    def __init__(self, graph, source):
+        self._dist_to = dict((v, INFINITE_NUMBER) for v in graph.vertices())
+        self._edge_to = {}
+        self._pq = IndexMinPQ(graph.vertices_size())
+        self._pq.insert(source, 0)
+        self._dist_to[source] = 0
+        self._marked = set()
+
+        while not self._pq.is_empty():
+            self.relax(graph, self._pq.delete_min())
+
+    def relax(self, graph, vertex):
+        for edge in graph.adjacent_edges(vertex):
+            end = edge.end
+            if self._dist_to[end] > self._dist_to[vertex] + edge.weight:
+                self._dist_to[end] = self._dist_to[vertex] + edge.weight
+                self._edge_to[end] = edge
+
+                if self._pq.contains(end):
+                    self._pq.change_key(end, self._dist_to[end])
+                else:
+                    self._pq.insert(end, self._dist_to[end])
 
 if __name__ == '__main__':
     doctest.testmod()

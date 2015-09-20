@@ -2,9 +2,8 @@
 # -*- encoding:UTF-8 -*-
 import doctest
 import copy
-import heapq
 from collections import defaultdict
-from basic_data_struct import Bag, Queue, MinPQ, GenericUnionFind, MaxPQ
+from basic_data_struct import Bag, Queue, MinPQ, GenericUnionFind, MaxPQ, IndexMinPQ
 
 
 class Edge(object):
@@ -313,8 +312,11 @@ class LazyPrimMST(object):
 class PrimMST(object):
 
     """
-      Prim-Minimum-Spanning-Tree instant version, this python implementation is not efficient
-    enough yet.
+      Prim-Minimum-Spanning-Tree instant version. Put the start_vertex and 0 weight into the
+    index minimum priority queue. Then check all adjacent vertices, if the adjacent vertex is
+    checked before, ignore it; otherwise update the distance between the current vertex and the
+    start vertex. The cost of space is proportional to O(V), and the cost of running time is
+    proportional to O(ElogV)
     >>> test_data = ((4, 5, 0.35), (4, 7, 0.37), (5, 7, 0.28), (0, 7, 0.16), (1, 5, 0.32),
     ...              (0, 4, 0.38), (2, 3, 0.17), (1, 7, 0.19), (0, 2, 0.26), (1, 2, 0.36),
     ...              (1, 3, 0.29), (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58),
@@ -335,11 +337,11 @@ class PrimMST(object):
         self._edge_to = {}
         self._dist_to = dict((vertex, 999999999) for vertex in graph.vertices())
         self._marked = defaultdict(bool)
-        self._pq = []
+        self._pq = IndexMinPQ(graph.vertices_size())
         self._dist_to[start_vertex] = 0
-        heapq.heappush(self._pq, (0, start_vertex))
+        self._pq.insert(start_vertex, 0.0)
         while len(self._pq) != 0:
-            self.visit(graph, heapq.heappop(self._pq)[1])
+            self.visit(graph, self._pq.delete_min())
 
     def visit(self, graph, vertex):
         self._marked[vertex] = True
@@ -349,11 +351,12 @@ class PrimMST(object):
                 continue
             if edge.weight < self._dist_to[other_vertex]:
                 self._edge_to[other_vertex] = edge
-                old_dist = self._dist_to[other_vertex]
                 self._dist_to[other_vertex] = edge.weight
-                if (old_dist, other_vertex) in self._pq:
-                    self._pq.remove((old_dist, other_vertex))
-                heapq.heappush(self._pq, (self._dist_to[other_vertex], other_vertex))
+
+                if self._pq.contains(other_vertex):
+                    self._pq.change_key(other_vertex, self._dist_to[other_vertex])
+                else:
+                    self._pq.insert(other_vertex, self._dist_to[other_vertex])
 
     # 4.3.21 practice, the code is given in the book.
     def edges(self):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
 import doctest
+from collections import defaultdict
 
 """
     copy from module_1_3.py, this is for avoiding package import problems.
@@ -406,6 +407,94 @@ class IndexMinPQ(object):
         self._keys[self._index[self._keys_size + 1]] = None
         self._index[self._keys_size + 1] = -1
         return min_index
+
+
+# data structure for EdgeWeightedDiGraph Topological
+
+class DirectedCycle(object):
+
+    def __init__(self, graph):
+        self._marked = defaultdict(bool)
+        self._edge_to = {}
+        self._on_stack = defaultdict(bool)
+        self._cycle = Stack()
+        for v in graph.vertices():
+            if not self._marked[v]:
+                self.dfs(graph, v)
+
+    def dfs(self, graph, vertex):
+        self._on_stack[vertex] = True
+        self._marked[vertex] = True
+
+        for edge in graph.adjacent_edges(vertex):
+            end = edge.end
+            if self.has_cycle():
+                return
+            elif not self._marked[end]:
+                self._edge_to[end] = vertex
+                self.dfs(graph, end)
+            elif self._on_stack[end]:
+                tmp = vertex
+                while tmp != end:
+                    self._cycle.push(tmp)
+                    tmp = self._edge_to[tmp]
+                self._cycle.push(end)
+                self._cycle.push(vertex)
+        self._on_stack[vertex] = False
+
+    def has_cycle(self):
+        return not self._cycle.is_empty()
+
+    def cycle(self):
+        return self._cycle
+
+
+class DepthFirstOrder(object):
+
+    def __init__(self, graph):
+        self._pre = Queue()
+        self._post = Queue()
+        self._reverse_post = Stack()
+        self._marked = defaultdict(bool)
+
+        for v in graph.vertices():
+            if not self._marked[v]:
+                self.dfs(graph, v)
+
+    def dfs(self, graph, vertex):
+        self._pre.enqueue(vertex)
+        self._marked[vertex] = True
+        for edge in graph.adjacent_edges(vertex):
+            if not self._marked[edge.end]:
+                self.dfs(graph, edge.end)
+
+        self._post.enqueue(vertex)
+        self._reverse_post.push(vertex)
+
+    def prefix(self):
+        return self._pre
+
+    def postfix(self):
+        return self._post
+
+    def reverse_postfix(self):
+        return self._reverse_post
+
+
+class Topological(object):
+
+    def __init__(self, graph):
+        cycle_finder = DirectedCycle(graph)
+        self._order = None
+        if not cycle_finder.has_cycle():
+            df_order = DepthFirstOrder(graph)
+            self._order = df_order.reverse_postfix()
+
+    def order(self):
+        return self._order
+
+    def is_DAG(self):
+        return self._order is not None
 
 
 if __name__ == '__main__':

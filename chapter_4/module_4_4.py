@@ -288,30 +288,122 @@ class AcyclicLP(ShortestPath):
 
     def __init__(self, graph, source):
         self._dist_to = dict((v, INFINITE_NEGATIVE_NUMBER) for v in graph.vertices())
-        self._edge_to = {}
-        self._edge_to[source] = None
         self._dist_to[source] = 0
+        self._edge_to = {source: None}
+
         topo = Topological(graph)
 
         for v in topo.order():
             self.relax_vertex_lp(graph, v)
 
 
+class EdgeWeightedDirectedCycle(object):
+
+    def __init__(self, graph):
+        self._mark = defaultdict(bool)
+        self._on_stack = defaultdict(bool)
+        self._edge_to = {}
+        self._cycle = None
+
+        for v in graph.vertices():
+            if not self._mark[v]:
+                self.dfs(graph, v)
+
+    def dfs(self, graph, vertex):
+        self._on_stack[vertex] = True
+        self._mark[vertex] = True
+
+        for edge in graph.adjacent_edges(vertex):
+            end = edge.end
+            if not self._mark[end]:
+                self._edge_to[end] = edge
+                self.dfs(graph, end)
+            elif self._on_stack[end]:
+                self._cycle = Stack()
+                while edge.start != end:
+                    self._cycle.push(edge)
+                    edge = self._edge_to[edge.start]
+                self._cycle.push(edge)
+
+        self._on_stack[vertex] = False
+
+    def has_cycle(self):
+        return self._cycle is not None
+
+    def cycle(self):
+        return self._cycle
+
+
 class BellmanFordSP(ShortestPath):
+
+    """
+    >>> test_data = ((4, 5, 0.35), (5, 4, -0.66), (4, 7, 0.37), (5, 7, 0.28), (7, 5, 0.28),
+    ...              (5, 1, 0.32), (0, 4, 0.38), (0, 2, 0.26), (7, 3, 0.39), (1, 3, 0.29),
+    ...              (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58), (6, 4, 0.93))
+    >>> ewd = EdgeWeightedDigraph()
+    >>> for a, b, weight in test_data:
+    ...     edge = DirectedEdge(a, b, weight)
+    ...     ewd.add_edge(edge)
+    ...
+    >>> sp = BellmanFordSP(ewd, 0)
+    >>> [sp.has_path_to(i) for i in range(8)]
+    [True, True, True, True, True, True, True, True]
+    >>> sp._has_negative_cycle()
+    True
+    >>> [edge for edge in sp.negative_cycle()]
+    [4->5 0.35, 5->4 -0.66]
+    """
 
     def __init__(self, graph, source):
         self._dist_to = dict((v, INFINITE_POSITIVE_NUMBER) for v in graph.vertices())
-        self._edge_to = {source: None}
         self._dist_to[source] = 0
+
+        self._edge_to = {source: None}
+
         self._on_queue = defaultdict(bool)
+        self._on_queue[source] = True
         self._queue = Queue()
         self._queue.enqueue(source)
-        self._on_queue[source] = True
-        while not self._queue.is_empty() and not self._has_on_negative_cycle():
+
+        self._cost = 0
+        self._cycle = None
+
+        while not self._queue.is_empty() and not self._has_negative_cycle():
             vertex = self._queue.dequeue()
             self._on_queue[vertex] = False
             self.relax(graph, vertex)
 
+        print(self._edge_to)
+
+    def relax(self, graph, vertex):
+        for edge in graph.adjacent_edges(vertex):
+            end = edge.end
+
+            if self._dist_to[end] > self._dist_to[vertex] + edge.weight:
+                self._dist_to[end] = round(self._dist_to[vertex] + edge.weight, 2)
+                self._edge_to[end] = edge
+                if not self._on_queue[end]:
+                    self._queue.enqueue(end)
+                    self._on_queue[end] = True
+
+            if self._cost % graph.vertices_size() == 0:
+                self._find_negative_cycle(graph)
+            self._cost += 1
+
+    def _find_negative_cycle(self, graph):
+        spt = EdgeWeightedDigraph()
+        for v in graph.vertices():
+            if self._edge_to.get(v, None):
+                spt.add_edge(self._edge_to[v])
+
+        cf = EdgeWeightedDirectedCycle(spt)
+        self._cycle = cf.cycle()
+
+    def _has_negative_cycle(self):
+        return self._cycle is not None
+
+    def negative_cycle(self):
+        return self._cycle
 
 if __name__ == '__main__':
     doctest.testmod()

@@ -111,6 +111,7 @@ class EdgeWeightedDigraph(object):
     def edges_size(self):
         return self._edges_size
 
+    # 4.4.2 practice
     def __repr__(self):
         print_str = '{} vertices, {} edges\n'.format(
             len(self._vertices), self._edges_size)
@@ -164,6 +165,12 @@ class ShortestPath(metaclass=ABCMeta):
 class DijkstraSP(ShortestPath):
 
     """
+      Dijkstra Shortest Path algorithm. First reach the source vertex, 'relax' all the adjacent
+    edges of the source vertex, and then put all 'relaxed' edges into the priority queue or
+    change the distance from the priority queue util the priority queue is empty. The cost of
+    running time is proportional to O(ElogV), and the cost of the space is proportional to O(V).
+    This algorithm is not applied to the graph with NEGATIVE edges. The worst case still has good
+    performance.
     >>> test_data = ((4, 5, 0.35), (5, 4, 0.35), (4, 7, 0.37), (5, 7, 0.28), (7, 5, 0.28),
     ...              (5, 1, 0.32), (0, 4, 0.38), (0, 2, 0.26), (7, 3, 0.39), (1, 3, 0.29),
     ...              (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58), (6, 4, 0.93))
@@ -228,6 +235,12 @@ class DijkstraAllPairsSP(object):
 class AcyclicSP(ShortestPath):
 
     """
+      Acyclic Shortest Path algorithm. Apply topological sort and 'relax'
+    all the adjacent edges of the vertices in the topological order. This
+    algorithm is not applied to the graph with cycle (topological). This
+    algorithm can solve task schedule problems. The cost running time is
+    proportional to O(E + V), which is linear and much faster than Dijkstra's
+    one.
     >>> test_data = ((5, 4, 0.35), (4, 7, 0.37), (5, 7, 0.28),
     ...              (5, 1, 0.32), (4, 0, 0.38), (0, 2, 0.26), (3, 7, 0.39), (1, 3, 0.29),
     ...              (7, 2, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58), (6, 4, 0.93))
@@ -337,9 +350,15 @@ class EdgeWeightedDirectedCycle(object):
 class BellmanFordSP(ShortestPath):
 
     """
-    >>> test_data = ((4, 5, 0.35), (5, 4, -0.66), (4, 7, 0.37), (5, 7, 0.28), (7, 5, 0.28),
+      BellmanFord Shortest Path algorithm. This version is not a traditional one,
+    it's a queue-based version. First enqueue the source vertex, and dequeue the vertex,
+    'relax' all adjacent edges and put the adjacent vertices into the queue until the queue
+    is empty or find the negative cycle. A negative cycle check is nessesary every V times
+    relaxtion.The cost of running time is proportional to O(V + E), the worst case is VE.
+    This is a universal algorithm for Shortest Path algorithm.
+    >>> test_data = ((4, 5, 0.35), (5, 4, 0.35), (4, 7, 0.37), (5, 7, 0.28), (7, 5, 0.28),
     ...              (5, 1, 0.32), (0, 4, 0.38), (0, 2, 0.26), (7, 3, 0.39), (1, 3, 0.29),
-    ...              (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58), (6, 4, 0.93))
+    ...              (2, 7, 0.34), (6, 2, -1.2), (3, 6, 0.52), (6, 0, -1.4), (6, 4, -1.25))
     >>> ewd = EdgeWeightedDigraph()
     >>> for a, b, weight in test_data:
     ...     edge = DirectedEdge(a, b, weight)
@@ -349,9 +368,11 @@ class BellmanFordSP(ShortestPath):
     >>> [sp.has_path_to(i) for i in range(8)]
     [True, True, True, True, True, True, True, True]
     >>> sp._has_negative_cycle()
-    True
-    >>> [edge for edge in sp.negative_cycle()]
-    [4->5 0.35, 5->4 -0.66]
+    False
+    >>> [edge for edge in sp.path_to(7)]
+    [0->2 0.26, 2->7 0.34]
+    >>> [edge for edge in sp.path_to(4)]
+    [0->2 0.26, 2->7 0.34, 7->3 0.39, 3->6 0.52, 6->4 -1.25]
     """
 
     def __init__(self, graph, source):
@@ -360,10 +381,10 @@ class BellmanFordSP(ShortestPath):
 
         self._edge_to = {source: None}
 
-        self._on_queue = defaultdict(bool)
-        self._on_queue[source] = True
         self._queue = Queue()
         self._queue.enqueue(source)
+        self._on_queue = defaultdict(bool)
+        self._on_queue[source] = True
 
         self._cost = 0
         self._cycle = None
@@ -373,7 +394,7 @@ class BellmanFordSP(ShortestPath):
             self._on_queue[vertex] = False
             self.relax(graph, vertex)
 
-        print(self._edge_to)
+        assert self.check(graph, source)
 
     def relax(self, graph, vertex):
         for edge in graph.adjacent_edges(vertex):
@@ -404,6 +425,48 @@ class BellmanFordSP(ShortestPath):
 
     def negative_cycle(self):
         return self._cycle
+
+    def check(self, graph, source):
+        # if negative cycle exists, check the total weight of the negative cycle is negative.
+        if self._has_negative_cycle():
+            if sum(e.weight for e in self.negative_cycle()) >= 0:
+                print('positive weight from negative cycle')
+                return False
+        # no negative cycle
+        else:
+            # check vertex self._dist_to[v] and self._edge_to[v] are consistent
+            if self._dist_to[source] != 0 or self._edge_to[source] is not None:
+                print('the distance and edge_to of source vertex inconsistent')
+                return False
+
+            for v in graph.vertices():
+                if v == source:
+                    continue
+                if self._edge_to[v] is None and self._dist_to[v] != INFINITE_POSITIVE_NUMBER:
+                    print('the distance and edge_to of {} inconsistent'.format(v))
+                    return False
+
+            # check each edge is relaxed
+            for v in graph.vertices():
+                for e in graph.adjacent_edges(v):
+                    if round(self._dist_to[v] + e.weight, 2) < self._dist_to[e.end]:
+                        print('edge {} is not relaxed'.format(e))
+                        return False
+
+            # check that all edges e = v->w on SPT satisfy distTo[w] == distTo[v] + e.weight()
+            for v in graph.vertices():
+                if self._edge_to[v] is None:
+                    continue
+                edge = self._edge_to[v]
+                if v != edge.end:
+                    print('here')
+                    return False
+                if round(self._dist_to[edge.start] + edge.weight, 2) != self._dist_to[v]:
+                    print('edge {} on shortest path not tight'.format(edge))
+                    return False
+
+        return True
+
 
 if __name__ == '__main__':
     doctest.testmod()

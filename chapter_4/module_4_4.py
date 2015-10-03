@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
 import doctest
+import copy
 import pprint
 from collections import defaultdict
 from abc import ABCMeta
@@ -68,6 +69,8 @@ class EdgeWeightedDigraph(object):
     [5->1 0.32, 5->7 0.28, 5->4 0.35]
     >>> [edge for edge in ewd.adjacent_edges(7)]
     [7->3 0.39, 7->5 0.28]
+    >>> sorted([v for v in ewd.vertices()])
+    [0, 1, 2, 3, 4, 5, 6, 7]
     >>> ewd
     8 vertices, 15 edges
     0: 0->2 0.26, 0->4 0.38
@@ -81,10 +84,15 @@ class EdgeWeightedDigraph(object):
     <BLANKLINE>
     """
 
-    def __init__(self):
+    def __init__(self, graph=None):
         self._vertices = set()
         self._edges_size = 0
         self._adj = defaultdict(Bag)
+
+        if graph:
+            self._vertices = set(v for v in graph.vertices())
+            self._edges_size = graph.edges_size()
+            self._adj = copy.deepcopy(graph._adj)
 
     def add_edge(self, edge):
         self._adj[edge.start].add(edge)
@@ -121,6 +129,61 @@ class EdgeWeightedDigraph(object):
                 edge_str.format(edge.start, edge.end, edge.weight) for edge in self._adj[v])
             print_str += '{}: {}\n'.format(v, edges)
         return print_str
+
+
+# 4.4.3 practice, implement an adjacent matrix
+class EdgeWeightedMatrix(object):
+
+    """
+    >>> test_data = ((4, 5, 0.35), (5, 4, 0.35), (4, 7, 0.37), (5, 7, 0.28), (7, 5, 0.28),
+    ...              (5, 1, 0.32), (0, 4, 0.38), (0, 2, 0.26), (7, 3, 0.39), (1, 3, 0.29),
+    ...              (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58), (6, 4, 0.93))
+    >>> ewm = EdgeWeightedMatrix()
+    >>> for item in test_data:
+    ...     ewm.add_edge(*item)
+    ...
+    >>> ewm.vertices_size()
+    8
+    >>> ewm.edges_size()
+    15
+    >>> ewm.adjacent_edges(5)
+    {1: 0.32, 4: 0.35, 7: 0.28}
+    >>> ewm.adjacent_edges(7)
+    {3: 0.39, 5: 0.28}
+    >>> sorted([v for v in ewm.vertices()])
+    [0, 1, 2, 3, 4, 5, 6, 7]
+    """
+
+    def __init__(self):
+        self._adj = defaultdict(dict)
+        self._vertices = set()
+        self._edges_size = 0
+
+    def add_edge(self, source, dist, weight):
+        if not self._adj[source].get(dist, None):
+            self._edges_size += 1
+        self._adj[source][dist] = weight
+        self._vertices.add(source)
+        self._vertices.add(dist)
+
+    def adjacent_edges(self, vertex):
+        return self._adj[vertex]
+
+    def vertices(self):
+        return self._vertices
+
+    def vertices_size(self):
+        return len(self._vertices)
+
+    def edges_size(self):
+        return self._edges_size
+
+    def edges(self):
+        result = Bag()
+        for k in self._adj:
+            for j in self._adj[k]:
+                result.add((k, j, self._adj[k][j]))
+        return result
 
 
 class ShortestPath(metaclass=ABCMeta):
@@ -274,6 +337,7 @@ class AcyclicSP(ShortestPath):
             self.relax_vertex(graph, v)
 
 
+# 4.4.28 practice
 class AcyclicLP(ShortestPath):
 
     """
@@ -467,6 +531,110 @@ class BellmanFordSP(ShortestPath):
 
         return True
 
+
+# 4.4.24 practice, implement multiple sources DijkstraSP, the solution is given on the book.
+class DijkstraMultipleSourcesSP(ShortestPath):
+
+    """
+    >>> test_data = ((4, 5, 0.35), (5, 4, 0.35), (4, 7, 0.37), (5, 7, 0.28), (7, 5, 0.28),
+    ...              (5, 1, 0.32), (0, 4, 0.38), (0, 2, 0.26), (7, 3, 0.39), (1, 3, 0.29),
+    ...              (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58), (6, 4, 0.93))
+    >>> ewd = EdgeWeightedDigraph()
+    >>> for a, b, weight in test_data:
+    ...     edge = DirectedEdge(a, b, weight)
+    ...     ewd.add_edge(edge)
+    ...
+    >>> sp = DijkstraMultipleSourcesSP(ewd, (0, 6))
+    >>> [sp.has_path_to(i) for i in range(1, 8)]
+    [True, True, True, True, True, True, True]
+    """
+
+    def __init__(self, graph, sources):
+        tmp = EdgeWeightedDigraph(graph)
+        for v in sources:
+            tmp.add_edge(DirectedEdge(-1, v, 0))
+
+        self._dist_to = dict((v, INFINITE_POSITIVE_NUMBER) for v in tmp.vertices())
+        self._edge_to = {}
+        self._pq = IndexMinPQ(tmp.vertices_size())
+        self._pq.insert(-1, 0)
+        self._edge_to[-1] = None
+        self._dist_to[-1] = 0
+        self._sources = (i for i in sources)
+
+        while not self._pq.is_empty():
+            self.relax(tmp, self._pq.delete_min())
+
+    def relax(self, graph, vertex):
+        for edge in graph.adjacent_edges(vertex):
+            end = edge.end
+            if self._dist_to[end] > self._dist_to[vertex] + edge.weight:
+                self._dist_to[end] = round(self._dist_to[vertex] + edge.weight, 2)
+                self._edge_to[end] = edge
+
+                if self._pq.contains(end):
+                    self._pq.change_key(end, self._dist_to[end])
+                else:
+                    self._pq.insert(end, self._dist_to[end])
+
+    def dist(self, source, dist):
+        if source not in self._sources:
+            return None
+        return self.dist_to(dist)
+
+
+# 4.4.26 practice, imeplement adjacent matrix version of dijkstra shortest path
+class DijkstraMatrixSP(ShortestPath):
+
+    """
+    >>> test_data = ((4, 5, 0.35), (5, 4, 0.35), (4, 7, 0.37), (5, 7, 0.28), (7, 5, 0.28),
+    ...              (5, 1, 0.32), (0, 4, 0.38), (0, 2, 0.26), (7, 3, 0.39), (1, 3, 0.29),
+    ...              (2, 7, 0.34), (6, 2, 0.4), (3, 6, 0.52), (6, 0, 0.58), (6, 4, 0.93))
+    >>> ewm = EdgeWeightedMatrix()
+    >>> for a, b, weight in test_data:
+    ...     ewm.add_edge(a, b, weight)
+    ...
+    >>> sp = DijkstraMatrixSP(ewm, 0)
+    >>> [sp.has_path_to(i) for i in range(1, 8)]
+    [True, True, True, True, True, True, True]
+    >>> [sp.dist_to(i) for i in range(1, 8)]
+    [1.05, 0.26, 0.99, 0.38, 0.73, 1.51, 0.6]
+    >>> [e for e in sp.path_to(7)]
+    [(0, 2, 0.26), (2, 7, 0.34)]
+    >>> [e for e in sp.path_to(6)]
+    [(0, 2, 0.26), (2, 7, 0.34), (7, 3, 0.39), (3, 6, 0.52)]
+    """
+
+    def __init__(self, graph, source):
+        self._dist_to = dict((v, INFINITE_POSITIVE_NUMBER) for v in graph.vertices())
+        self._dist_to[source] = 0
+        self._edge_to = {source: None}
+        self._pq = IndexMinPQ(graph.vertices_size())
+        self._pq.insert(source, 0)
+
+        while not self._pq.is_empty():
+            self.relax(graph, self._pq.delete_min())
+
+    def relax(self, graph, vertex):
+        for v, weight in graph.adjacent_edges(vertex).items():
+            if self._dist_to[v] > self._dist_to[vertex] + weight:
+                self._dist_to[v] = round(self._dist_to[vertex] + weight, 2)
+                self._edge_to[v] = (vertex, v, weight)
+
+                if self._pq.contains(v):
+                    self._pq.change_key(v, self._dist_to[v])
+                else:
+                    self._pq.insert(v, self._dist_to[v])
+
+    def path_to(self, vertex):
+        if not self.has_path_to(vertex):
+            return None
+        path = Stack()
+        edge = self._edge_to[vertex]
+        while edge:
+            path.push(edge)
+            edge = self._edge_to[edge[0]]
+        return path
 
 if __name__ == '__main__':
     doctest.testmod()

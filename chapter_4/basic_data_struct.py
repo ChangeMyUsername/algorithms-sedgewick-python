@@ -348,12 +348,12 @@ class IndexMinPQ(object):
         return self._keys_size
 
     def contains(self, index):
-        if index < 0 or index >= self._max_size:
+        if index >= self._max_size:
             return False
         return self._reverse_index[index] != -1
 
     def insert(self, index, element):
-        if index < 0 or index >= self._max_size or self.contains(index):
+        if index >= self._max_size or self.contains(index):
             return
 
         self._keys_size += 1

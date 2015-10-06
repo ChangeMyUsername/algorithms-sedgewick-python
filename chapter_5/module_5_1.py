@@ -60,7 +60,7 @@ class MSD(object):
 
     def __init__(self):
         self._radix = 256
-        self._switch_2_insertion_length = 5
+        self._switch_2_insertion_length = 20
 
     def char_at(self, s, index):
         return ord(s[index]) if index < len(s) else -1
@@ -68,16 +68,16 @@ class MSD(object):
     def _insertion_sort(self, lst, start, end, index):
         for i in range(start, end + 1):
             tmp = i
-            while tmp > i and lst[tmp][index:] < lst[tmp - 1][index:]:
+            while tmp > start and lst[tmp][index:] < lst[tmp - 1][index:]:
                 lst[tmp - 1], lst[tmp] = lst[tmp], lst[tmp - 1]
                 tmp -= 1
 
     def sort(self, string_list):
         length = len(string_list)
-        self._aux = [None] * length
-        self._sort(string_list, 0, length - 1, 0)
+        aux = [None] * length
+        self._sort(string_list, 0, length - 1, 0, aux)
 
-    def _sort(self, string_list, start, end, index):
+    def _sort(self, string_list, start, end, index, aux):
         if end <= start + self._switch_2_insertion_length:
             self._insertion_sort(string_list, start, end, index)
             return
@@ -91,17 +91,31 @@ class MSD(object):
             count[r + 1] += count[r]
 
         for j in range(start, end + 1):
-            self._aux[count[self.char_at(string_list[j], index) + 1]] = string_list[j]
-            count[self.char_at(string_list[j], index) + 1] += 1
+            v = self.char_at(string_list[j], index) + 1
+            aux[count[v]] = string_list[j]
+            count[v] += 1
 
         for n in range(start, end + 1):
-            string_list[n] = self._aux[n - start]
+            string_list[n] = aux[n - start]
 
         for r in range(self._radix):
-            self._sort(string_list, start + count[r], start + count[r + 1] - 1, index + 1)
+            self._sort(string_list, start + count[r], start + count[r + 1] - 1, index + 1, aux)
 
 
 class Quick3String(object):
+
+    """
+    >>> test_data = ['she', 'sells', 'seashells', 'by', 'the', 'sea', 'shore',
+    ...              'the', 'shells', 'she', 'sells', 'are', 'surely', 'seashells']
+    >>> q3s = Quick3String()
+    >>> q3s.sort(test_data)
+    >>> pp = pprint.PrettyPrinter(width=41, compact=True)
+    >>> pp.pprint(test_data)
+    ['are', 'by', 'sea', 'seashells',
+     'seashells', 'sells', 'sells', 'she',
+     'she', 'shells', 'shore', 'surely',
+     'the', 'the']
+    """
 
     def char_at(self, s, index):
         return ord(s[index]) if index < len(s) else -1
@@ -123,6 +137,7 @@ class Quick3String(object):
             elif tmp > val:
                 string_list[i], string_list[gt] = string_list[gt], string_list[i]
                 gt -= 1
+                continue
             i += 1
 
         self._sort(string_list, start, lt - 1, index)

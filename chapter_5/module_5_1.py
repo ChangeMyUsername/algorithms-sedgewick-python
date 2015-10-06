@@ -2,10 +2,15 @@
 # -*- encoding:UTF-8 -*-
 import doctest
 import pprint
+from collections import defaultdict
 
 
 def lsd_sort(string_list, width):
     """
+      LSD (least significant digit) algorithm implementation. This algorithm can sort
+    strings with certain length. LSD algorithm need to access arrays about ~7WN + 3WR times
+    (W is string's length, N is the number of all strings, R is the number of all
+    characters in the strings). The cost of space is proportional to N + R.
     >>> test_data = ['bed', 'bug', 'dad', 'yes', 'zoo', 'now', 'for', 'tip', 'ilk',
     ...              'dim', 'tag', 'jot', 'sob', 'nob', 'sky', 'hut', 'men', 'egg',
     ...              'few', 'jay', 'owl', 'joy', 'rap', 'gig', 'wee', 'was', 'wad',
@@ -46,6 +51,12 @@ def lsd_sort(string_list, width):
 class MSD(object):
 
     """
+      MSD(most significant digit) algorithm implementation. MSD can handle strings with
+    different length. Because a recursive process exists, so just in case that maximum
+    recursion depth exceeded, MSD switch to insertion sort when handling small arrays.
+    The performance will be not fine when most of input strings are the same. And the cost
+    of space is very expensive because each recursion sort need to create a counting array,
+    and some of recursions is unnessesary.
     >>> test_data = ['she', 'sells', 'seashells', 'by', 'the', 'sea', 'shore',
     ...              'the', 'shells', 'she', 'sells', 'are', 'surely', 'seashells']
     >>> msd = MSD()
@@ -105,6 +116,9 @@ class MSD(object):
 class Quick3String(object):
 
     """
+      Quick Three Way algorithm for string sorting purpose. This is almost the
+    same as Quick Three Way, but it takes ith character of each string as comparison.
+    It's really helpful when large repetive strings as input strings.
     >>> test_data = ['she', 'sells', 'seashells', 'by', 'the', 'sea', 'shore',
     ...              'the', 'shells', 'she', 'sells', 'are', 'surely', 'seashells']
     >>> q3s = Quick3String()
@@ -145,6 +159,13 @@ class Quick3String(object):
         if val > 0:
             self._sort(string_list, lt, gt, index + 1)
         self._sort(string_list, gt + 1, end, index)
+
+
+# 5.1.1 practice
+def simple_radix_sort(strings):
+    count = defaultdict(int)
+    for s in strings:
+        count[s] += 1
 
 
 if __name__ == '__main__':

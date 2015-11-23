@@ -23,24 +23,33 @@ class Node(object):
 
 class Trie(object):
 
+    '''
+    >>> trie = Trie()
+    >>> test_data = ['she', 'sells', 'sea', 'shells', 'by', 'the', 'sea', 'shore']
+    >>> for index, d in enumerate(test_data):
+    ...     trie.put(d, index)
+    >>> trie.size()
+    8
+    >>> [trie.get(i).val for i in test_data]
+    [0, 1, 6, 3, 4, 5, 6, 7]
+    >>> [i for i in trie.keys()]
+    ['by', 'sea', 'sells', 'she', 'shells', 'shore', 'the']
+    >>> [i for i in trie.keys_with_prefix('sh')]
+    ['she', 'shells', 'shore']
+    >>> [i for i in trie.keys_that_match('.he')]
+    ['she', 'the']
+    >>> [i for i in trie.keys_that_match('s..')]
+    ['sea', 'she']
+    >>> trie.longest_prefix_of('shellsort')
+    6
+    '''
+
     def __init__(self):
         self._root = None
+        self._size = 0
 
     def size(self):
-        return self._size(self._root)
-
-    def _size(self, node):
-        if not node:
-            return 0
-
-        cnt = 0
-        if node.val:
-            cnt += 1
-
-        for i in range(256):
-            cnt += self._size(node.next_nodes[i])
-
-        return cnt
+        return self._size
 
     def get(self, key):
         tmp = self._root
@@ -48,53 +57,58 @@ class Trie(object):
 
         while tmp:
             if d == len(key):
-                return tmp.val
+                return tmp
             char = key[d]
             tmp = tmp.next_nodes[ord(char)]
             d += 1
-        return None
+        return tmp
 
     def put(self, key, value):
-        # self._root = self._put(self._root, key, value, 0)
-        d = 0
-        tmp = self._root
-        while d <= len(key):
-            if not tmp:
-                tmp = Node()
-            if d == len(key):
-                tmp.val = value
-                break
-            char = key[d]
-            index = ord(char)
-            tmp = tmp.next_nodes[index]
-            d += 1
+        self._root = self._put(self._root, key, value, 0)
+        # d = 0
+        # tmp = self._root
+        # while d <= len(key):
+        #     if not tmp:
+        #         tmp = Node()
+        #     if d == len(key):
+        #         self._size += 1
+        #         tmp.val = value
+        #         break
+        #     index = ord(key[d])
+        #     tmp = tmp.next_nodes[index]
+        #     d += 1
 
-    # def _put(self, node, key, value, d):
-    #     if node is None:
-    #         node = Node()
+    def _put(self, node, key, value, d):
+        if node is None:
+            node = Node()
 
-    #     if d == len(key):
-    #         node.val = value
-    #         return node
+        if d == len(key):
+            self._size += 1
+            node.val = value
+            return node
 
-    #     char = key[d]
-    #     index = ord(char)
-    #     node.next_nodes[index] = self._put(node.next_nodes[index], key, value, d + 1)
-    #     return node
+        char = key[d]
+        index = ord(char)
+        node.next_nodes[index] = self._put(node.next_nodes[index], key, value, d + 1)
+        return node
 
     def keys(self):
         return self.keys_with_prefix('')
 
     def keys_with_prefix(self, prefix):
         q = Queue()
-        self._collect(self._root, prefix, q)
+        if prefix == '':
+            self._collect(self._root, prefix, q)
+        else:
+            start_node = self.get(prefix)
+            self._collect(start_node, prefix, q)
         return q
 
     def _collect(self, node, prefix, q):
         if not node:
             return
 
-        if node.val:
+        if node.val is not None:
             q.enqueue(prefix)
 
         for i in range(256):
@@ -111,14 +125,14 @@ class Trie(object):
             return
 
         if length == len(pattern):
-            if node.val:
+            if node.val is not None:
                 q.enqueue(prefix)
             return
 
         char = pattern[length]
-        for i in range(255):
+        for i in range(256):
             if char == '.' or char == chr(i):
-                self._keys_collect(node.next_nodes[i], prefix + char, pattern, q)
+                self._keys_collect(node.next_nodes[i], prefix + chr(i), pattern, q)
 
     def longest_prefix_of(self, s):
         tmp = self._root

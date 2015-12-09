@@ -403,8 +403,8 @@ class BST(object):
             return False
         if max_key and node.key >= max_key:
             return False
-        return (self.__is_ordered(node.left, min_key, node.key)
-                and self.__is_ordered(node.right, node.key, max_key))
+        return (self.__is_ordered(node.left, min_key, node.key) and
+                self.__is_ordered(node.right, node.key, max_key))
 
     # 3.2.24 practice, check if each node's rank is correct.
     def is_rank_consistent(self):

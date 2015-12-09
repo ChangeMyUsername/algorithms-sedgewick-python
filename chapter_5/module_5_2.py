@@ -3,14 +3,12 @@
 import doctest
 from basic_data_struct import Queue
 
-R = 256
-
 
 class Node(object):
 
     def __init__(self):
         self._val = None
-        self.next_nodes = [None] * 256
+        self.next_nodes = {}
 
     @property
     def val(self):
@@ -42,10 +40,14 @@ class Trie(object):
     ['sea', 'she']
     >>> trie.longest_prefix_of('shellsort')
     6
+    >>> trie.delete('she')
+    >>> trie.size()
+    7
+    >>> trie.get('she').val
     '''
 
     def __init__(self):
-        self._root = None
+        self._root = Node()
         self._size = 0
 
     def size(self):
@@ -59,43 +61,29 @@ class Trie(object):
             if d == len(key):
                 return tmp
             char = key[d]
-            tmp = tmp.next_nodes[ord(char)]
+            tmp = tmp.next_nodes[char]
             d += 1
         return tmp
 
     def put(self, key, value):
-        self._root = self._put(self._root, key, value, 0)
-        # d = 0
-        # tmp = self._root
-        # while d <= len(key):
-        #     if not tmp:
-        #         tmp = Node()
-        #     if d == len(key):
-        #         self._size += 1
-        #         tmp.val = value
-        #         break
-        #     index = ord(key[d])
-        #     tmp = tmp.next_nodes[index]
-        #     d += 1
-
-    def _put(self, node, key, value, d):
-        if node is None:
-            node = Node()
-
-        if d == len(key):
-            self._size += 1
-            node.val = value
-            return node
-
-        char = key[d]
-        index = ord(char)
-        node.next_nodes[index] = self._put(node.next_nodes[index], key, value, d + 1)
-        return node
+        tmp = self._root
+        for i in key:
+            if i not in tmp.next_nodes:
+                tmp.next_nodes[i] = Node()
+            tmp = tmp.next_nodes[i]
+        tmp.val = value
+        self._size += 1
 
     def keys(self):
+        '''
+        Return all the keys in trie tree.
+        '''
         return self.keys_with_prefix('')
 
     def keys_with_prefix(self, prefix):
+        '''
+        Return all the keys starts with the given prefix in the trie tree.
+        '''
         q = Queue()
         if prefix == '':
             self._collect(self._root, prefix, q)
@@ -112,9 +100,13 @@ class Trie(object):
             q.enqueue(prefix)
 
         for i in range(256):
-            self._collect(node.next_nodes[i], prefix + chr(i), q)
+            if chr(i) in node.next_nodes:
+                self._collect(node.next_nodes[chr(i)], prefix + chr(i), q)
 
     def keys_that_match(self, pattern):
+        '''
+        Return all the keys match the given pattern in the trie tree.
+        '''
         q = Queue()
         self._keys_collect(self._root, '', pattern, q)
         return q
@@ -131,28 +123,32 @@ class Trie(object):
 
         char = pattern[length]
         for i in range(256):
-            if char == '.' or char == chr(i):
-                self._keys_collect(node.next_nodes[i], prefix + chr(i), pattern, q)
+            if (char == '.' or char == chr(i)) and chr(i) in node.next_nodes:
+                self._keys_collect(node.next_nodes[chr(i)], prefix + chr(i), pattern, q)
 
     def longest_prefix_of(self, s):
+        '''
+        Return the longest prefix's length of the given string which the prefix is in the trie tree.
+        '''
         tmp = self._root
         length = d = 0
 
         while tmp:
             if tmp.val:
                 length = d
-
             if d == len(s):
                 return length
-
             char = s[d]
-            tmp = tmp.next_nodes[ord(char)]
+            if char not in tmp.next_nodes:
+                break
+            tmp = tmp.next_nodes[char]
             d += 1
 
         return length
 
     def delete(self, key):
         self._root = self._delete(self._root, key, 0)
+        self._size -= 1
 
     def _delete(self, node, key, d):
         if not node:
@@ -161,14 +157,14 @@ class Trie(object):
         if d == len(key):
             node.val = None
         else:
-            index = ord(key[d])
+            index = key[d]
             node.next_nodes[index] = self._delete(node.next_nodes[index], key, d + 1)
 
         if node.val:
             return node
 
         for i in range(256):
-            if node.next_nodes[i]:
+            if chr(i) in node.next_nodes:
                 return node
         return None
 

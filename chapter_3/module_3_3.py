@@ -158,9 +158,11 @@ class RBTree(object):
 
     def __flip_colors(self, node):
         assert node and node.left and node.right
-        assert (not self.__is_red(node) and self.__is_red(node.left) and self.__is_red(node.right)
-                or self.__is_red(node)
-                and not self.__is_red(node.left) and not self.__is_red(node.right))
+        assert (not self.__is_red(node) and self.__is_red(node.left) and
+                self.__is_red(node.right) or
+                self.__is_red(node) and
+                not self.__is_red(node.left) and
+                not self.__is_red(node.right))
 
         node.color = RED if node.color == BLACK else BLACK
         node.left.color = RED if node.left.color == BLACK else BLACK
@@ -237,8 +239,8 @@ class RBTree(object):
 
     def __move_red_left(self, node):
         assert node is not None
-        assert (self.__is_red(node) and not self.__is_red(node.left)
-                and not self.__is_red(node.left.left))
+        assert (self.__is_red(node) and not self.__is_red(node.left) and
+                not self.__is_red(node.left.left))
 
         self.__flip_colors(node)
         # if node.right.left node is red, that means there is one more node can be "borrow",
@@ -434,8 +436,8 @@ class RBTree(object):
             return False
         if max_key and node.key >= max_key:
             return False
-        return (self.__is_ordered(node.left, min_key, node.key)
-                and self.__is_ordered(node.right, node.key, max_key))
+        return (self.__is_ordered(node.left, min_key, node.key) and
+                self.__is_ordered(node.right, node.key, max_key))
 
     def is_rank_consistent(self):
         for i in range(self.size()):

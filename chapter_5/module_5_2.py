@@ -221,40 +221,61 @@ class TNode(object):
 
 class TernarySearchTries(object):
 
+    '''
+    >>> tst = TernarySearchTries()
+    >>> tst.get('test')
+    >>> test_data = ['she', 'sells', 'sea', 'shells', 'by', 'the', 'sea', 'shore']
+    >>> for index, d in enumerate(test_data):
+    ...     tst.put(d, index)
+    >>> tst.size()
+    8
+    >>> tst.get('she')
+    0
+    '''
+
     def __init__(self):
         self._root = None
+        self._size = 0
+
+    def size(self):
+        return self._size
 
     def get(self, key):
         tmp = self._root
+        if not tmp:
+            return None
         d = 0
-        while tmp:
-            char = key[0]
-            if char < tmp.val:
-                tmp = tmp.left
-            elif char > tmp.val:
-                tmp = tmp.right
-            else:
-                if d < len(key) - 1:
-                    tmp = tmp.mid
-                    d += 1
-        return tmp.val if tmp else None
-
-    def put(self, key, value):
-        tmp = self._root
-        d = 0
-        while d < len(key):
+        while d < len(key) - 1 and tmp:
             char = key[d]
-            if not tmp:
-                tmp = TNode()
-                tmp.char = char
             if char < tmp.char:
                 tmp = tmp.left
             elif char > tmp.char:
                 tmp = tmp.right
-            else:
-                if d < len(key) - 1:
-                    tmp = tmp.mid
-                    d += 1
+            elif d < len(key) - 1:
+                tmp = tmp.mid
+                d += 1
+        return tmp.val if tmp else None
+
+    def put(self, key, value):
+        self._root = self._put(self._root, key, value, 0)
+        self._size += 1
+
+    def _put(self, node, key, value, d):
+        char = key[d]
+        if not node:
+            node = TNode()
+            node.char = char
+
+        if node.char and char < node.char:
+            node.left = self._put(node.left, key, value, d)
+        elif node.char and char > node.char:
+            node.right = self._put(node.right, key, value, d)
+        elif d < len(key) - 1:
+            node.mid = self._put(node.mid, key, value, d + 1)
+        else:
+            node.val = value
+        return node
+
 
 if __name__ == '__main__':
     doctest.testmod()

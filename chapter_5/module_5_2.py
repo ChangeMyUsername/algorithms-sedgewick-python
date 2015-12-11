@@ -184,7 +184,7 @@ class TNode(object):
 
     @char.setter
     def char(self, new_char):
-        return self._char
+        self._char = new_char
 
     @property
     def left(self):
@@ -229,8 +229,9 @@ class TernarySearchTries(object):
     ...     tst.put(d, index)
     >>> tst.size()
     8
-    >>> tst.get('she')
-    0
+    >>> [tst.get(i) for i in test_data]
+    [0, 1, 6, 3, 4, 5, 6, 7]
+    >>> tst.get('')
     '''
 
     def __init__(self):
@@ -245,7 +246,7 @@ class TernarySearchTries(object):
         if not tmp:
             return None
         d = 0
-        while d < len(key) - 1 and tmp:
+        while d < len(key) and tmp:
             char = key[d]
             if char < tmp.char:
                 tmp = tmp.left
@@ -254,9 +255,13 @@ class TernarySearchTries(object):
             elif d < len(key) - 1:
                 tmp = tmp.mid
                 d += 1
+            else:
+                break
         return tmp.val if tmp else None
 
     def put(self, key, value):
+        if not key:
+            return
         self._root = self._put(self._root, key, value, 0)
         self._size += 1
 
@@ -266,9 +271,9 @@ class TernarySearchTries(object):
             node = TNode()
             node.char = char
 
-        if node.char and char < node.char:
+        if char < node.char:
             node.left = self._put(node.left, key, value, d)
-        elif node.char and char > node.char:
+        elif char > node.char:
             node.right = self._put(node.right, key, value, d)
         elif d < len(key) - 1:
             node.mid = self._put(node.mid, key, value, d + 1)
@@ -276,6 +281,17 @@ class TernarySearchTries(object):
             node.val = value
         return node
 
+    def floor(self):
+        pass
+
+    def ceiling(self):
+        pass
+
+    def rank(self):
+        pass
+
+    def select(self):
+        pass
 
 if __name__ == '__main__':
     doctest.testmod()

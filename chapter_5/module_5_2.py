@@ -8,6 +8,7 @@ class Node(object):
 
     def __init__(self):
         self._val = None
+        self._size = 1
         self.next_nodes = {}
 
     @property
@@ -18,11 +19,20 @@ class Node(object):
     def val(self, value):
         self._val = value
 
+    @property
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self, new_size):
+        self._size = new_size
+
 
 class Trie(object):
 
     '''
     >>> trie = Trie()
+    >>> trie.get('xxxx')
     >>> test_data = ['she', 'sells', 'sea', 'shells', 'by', 'the', 'sea', 'shore']
     >>> for index, d in enumerate(test_data):
     ...     trie.put(d, index)
@@ -32,6 +42,8 @@ class Trie(object):
     [0, 1, 6, 3, 4, 5, 6, 7]
     >>> [i for i in trie.keys()]
     ['by', 'sea', 'sells', 'she', 'shells', 'shore', 'the']
+    >>> [trie.rank(i) for i in trie.keys()]
+    [1, 2, 3, 4, 5, 6, 7]
     >>> [i for i in trie.keys_with_prefix('sh')]
     ['she', 'shells', 'shore']
     >>> [i for i in trie.keys_that_match('.he')]
@@ -61,15 +73,26 @@ class Trie(object):
             if d == len(key):
                 return tmp
             char = key[d]
-            tmp = tmp.next_nodes[char]
+            try:
+                tmp = tmp.next_nodes[char]
+            except KeyError:
+                return None
             d += 1
         return tmp
 
     def put(self, key, value):
+        exist_node = self.get(key)
+        if exist_node:
+            exist_node.val = value
+            self._size += 1
+            return
+
         tmp = self._root
         for i in key:
             if i not in tmp.next_nodes:
                 tmp.next_nodes[i] = Node()
+            else:
+                tmp.next_nodes[i].size += 1
             tmp = tmp.next_nodes[i]
         tmp.val = value
         self._size += 1
@@ -158,6 +181,7 @@ class Trie(object):
             node.val = None
         else:
             index = key[d]
+            node.size -= 1
             node.next_nodes[index] = self._delete(node.next_nodes[index], key, d + 1)
 
         if node.val:
@@ -167,6 +191,39 @@ class Trie(object):
             if chr(i) in node.next_nodes:
                 return node
         return None
+
+    def floor(self):
+        pass
+
+    def ceiling(self):
+        pass
+
+    # 5.2.8 practice
+    def select(self, k):
+        assert isinstance(k, int) and k <= self.size()
+        return -1
+
+    # 5.2.8 practice
+    def rank(self, key):
+        tmp = self._root
+        d = 0
+        result = 0
+
+        while d != len(key):
+            char = key[d]
+            if char not in tmp.next_nodes:
+                return -1
+            char_list = sorted(tmp.next_nodes.keys())
+            for c in char_list:
+                if c == char:
+                    break
+                result += tmp.next_nodes[c].size
+            if len(tmp.next_nodes) == 1 and tmp.size != 1:
+                result += 1
+            tmp = tmp.next_nodes[char]
+
+            d += 1
+        return result + 1
 
 
 class TNode(object):
@@ -280,18 +337,6 @@ class TernarySearchTries(object):
         else:
             node.val = value
         return node
-
-    def floor(self):
-        pass
-
-    def ceiling(self):
-        pass
-
-    def rank(self):
-        pass
-
-    def select(self):
-        pass
 
 if __name__ == '__main__':
     doctest.testmod()

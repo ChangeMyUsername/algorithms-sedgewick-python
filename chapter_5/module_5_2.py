@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
 import doctest
+from collections import OrderedDict
 from basic_data_struct import Queue
 
 
@@ -44,6 +45,8 @@ class Trie(object):
     ['by', 'sea', 'sells', 'she', 'shells', 'shore', 'the']
     >>> [trie.rank(i) for i in trie.keys()]
     [1, 2, 3, 4, 5, 6, 7]
+    >>> [trie.select(i) for i in range(1, 8)]
+    ['by', 'sea', 'sells', 'she', 'she', 'shore', 'the']
     >>> [i for i in trie.keys_with_prefix('sh')]
     ['she', 'shells', 'shore']
     >>> [i for i in trie.keys_that_match('.he')]
@@ -56,6 +59,10 @@ class Trie(object):
     >>> trie.size()
     7
     >>> trie.get('she').val
+    >>> [i for i in trie.keys()]
+    ['by', 'sea', 'sells', 'shells', 'shore', 'the']
+    >>> [trie.rank(i) for i in trie.keys()]
+    [1, 2, 3, 4, 5, 6]
     '''
 
     def __init__(self):
@@ -179,6 +186,7 @@ class Trie(object):
 
         if d == len(key):
             node.val = None
+            node.size -= 1
         else:
             index = key[d]
             node.size -= 1
@@ -192,16 +200,27 @@ class Trie(object):
                 return node
         return None
 
-    def floor(self):
-        pass
-
-    def ceiling(self):
-        pass
-
     # 5.2.8 practice
     def select(self, k):
-        assert isinstance(k, int) and k <= self.size()
-        return -1
+        tmp = self._root
+        result = ''
+        while tmp and tmp.val is None:
+            count = 0
+            count_list = []
+            sorted_keys = sorted(tmp.next_nodes.keys())
+            for c in sorted_keys:
+                count_list.append((c, tmp.next_nodes[c].size + count))
+                count = tmp.next_nodes[c].size + count
+
+            for index, elem in enumerate(count_list):
+                key, count = elem
+                if k <= count:
+                    tmp = tmp.next_nodes[key]
+                    result += key
+                    if index != 0:
+                        k -= count_list[index - 1][1]
+                    break
+        return result
 
     # 5.2.8 practice
     def rank(self, key):
@@ -337,6 +356,45 @@ class TernarySearchTries(object):
         else:
             node.val = value
         return node
+
+    def keys(self):
+        '''
+        Return all the keys in trie tree.
+        '''
+        return self.keys_with_prefix('')
+
+    def keys_with_prefix(self, prefix):
+        '''
+        Return all the keys starts with the given prefix in the trie tree.
+        '''
+        q = Queue()
+        if prefix == '':
+            self._collect(self._root, prefix, q)
+        else:
+            start_node = self.get(prefix)
+            self._collect(start_node, prefix, q)
+        return q
+
+    def _collect(self, node, prefix, q):
+        if not node:
+            return
+
+        if node.val is not None:
+            q.enqueue(prefix)
+
+        for i in range(256):
+            if chr(i) < node.char:
+                self._collect(node.left, prefix, q)
+            elif chr(i) > node.char:
+                self._collect(node.right, prefix, q)
+            else:
+                self._collect(node.mid, prefix + chr(i), q)
+
+    def longest_prefix_of(self):
+        pass
+
+    def keys_that_match(self):
+        pass
 
 if __name__ == '__main__':
     doctest.testmod()

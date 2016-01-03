@@ -117,6 +117,24 @@ class BST(object):
     >>> random_key = bst.random_key()
     >>> random_key in test_str
     True
+    >>> fn = bst.floor('B')
+    >>> fn.key
+    'A'
+    >>> fn2 = bst.floor('Z')
+    >>> fn2.key
+    'Y'
+    >>> fn3 = bst.floor('E')
+    >>> fn3.key
+    'E'
+    >>> cn = bst.ceiling('B')
+    >>> cn.key
+    'E'
+    >>> cn2 = bst.ceiling('R')
+    >>> cn2.key
+    'S'
+    >>> cn3 = bst.ceiling('S')
+    >>> cn3.key
+    'S'
     >>> bst.delete_min()
     >>> bst.min_val().key
     'E'
@@ -427,6 +445,32 @@ class BST(object):
         if not self.is_rank_consistent():
             return False
         return True
+
+    def floor(self, key):
+        tmp = None
+        node = self._root
+        while node:
+            if key < node.key:
+                node = node.left
+            elif key > node.key:
+                tmp = node
+                node = node.right
+            else:
+                return node
+        return tmp
+
+    def ceiling(self, key):
+        tmp = None
+        node = self._root
+        while node:
+            if key < node.key:
+                tmp = node
+                node = node.left
+            elif key > node.key:
+                node = node.right
+            else:
+                return node
+        return tmp
 
 if __name__ == '__main__':
     doctest.testmod()

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
 import doctest
-from collections import OrderedDict
 from basic_data_struct import Queue
 
 
@@ -20,6 +19,7 @@ class Node(object):
     def val(self, value):
         self._val = value
 
+    # 5.2.10 practice
     @property
     def size(self):
         return self._size
@@ -305,9 +305,14 @@ class TernarySearchTries(object):
     ...     tst.put(d, index)
     >>> tst.size()
     8
-    >>> [tst.get(i) for i in test_data]
+    >>> [tst.get(i).val for i in test_data]
     [0, 1, 6, 3, 4, 5, 6, 7]
-    >>> tst.get('')
+    >>> [i for i in tst.keys_with_prefix('sh')]
+    ['she', 'shells', 'shore']
+    >>> tst.longest_prefix_of('shellsort')
+    6
+    >>> [i for i in tst.keys_that_match('.he')]
+    ['she', 'the']
     '''
 
     def __init__(self):
@@ -333,7 +338,7 @@ class TernarySearchTries(object):
                 d += 1
             else:
                 break
-        return tmp.val if tmp else None
+        return tmp if tmp else None
 
     def put(self, key, value):
         if not key:
@@ -363,38 +368,74 @@ class TernarySearchTries(object):
         '''
         return self.keys_with_prefix('')
 
+    # 5.2.9 practice, implementation is available on the official website
     def keys_with_prefix(self, prefix):
         '''
         Return all the keys starts with the given prefix in the trie tree.
         '''
         q = Queue()
-        if prefix == '':
-            self._collect(self._root, prefix, q)
-        else:
-            start_node = self.get(prefix)
-            self._collect(start_node, prefix, q)
+        node = self.get(prefix)
+        if not node:
+            return q
+        if node.val:
+            q.enqueue(prefix)
+        self._collect(node.mid, prefix, q)
         return q
 
     def _collect(self, node, prefix, q):
         if not node:
             return
-
+        self._collect(node.left, prefix, q)
         if node.val is not None:
-            q.enqueue(prefix)
+            q.enqueue(prefix + node.char)
+        self._collect(node.mid, prefix + node.char, q)
+        self._collect(node.right, prefix, q)
 
-        for i in range(256):
-            if chr(i) < node.char:
-                self._collect(node.left, prefix, q)
-            elif chr(i) > node.char:
-                self._collect(node.right, prefix, q)
+    # 5.2.9 practice, implementation is available on the official website
+    def longest_prefix_of(self, key):
+        if not key or key.strip() == '':
+            return 0
+
+        length = d = 0
+        tmp = self._root
+
+        while tmp:
+            if d == len(key):
+                return length
+            char = key[d]
+            if char < tmp.char:
+                tmp = tmp.left
+            elif char > tmp.char:
+                tmp = tmp.right
             else:
-                self._collect(node.mid, prefix + chr(i), q)
+                d += 1
+                if tmp.val:
+                    length = d
+                tmp = tmp.mid
+        return length
 
-    def longest_prefix_of(self):
-        pass
+    # 5.2.9 practice, implementation is available on the official website
+    def keys_that_match(self, pattern):
+        q = Queue()
+        self._keys_collect(self._root, '', 0, pattern, q)
+        return q
 
-    def keys_that_match(self):
-        pass
+    def _keys_collect(self, node, prefix, index, pattern, q):
+        if not node:
+            return
+
+        char = pattern[index]
+        if char == '.' or char < node.char:
+            self._keys_collect(node.left, prefix, index, pattern, q)
+
+        if char == '.' or char == node.char:
+            if node.val is not None and index == len(pattern) - 1:
+                q.enqueue(prefix + node.char)
+            if index < len(pattern) - 1:
+                self._keys_collect(node.mid, prefix + node.char, index + 1, pattern, q)
+
+        if char == '.' or char > node.char:
+            self._keys_collect(node.right, prefix, index, pattern, q)
 
 if __name__ == '__main__':
     doctest.testmod()

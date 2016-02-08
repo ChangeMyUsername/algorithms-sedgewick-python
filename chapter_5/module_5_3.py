@@ -54,18 +54,33 @@ def brute_force_backward_search(pattern, txt):
 
 class KMP(object):
 
+    '''
+    >>> kmp = KMP('AACAA')
+    >>> kmp.search('AABRAACADABRAACAADABRA')
+    12
+    '''
+
     def __init__(self, pattern):
         self._pat = pattern
-        self._dfa = [[0] * 256] * len(pattern)
-        self._dfa[chr(pattern[0])][0] = 1
+        arr = [0] * len(pattern)
+        self._dfa = [arr[:] for _ in range(256)]
+        self._dfa[ord(pattern[0])][0] = 1
 
-        x, j = 0, 1
-        while j < len(pattern):
+        x = 0
+        for j in range(1, len(pattern)):
             for c in range(256):
                 self._dfa[c][j] = self._dfa[c][x]
             self._dfa[ord(pattern[j])][j] = j + 1
             x = self._dfa[ord(pattern[j])][x]
-            j += 1
+
+    def search(self, txt):
+        p_index = t_index = 0
+        while t_index < len(txt) and p_index < len(self._pat):
+            p_index = self._dfa[ord(txt[t_index])][p_index]
+            t_index += 1
+        if p_index == len(self._pat):
+            return t_index - len(self._pat)
+        return len(txt)
 
 if __name__ == '__main__':
     doctest.testmod()

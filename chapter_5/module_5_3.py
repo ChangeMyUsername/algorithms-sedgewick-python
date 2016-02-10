@@ -82,5 +82,37 @@ class KMP(object):
             return t_index - len(self._pat)
         return len(txt)
 
+
+class BoyerMoore(object):
+
+    '''
+    >>> bm = BoyerMoore('NEEDLE')
+    >>> bm.search('FINDINAHAYSTACKNEEDLE')
+    15
+    '''
+
+    def __init__(self, pattern):
+        self._pat = pattern
+        self._right = [-1] * 256
+        for index, char in enumerate(pattern):
+            self._right[ord(char)] = index
+
+    def search(self, text):
+        txt_len = len(text)
+        pat_len = len(self._pat)
+        skip = index = 0
+        while index <= txt_len - pat_len:
+            skip = 0
+            for j in range(pat_len - 1, -1, -1):
+                if self._pat[j] != text[index + j]:
+                    skip = j - self._right[ord(text[index + j])]
+                    if skip < 1:
+                        skip = 1
+                    break
+            if skip == 0:
+                return index
+            index += skip
+        return txt_len
+
 if __name__ == '__main__':
     doctest.testmod()

@@ -58,6 +58,21 @@ class KMP(object):
     >>> kmp = KMP('AACAA')
     >>> kmp.search('AABRAACADABRAACAADABRA')
     12
+    >>> kmp = BoyerMoore('rab')
+    >>> kmp.search('abacadabrabracabracadabrabrabracad')
+    8
+    >>> kmp2 = BoyerMoore('abracadabra')
+    >>> kmp2.search('abacadabrabracabracadabrabrabracad')
+    14
+    >>> kmp3 = BoyerMoore('bcara')
+    >>> kmp3.search('abacadabrabracabracadabrabrabracad')
+    34
+    >>> kmp4 = BoyerMoore('rabrabracad')
+    >>> kmp4.search('abacadabrabracabracadabrabrabracad')
+    23
+    >>> kmp5 = BoyerMoore('abacad')
+    >>> kmp5.search('abacadabrabracabracadabrabrabracad')
+    0
     '''
 
     def __init__(self, pattern):
@@ -89,6 +104,21 @@ class BoyerMoore(object):
     >>> bm = BoyerMoore('NEEDLE')
     >>> bm.search('FINDINAHAYSTACKNEEDLE')
     15
+    >>> bm = BoyerMoore('rab')
+    >>> bm.search('abacadabrabracabracadabrabrabracad')
+    8
+    >>> bm2 = BoyerMoore('abracadabra')
+    >>> bm2.search('abacadabrabracabracadabrabrabracad')
+    14
+    >>> bm3 = BoyerMoore('bcara')
+    >>> bm3.search('abacadabrabracabracadabrabrabracad')
+    34
+    >>> bm4 = BoyerMoore('rabrabracad')
+    >>> bm4.search('abacadabrabracabracadabrabrabracad')
+    23
+    >>> bm5 = BoyerMoore('abacad')
+    >>> bm5.search('abacadabrabracabracadabrabrabracad')
+    0
     '''
 
     def __init__(self, pattern):
@@ -112,6 +142,60 @@ class BoyerMoore(object):
             if skip == 0:
                 return index
             index += skip
+        return txt_len
+
+
+class RabinKarp(object):
+
+    '''
+    >>> rk = RabinKarp('rab')
+    >>> rk.search('abacadabrabracabracadabrabrabracad')
+    8
+    >>> rk2 = RabinKarp('abracadabra')
+    >>> rk2.search('abacadabrabracabracadabrabrabracad')
+    14
+    >>> rk3 = RabinKarp('bcara')
+    >>> rk3.search('abacadabrabracabracadabrabrabracad')
+    34
+    >>> rk4 = RabinKarp('rabrabracad')
+    >>> rk4.search('abacadabrabracabracadabrabrabracad')
+    23
+    >>> rk5 = RabinKarp('abacad')
+    >>> rk5.search('abacadabrabracabracadabrabrabracad')
+    0
+    '''
+
+    def __init__(self, pattern):
+        self._pat = pattern
+        self._pat_len = len(pattern)
+        self._q = 997
+        self._rm = 1
+        for i in range(1, self._pat_len):
+            self._rm = (256 * self._rm) % self._q
+        self._pat_hash = self._hash(pattern, self._pat_len)
+
+    def check(self, i):
+        return True
+
+    def _hash(self, text, length):
+        result = 0
+        for i in range(length):
+            result = (256 * result + ord(text[i])) % self._q
+        return result
+
+    def search(self, text):
+        txt_len = len(text)
+        txt_hash = self._hash(text, self._pat_len)
+        if self._pat_hash == txt_hash and self.check(0):
+            return 0
+
+        for i in range(self._pat_len, txt_len):
+            txt_hash = (txt_hash + self._q - self._rm * ord(text[i - self._pat_len])
+                        % self._q) % self._q
+            txt_hash = (txt_hash * 256 + ord(text[i])) % self._q
+            if self._pat_hash == txt_hash:
+                if self.check(i - self._pat_len + 1):
+                    return i - self._pat_len + 1
         return txt_len
 
 if __name__ == '__main__':

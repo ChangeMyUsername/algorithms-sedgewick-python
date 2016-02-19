@@ -3,29 +3,6 @@
 import doctest
 
 
-def brute_force_search(pattern, txt):
-    '''
-    >>> test_data = 'ABACADABRAC'
-    >>> pattern = 'ABRA'
-    >>> brute_force_search(pattern, test_data)
-    6
-    >>> pattern2 = 'ACNOTEXIST'
-    >>> brute_force_search(pattern2, test_data)
-    11
-    '''
-    assert pattern != '' and txt != '' and pattern is not None and txt is not None
-
-    for i in range(len(txt) - len(pattern)):
-        j = 0
-        while j < len(pattern):
-            if txt[j + i] != pattern[j]:
-                break
-            j += 1
-        if j == len(pattern):
-            return i
-    return len(txt)
-
-
 def brute_force_backward_search(pattern, txt):
     '''
     >>> test_data = 'ABACADABRAC'
@@ -196,6 +173,110 @@ class RabinKarp(object):
             if self._pat_hash == txt_hash:
                 if self.check(i - self._pat_len + 1):
                     return i - self._pat_len + 1
+        return txt_len
+
+
+# 5.3.1 practice, brute force string search algorithm with specific interfaces.
+class Brute(object):
+
+    '''
+    >>> brute = Brute('rab')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    8
+    >>> brute = Brute('abracadabra')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    14
+    >>> brute = Brute('bcara')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    34
+    >>> brute = Brute('rabrabracad')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    23
+    >>> brute = Brute('abacad')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    0
+    '''
+
+    def __init__(self, pattern):
+        self._pat = pattern
+        self._pat_len = len(pattern)
+
+    def search(self, txt):
+        txt_len = len(txt)
+        for i in range(txt_len - self._pat_len + 1):
+            j = 0
+            while j < self._pat_len:
+                if txt[j + i] != self._pat[j]:
+                    break
+                j += 1
+            if j == self._pat_len:
+                return i
+        return txt_len
+
+
+# 5.3.4 practice, counting consecutive empty spaces,
+# the running would be proportional to O(n)
+def empty_space(txt, count):
+    '''
+    >>> empty_space('   xxxx   ', 3)
+    0
+    >>> empty_space('xxx   xxxXXXXXX   Xxxx', 3)
+    3
+    >>> empty_space('xxxx   ', 3)
+    4
+    >>> empty_space('xxx  ', 3)
+    4
+    '''
+
+    index, length = 0, len(txt)
+    while index < length - count + 1:
+        if txt[index] == ' ':
+            i = 0
+            while i < count:
+                if txt[i + index] != ' ':
+                    index += i
+                    break
+                i += 1
+            if i == count:
+                return index
+        index += 1
+    return length - 1
+
+
+class BruteForeRL(object):
+
+    '''
+    >>> brute = BruteForeRL('rab')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    8
+    >>> brute = BruteForeRL('abracadabra')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    14
+    >>> brute = BruteForeRL('bcara')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    34
+    >>> brute = BruteForeRL('rabrabracad')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    23
+    >>> brute = BruteForeRL('abacad')
+    >>> brute.search('abacadabrabracabracadabrabrabracad')
+    0
+    '''
+
+    def __init__(self, pattern):
+        self._pat = pattern
+        self._pat_len = len(pattern)
+
+    def search(self, txt):
+        txt_len = len(txt)
+        for i in range(txt_len - self._pat_len + 1):
+            j = self._pat_len - 1
+            while j >= 0:
+                if txt[j + i] != self._pat[j]:
+                    break
+                j -= 1
+            if j == 0:
+                return i
         return txt_len
 
 if __name__ == '__main__':

@@ -84,6 +84,8 @@ def binary_search(key, lst):
     0
     >>> binary_search(9, [1, 2, 3, 4, 5, 6, 7, 9])
     7
+    >>> binary_search(999, [1, 2, 3, 4, 5, 6, 7, 9])
+    -1
     '''
 
     assert isinstance(key, int)
@@ -116,14 +118,14 @@ def sort3num(a, b, c):
     return a, b, c
 
 
-# 1.1.16
+# 1.1.16 practice
 def exR1(number):
     if number <= 0:
         return ''
     return exR1(number - 3) + str(number) + exR1(number - 2) + str(number)
 
 
-# 1.1.29
+# 1.1.29 practice
 def rank(key, lst):
     '''
     return the rank of the key in the given list, there may be duplicate keys.

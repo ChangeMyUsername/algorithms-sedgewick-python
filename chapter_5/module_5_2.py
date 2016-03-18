@@ -32,6 +32,16 @@ class Node(object):
 class Trie(object):
 
     '''
+        Trie is a special data structure for string querying. Trie is similar with other tree-like
+    structures, But every node has R links, which R is alphabet's size, that means every link is
+    corresponding to a character. A node with a value that means the node is the end of a string.
+        For searching a string, we can keep getting the next node by the next character, until we
+    reach a node with an actual value, otherwise the target string miss.
+        Trie is as fast as symbol table and more flexible than binary tree, but it cost lots of
+    extra space. The running time of searching and inserting be proportional to O(N) which N is
+    the length of the searching key.
+        Trie is suitable for those shorter keys and the alphabet is rather small. Because long key
+    and large alphabet could take much more space.
     >>> trie = Trie()
     >>> trie.get('xxxx')
     >>> test_data = ['she', 'sells', 'sea', 'shells', 'by', 'the', 'sea', 'shore']
@@ -298,6 +308,11 @@ class TNode(object):
 class TernarySearchTries(object):
 
     '''
+        Ternary-Search-Trie is another tree-like data structure for string querying.
+    Every node in Ternary-Search-Trie contains a value and three links, and from left
+    to right each link means the key of the node is smaller, equal, and large than the
+    current node. Ternary-Search-Trie is more compatible than Trie, but also every
+    operation is a little bit more complicated than Trie.
     >>> tst = TernarySearchTries()
     >>> tst.get('test')
     >>> test_data = ['she', 'sells', 'sea', 'shells', 'by', 'the', 'sea', 'shore']

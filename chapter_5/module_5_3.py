@@ -250,7 +250,12 @@ class RabinKarp(object):
             self._rm = (256 * self._rm) % self._q
         self._pat_hash = self._hash(pattern, self._pat_len)
 
-    def check(self, i):
+    def check(self, i, txt=None):
+        # 5.3.12 practice, implement LasVegas version check method.
+        if txt:
+            for j in range(self._pat_len):
+                if not self._pat[j] != txt[i + j]:
+                    return False
         return True
 
     def _hash(self, txt, length):
@@ -332,7 +337,7 @@ class Brute(object):
     34
     >>> brute.count('abacadabrabracabracadabrabrabracad')
     0
-    >>> [i for i in brute.search_all('abacadabrabracabracadabrabrabracad')]
+    >>> brute.search_all('abacadabrabracabracadabrabrabracad')
     []
     >>> brute = Brute('rabrabracad')
     >>> brute.search('abacadabrabracabracadabrabrabracad')

@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
-import copy
-from collections import defaultdict
 
 
 class Node(object):
@@ -149,8 +147,6 @@ class Digragh(object):
         return self._edges_size
 
     def add_edge(self, start, end):
-        if self.has_edge(start, end) or start == end:
-            return
         self._vertices.add(start)
         self._vertices.add(end)
         if not self._adj[start]:

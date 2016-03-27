@@ -7,7 +7,7 @@ from collections import defaultdict
 
 class DirectedDFS(object):
 
-    def __init__(self, graph, *sources):
+    def __init__(self, graph, sources):
         self._marked = defaultdict(bool)
         for vertex in sources:
             if not self._marked[vertex]:
@@ -43,12 +43,12 @@ class NFA(object):
     def __init__(self, regexp):
         self._regexp = regexp
         self._ops = Stack()
-        self._graph = Digragh()
         self._reg_len = len(self._regexp)
+        self._graph = Digragh(self._reg_len + 1)
 
         for i in range(self._reg_len):
             lp = i
-            if self._regexp[i] == '(' or self._regexp == '|':
+            if self._regexp[i] == '(' or self._regexp[i] == '|':
                 self._ops.push(i)
             elif self._regexp[i] == ')':
                 or_op = self._ops.pop()
@@ -61,7 +61,7 @@ class NFA(object):
             if i < self._reg_len - 1 and self._regexp[i + 1] == '*':
                 self._graph.add_edge(lp, i + 1)
                 self._graph.add_edge(i + 1, lp)
-            if self._regexp[i] in ('(', '*', ')'):
+            if self._regexp[i] in ('(', '*', ')') or self._regexp[i].isalpha():
                 self._graph.add_edge(i, i + 1)
 
     def recognizes(self, txt):

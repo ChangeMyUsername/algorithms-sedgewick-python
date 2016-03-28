@@ -26,6 +26,15 @@ class DirectedDFS(object):
 class NFA(object):
 
     '''
+        NFA(nondeterministic finite state automaton) algorithm for regular expression.
+    Regular expression is a effective string searching method, it will identify specific
+    string with a given regular expression. First this algorithm construct a NFA with a
+    given regular expression, that will be a directed graph of epsilon transitions. Then
+    input a text and go through every character. For each character, first reach all the
+    possible states  and then execute a epsilon transition which output a set with all possible
+    states. When all character is checked, if we reach the end state, that means the input
+    text match the regular expression. The worst case of running time is proportional to
+    O(MN), M is the length of regular expression, N is the length of the input text.
     >>> nfa = NFA('(A*B|AC)D')
     >>> nfa.recognizes('AAAABD')
     True
@@ -37,6 +46,9 @@ class NFA(object):
     True
     >>> nfa4 = NFA('(a|(bc)*d)*')
     >>> nfa4.recognizes('abcbcbcdaaaabcbcdaaaddd')
+    True
+    >>> nfa5 = NFA('(.*AB((C|D|E)F)*G)')
+    >>> nfa5.recognizes('dfawefdABCQQQG')
     True
     '''
 

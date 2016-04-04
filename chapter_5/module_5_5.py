@@ -47,8 +47,23 @@ class Huffman(object):
 
         root = Huffman.build_trie(frequency)
 
+        Huffman.write_trie(root)
+
         st = [None] * 256
         Huffman.build_code(st, root, '')
+        sys.stdout.write(len(input_string))
+
+        for i in input_string:
+            code = st[i]
+            for c in code:
+                if c == '0':
+                    sys.stdout.buffer.write(b'0')
+                elif c == '1':
+                    sys.stdout.buffer.write(b'1')
+                else:
+                    raise Exception('Illegal state.')
+
+        sys.stdout.close()
 
     @staticmethod
     def build_trie(freq):
@@ -63,6 +78,16 @@ class Huffman(object):
             parent = Node('\0', left.freq + right.freq, left, right)
             min_pq.insert(parent)
         return min_pq.del_min()
+
+    @staticmethod
+    def write_trie(node):
+        if node.is_leaf():
+            sys.stdout.buffer.write(b'1')
+            sys.stdout.buffer.write(bin(ord(node.char))[2:])
+            return
+        sys.stdout.write(b'0')
+        Huffman.write_trie(node.left)
+        Huffman.write_trie(node.right)
 
     @staticmethod
     def build_code(st, node, code):

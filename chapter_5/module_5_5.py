@@ -51,7 +51,7 @@ class Huffman(object):
 
         st = [None] * 256
         Huffman.build_code(st, root, '')
-        sys.stdout.write(len(input_string))
+        sys.stdout.buffer.write(bytes(len(input_string)))
 
         for i in input_string:
             code = st[i]
@@ -83,9 +83,9 @@ class Huffman(object):
     def write_trie(node):
         if node.is_leaf():
             sys.stdout.buffer.write(b'1')
-            sys.stdout.buffer.write(bin(ord(node.char))[2:])
+            sys.stdout.buffer.write(bytes(node.char.encode('ascii')))
             return
-        sys.stdout.write(b'0')
+        sys.stdout.write_bit(b'0')
         Huffman.write_trie(node.left)
         Huffman.write_trie(node.right)
 
@@ -99,8 +99,21 @@ class Huffman(object):
 
     @staticmethod
     def expand():
-        pass
+        root = Huffman.read_trie()
+        length = sys.stdin.read(4)
+        for i in range(length):
+            node = root
+            while not node.is_leaf():
+                bit = sys.stdin.read(1)
+                node = node.right if bit else node.left
+            sys.stdout.write(node.char)
 
+    @staticmethod
+    def read_trie():
+        is_leaf = sys.stdin.read(1)
+        if(is_leaf):
+            return Node(sys.stdin.read(1).decode('ascii'), -1, None, None)
+        return Node('\0', -1, Huffman.read_trie(), Huffman.read_trie())
 
 if __name__ == '__main__':
     doctest.testmod()

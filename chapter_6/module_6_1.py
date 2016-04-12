@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
+import random
+
 M_SIZE = 6
 
 
@@ -116,3 +118,88 @@ class BTree(object):
                 if i + 1 == node.m_size or key < node.children[i + 1].key:
                     return self._search(node.children[i].next, key, height - 1)
         return None
+
+
+class QuickThreeWay(object):
+
+    """
+    >>> qtw = QuickThreeWay()
+    >>> lst = [3, 2, 4, 7, 8, 9, 1, 0]
+    >>> qtw.sort(lst)
+    >>> lst
+    [0, 1, 2, 3, 4, 7, 8, 9]
+    """
+
+    def sort(self, lst):
+        random.shuffle(lst)
+        self.__sort(lst, 0, len(lst) - 1)
+
+    def __sort(self, lst, low, high):
+        if high <= low:
+            return
+
+        lt, i, gt, val = low, low + 1, high, lst[low]
+        while i <= gt:
+            if lst[i] < val:
+                lst[lt], lst[i] = lst[i], lst[lt]
+                lt += 1
+                i += 1
+            elif lst[i] > val:
+                lst[gt], lst[i] = lst[i], lst[gt]
+                gt -= 1
+            else:
+                i += 1
+        self.__sort(lst, low, lt - 1)
+        self.__sort(lst, gt + 1, high)
+
+
+class SuffixArray(object):
+
+    def __init__(self, s):
+        self._length = len(s)
+        self._suffixes = []
+        for i in range(self._length):
+            self._suffixes.append(s[i:self._length])
+        qtw = QuickThreeWay()
+        qtw.sort(self._suffixes)
+
+    def length(self):
+        return self._length
+
+    def select(self, index):
+        return self._suffixes[index]
+
+    def lcp(self, index):
+        return self._lcp(self._suffixes[index], self._suffixes[index - 1])
+
+    def _lcp(self, s1, s2):
+        min_len = min(len(s1), len(s2))
+        for i in range(min_len):
+            if s1[i] != s2[i]:
+                return i
+        return min_len
+
+    def rank(self, key):
+        low, high = 0, self._length
+        while low <= high:
+            mid = (low + high) // 2
+            if self._suffixes[mid] > key:
+                high = mid - 1
+            elif self._suffixes[mid] < key:
+                low = mid + 1
+            else:
+                return mid
+
+
+class LRS(object):
+
+    @staticmethod
+    def run(input_string):
+        sa = SuffixArray(input_string)
+        length = len(input_string)
+        lrs = ''
+        for i in range(length):
+            tmp_len = sa.lcp(i)
+            if tmp_len > len(lrs):
+                lrs = sa.select(i)[0:tmp_len]
+        return lrs

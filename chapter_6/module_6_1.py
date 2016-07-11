@@ -54,38 +54,7 @@ class Node(object):
 
 class BTree(object):
 
-    '''
-    >>> btree = BTree()
-    >>> data = {"www.cs.princeton.edu": "128.112.136.12",
-    ...         "www.cs.princeton.edu": "128.112.136.11",
-    ...         "www.princeton.edu":    "128.112.128.15",
-    ...         "www.yale.edu":         "130.132.143.21",
-    ...         "www.simpsons.com":     "209.052.165.60",
-    ...         "www.apple.com":        "17.112.152.32",
-    ...         "www.amazon.com":       "207.171.182.16",
-    ...         "www.ebay.com":        "66.135.192.87",
-    ...         "www.cnn.com":          "64.236.16.20",
-    ...         "www.google.com":       "216.239.41.99",
-    ...         "www.nytimes.com":      "199.239.136.200",
-    ...         "www.microsoft.com":    "207.126.99.140",
-    ...         "www.dell.com":         "143.166.224.230",
-    ...         "www.slashdot.org":     "66.35.250.151",
-    ...         "www.espn.com":         "199.181.135.201",
-    ...         "www.weather.com":      "63.111.66.11",
-    ...         "www.yahoo.com":        "216.109.118.65"}
-    >>> for k, v in data.items():
-    ...     btree.put(k, v)
-    ...
-    >>> btree.get("www.yahoo.com")
-    216.109.118.65
-    >>> btree.get("www.slashdot.org")
-    66.35.250.151
-    >>> btree.get("www.cs.princeton.edu")
-    128.112.136.11
-    >>> btree.size() == len(data) - 1
-    True
-    '''
-
+    # these code is not working yet
     def __init__(self):
         self._root = Node(0)
         self._size = 0
@@ -113,6 +82,7 @@ class BTree(object):
         new_entry = Entry(key, value, None)
         # external node
         if height == 0:
+            print(key, value)
             while pos < node.m_size:
                 if node.children[pos] and key < node.children[pos].key:
                     break
@@ -120,7 +90,7 @@ class BTree(object):
         else:
             while pos < node.m_size:
                 if pos + 1 == node.m_size or key < node.children[pos + 1].key:
-                    u = self._insert(node.children[pos + 1], key, value, height - 1)
+                    u = self._insert(node.children[pos], key, value, height - 1)
                     if not u:
                         return None
                     new_entry.key = u.children[0].key
@@ -190,7 +160,7 @@ class SuffixArray(object):
         self._length = len(s)
         self._suffixes = []
         for i in range(self._length):
-            self._suffixes.append(s[i:self._length])
+            self._suffixes.append(s[i:])
         qtw = QuickThreeWay()
         qtw.sort(self._suffixes)
 
@@ -225,7 +195,13 @@ class SuffixArray(object):
 class LRS(object):
 
     '''
-
+    >>> test_string = ('it was the best of times it was the worst of times '
+    ...                'it was the age of wisdom it was the age of foolishness '
+    ...                'it was the epoch of belief it was the epoch of incredulity '
+    ...                'it was the season of light it was the season of darkness '
+    ...                'it was the spring of hope it was the winter of despair')
+    >>> LRS.run(test_string)
+    'st of times it was the '
     '''
 
     @staticmethod
@@ -233,7 +209,7 @@ class LRS(object):
         sa = SuffixArray(input_string)
         length = len(input_string)
         lrs = ''
-        for i in range(length):
+        for i in range(1, length):
             tmp_len = sa.lcp(i)
             if tmp_len > len(lrs):
                 lrs = sa.select(i)[0:tmp_len]

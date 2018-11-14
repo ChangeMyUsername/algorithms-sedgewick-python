@@ -7,7 +7,8 @@ import random
 class UnionFind(object):
 
     """
-      Union find implementation, the algorithm is a little bit like tree algorithm but not the same.
+      Union find implementation, the algorithm is a little bit
+    like tree algorithm but not the same.
     >>> uf = UnionFind(10)
     >>> connections = [(4, 3), (3, 8), (6, 5), (9, 4), (2, 1),
     ... (8, 9), (5, 0), (7, 2), (6, 1), (1, 0), (6, 7)]
@@ -61,7 +62,8 @@ class UnionFind(object):
 class WeightedUnionFind(object):
 
     """
-      Weighted union find algorithm, put the smaller tree into the larger tree, lower the tree size.
+      Weighted union find algorithm,
+    put the smaller tree into the larger tree, lower the tree size.
     >>> wuf = WeightedUnionFind(10)
     >>> connections = [(4, 3), (3, 8), (6, 5), (9, 4),
     ... (2, 1), (8, 9), (5, 0), (7, 2), (6, 1), (1, 0), (6, 7)]
@@ -178,6 +180,7 @@ def erdos_renyi(size):
             continue
         if not uf.connected(a, b):
             uf.union(a, b)
+
 
 if __name__ == '__main__':
     doctest.testmod()

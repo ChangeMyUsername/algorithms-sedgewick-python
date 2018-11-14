@@ -21,10 +21,36 @@ def two_sum_fast(lst):
     return cnt
 
 
+def two_sum_with_target(lst, target):
+    """
+        Get the indices of the list which
+    two elements add up to specific target. Can not use the same
+    element twice.
+        Using dictionary to mark the indice of the number, if
+    target - number in the dictionary, return the indice.
+    >>> lst = [2, 7, 11, 15]
+    >>> two_sum_with_target(lst, 9)
+    (0, 1)
+    >>> lst2 = [3, 3]
+    >>> two_sum_with_target(lst2, 6)
+    (0, 1)
+    >>> lst3 = [3, 2, 4, 1]
+    >>> two_sum_with_target(lst3, 6)
+    (1, 2)
+    """
+    num_indexes = {}
+    for index, num in enumerate(lst):
+        if target - num in num_indexes:
+            return (num_indexes[target - num], index)
+        num_indexes[num] = index
+    return ()
+
+
 def three_sum_fast(lst):
     """
       Count how many three numbers add up to zero. first sort the list,
-    then using two for-loop and binary search algorithm get the opposite number.
+    then using two for-loop and binary search algorithm get the
+    opposite number.
     >>> lst = [-1, 2, 1, 3, 0, 4, -4, 5, 9, -5]
     >>> three_sum_fast(lst)
     8
@@ -51,7 +77,8 @@ def four_sum_fast(lst):
 def closest_pair(lst):
     """
       Get two closest number in a list, first sort the list,
-    then iterate through the list compare each summation of two adjacent numbers in the list,
+    then iterate through the list compare each
+    summation of two adjacent numbers in the list,
     then get the result.
     >>> lst = [1, 0, 3, 4, 5, 9, 1]
     >>> closest_pair(lst)

@@ -5,7 +5,7 @@ import doctest
 
 def gcd(p, q):
     '''
-    return greatest common divisor of two numbers.
+    Calculate greatest common divisor of two numbers.
     >>> gcd(6, 4)
     2
     >>> gcd(7, 5)
@@ -18,7 +18,7 @@ def gcd(p, q):
 
 def is_prime(number):
     '''
-    determine whether a number is a prime number.
+    Determine whether a number is prime.
     >>> is_prime(1)
     False
     >>> is_prime(2)
@@ -44,7 +44,7 @@ def is_prime(number):
 
 def sqrt(number):
     '''
-    return the square of the number(Newton's method).
+    Calculate the square of the number(Newton's method).
     >>> sqrt(4)
     2.0
     >>> sqrt(9)
@@ -65,7 +65,7 @@ def sqrt(number):
 
 def harmonic(number):
     '''
-    return the harmonic number of the given number.
+    Calculate the harmonic number of the given number.
     >>> harmonic(2)
     1.5
     >>> harmonic(3)
@@ -76,8 +76,9 @@ def harmonic(number):
 
 def binary_search(key, lst):
     '''
-    return the index of the key in the given ascending list(i - 1), if the key not in the list,
-    return -1.
+    Determine whether the key in target list.
+    Return the index of the key in the given ascending list(i - 1),
+    if the key not in the list, return -1.
     >>> binary_search(3, [1, 2, 3, 4, 5])
     2
     >>> binary_search(1, [1, 2, 3, 4, 5, 6, 7, 9])
@@ -128,7 +129,7 @@ def exR1(number):
 # 1.1.29 practice
 def rank(key, lst):
     '''
-    return the rank of the key in the given list, there may be duplicate keys.
+    Return the rank of the key in the given list, there may be duplicated keys.
     >>> rank(3, [1, 2, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9, 10])
     2
     >>> rank(4, [1, 2, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5])

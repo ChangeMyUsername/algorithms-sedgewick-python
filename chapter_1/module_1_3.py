@@ -814,11 +814,3 @@ BaseDataType.register(Queue)
 
 if __name__ == '__main__':
     doctest.testmod()
-
-    # # random bag test case.
-    # random_bag = RandomBag()
-    # for i in range(10):
-    #     random_bag.add(i)
-
-    # for i in random_bag:
-    #     print(i)

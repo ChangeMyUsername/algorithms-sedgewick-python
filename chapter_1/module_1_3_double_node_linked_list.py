@@ -9,7 +9,8 @@ import doctest
 class LinkedList(object):
 
     """
-      The double-node linked list implementation which the node has prev and next attribute.
+      The double-node linked list implementation
+    which the node has prev and next attribute.
     >>> lst = LinkedList()
     >>> lst.push_back(1)
     >>> lst.push_front(2)

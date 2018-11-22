@@ -16,7 +16,8 @@ class LinkedList(object):
     ...
     >>> lst.print_list()
     1 2 3 4
-    >>> ######## test delete_last() function, remove all nodes from linked list.
+    >>> ######## test delete_last() function,
+    >>> ######## remove all nodes from linked list.
     >>> while lst.size():
     ...     lst.delete_last()
     ...
@@ -89,6 +90,10 @@ class LinkedList(object):
     ...
     >>> lst
     [9, 8, 7, 6, 5, 4, 3, 2, 1]
+    >>> ##### test is_cyclic function
+    >>> lst4 = LinkedList()
+    >>> for i in range(5):
+    ...     lst4.append(i)
     '''
 
     def __init__(self):
@@ -224,6 +229,17 @@ class LinkedList(object):
             reverse_node = first
             first = second
         return reverse_node
+
+    def is_cyclic(self):
+        if not self._first:
+            return False
+        fast = second = self._first
+        while fast and fast.next_node:
+            fast = fast.next_node.next_node
+            second = second.next_node
+            if fast == second:
+                return True
+        return False
 
 
 if __name__ == '__main__':

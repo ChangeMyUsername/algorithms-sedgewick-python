@@ -70,5 +70,6 @@ def shell_sort(lst):
                 j -= h
         h //= 3
 
+
 if __name__ == '__main__':
     doctest.testmod()

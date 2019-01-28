@@ -6,7 +6,7 @@ class Node(object):
 
     def __init__(self, val):
         self._val = val
-        self.next_node = None
+        self._next_node = None
 
     @property
     def val(self):

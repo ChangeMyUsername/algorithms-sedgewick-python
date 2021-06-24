@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
 from __future__ import print_function
-import string
+
 import doctest
 import random
+import string
 from abc import ABCMeta, abstractmethod
-from common import Node, DoubleNode
+from typing import Any, Optional, Union
+from collections.abc import Iterator
+
+from common import DoubleNode, Node
 
 
 class BaseDataType(metaclass=ABCMeta):
-
+    """
+        Abstract class for stack, queue or other collection type.
+    """
     @abstractmethod
     def __iter__(self):
-        while False:
+        while True:
             yield None
 
     @abstractmethod
@@ -25,64 +31,92 @@ class BaseDataType(metaclass=ABCMeta):
 
 
 class Stack(object):
+    """Stack, a LIFO data structure with linked list implementation."""
 
-    """
-      Stack LIFO data structure linked-list implementation.
-    >>> s = Stack()
-    >>> s.peek()
-    >>> s.push(1)
-    >>> s.push(2)
-    >>> s.push(3)
-    >>> s.size()
-    3
-    >>> s.peek()
-    3
-    >>> for item in s:
-    ...     print(item)
-    ...
-    3
-    2
-    1
-    >>>
-    >>> s.is_empty()
-    False
-    >>> s.pop()
-    3
-    >>> s.pop()
-    2
-    >>> s.pop()
-    1
-    >>> s.pop()
-    >>> s.size()
-    0
-    >>> s.is_empty()
-    True
-    """
-
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initial method, use `_first` to mark head of linked list,
+           use `_size` to keep track of linked-list size.
+           >>> s = Stack()
+           >>> s._first
+           >>> s._size
+           0
+        """
         self._first = None
         self._size = 0
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
+        """Iterate all elements of current stack.
+
+        Yields:
+            Any: elements of stack, can be any data type of elements
+        >>> s = Stack()
+        >>> s.push(1)
+        >>> s.push(2)
+        >>> s.push(3)
+        >>> s.push(4)
+        >>> for item in s:
+        ...     print(item)
+        ...
+        4
+        3
+        2
+        1
+        """
         node = self._first
         while node:
             yield node.val
             node = node.next_node
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
+        """Check if stack is empty or not.
+
+        Returns:
+            bool: True if stack is empty else False
+        """
         return self._first is None
 
-    def size(self):
+    def size(self) -> int:
+        """Return the size of stack.
+
+        Returns:
+            int: size of stack
+        """
         return self._size
 
-    def push(self, val):
+    def push(self, val: Any) -> None:
+        """Push `val` into stack, and `val` becomes the top element.
+
+        Args:
+            val (Any): element to be pushed into stack
+
+        >>> s = Stack()
+        >>> s.push(1)
+        >>> s.push(2)
+        >>> s.push(3)
+        >>> s.size()
+        3
+        """
         node = Node(val)
         old = self._first
         self._first = node
         self._first.next_node = old
         self._size += 1
 
-    def pop(self):
+    def pop(self) -> Any:
+        """Pop out the top element in the stack.
+
+        Returns:
+            Any: popped out element
+
+        >>> s = Stack()
+        >>> s.push(1)
+        >>> s.push(2)
+        >>> s.push(3)
+        >>> s.pop()
+        3
+        >>> s.size()
+        2
+        """
         if self._first:
             old = self._first
             self._first = self._first.next_node
@@ -91,7 +125,23 @@ class Stack(object):
         return None
 
     # 1.3.7 practice
-    def peek(self):
+    def peek(self) -> Any:
+        """Return the top element in stack.
+
+        Returns:
+            Any: top element in stack
+        >>> s = Stack()
+        >>> s.peek()
+        >>> s.push(1)
+        >>> s.push(2)
+        >>> s.push(3)
+        >>> s.peek()
+        3
+        >>> s.pop()
+        3
+        >>> s.peek()
+        2
+        """
         if self._first:
             return self._first.val
         return None
@@ -100,20 +150,34 @@ class Stack(object):
 class BaseConverter(object):
 
     """
-      Convert decimal number to x base number using stack.
-    >>> BaseConverter.convert_decimal_integer(50, 2)
-    '110010'
-    >>> BaseConverter.convert_decimal_integer(8, 2)
-    '1000'
-    >>> BaseConverter.convert_decimal_integer(15, 16)
-    'F'
-    >>> BaseConverter.convert_decimal_integer(9, 8)
-    '11'
+      Convert decimal number to x base number with stack.
     """
     digits = '0123456789ABCDEF'
 
     @staticmethod
-    def convert_decimal_integer(dec_num, base):
+    def convert_decimal_integer(dec_num: int, base: int) -> str:
+        """Convert decimal number to x base number with stack.
+
+        Args:
+            dec_num (int): decimal number to be converted
+            base (int): base number, maximum base number is 16
+
+        Returns:
+            str: n-base number as string format
+
+        >>> BaseConverter.convert_decimal_integer(50, 2)
+        '110010'
+        >>> BaseConverter.convert_decimal_integer(8, 2)
+        '1000'
+        >>> BaseConverter.convert_decimal_integer(15, 16)
+        'F'
+        >>> BaseConverter.convert_decimal_integer(9, 8)
+        '11'
+        >>> BaseConverter.convert_decimal_integer(99, 7)
+        '201'
+        >>> BaseConverter.convert_decimal_integer(99, 9)
+        '120'
+        """
         stack = Stack()
         while dec_num:
             stack.push(dec_num % base)
@@ -127,24 +191,40 @@ class BaseConverter(object):
 class Evaluate(object):
 
     """
-      Dijkstra infix evaluate algorithm, using stack for data structure.
-    >>> evaluate = Evaluate()
-    >>> evaluate.calculate('(1+((2+3)*(4*5)))')
-    101.0
-    >>> evaluate.calculate('((1-2)*(8/4))')
-    -2.0
+      Dijkstra Shunting-yard algorithm variant
     """
 
     def __init__(self):
+        """
+            Initialize method.
+        """
         self._ops_stack = Stack()
         self._vals_stack = Stack()
-        self._ops_char = ('+', '-', '*', '/')
+        self._ops_char = ('+', '-', '*', '/', '√')
 
-    def calculate(self, infix_string):
+    def calculate(self, infix_string: str) -> int:
+        """Dijkstra Shunting-yard algorithm, but the output is
+           the result of given mathematical expression,
+           `infix_string` can support space character.
+
+        Args:
+            infix_string (str): infix string
+
+        Returns:
+            int: calculated result
+
+        >>> evaluate = Evaluate()
+        >>> evaluate.calculate('(1+((2+3)*(4*5)))')
+        101.0
+        >>> evaluate.calculate('((1-2)*(8/4))')
+        -2.0
+        >>> evaluate.calculate('((1 - 2) * (8 / 4))')
+        -2.0
+        """
         for i in infix_string:
             if i in self._ops_char:
                 self._ops_stack.push(i)
-            elif i == '(':
+            elif i == '(' or i == ' ':
                 continue
             elif i == ')':
                 ops = self._ops_stack.pop()
@@ -167,55 +247,35 @@ class Queue(object):
 
     """
       Queue FIFO data structure linked-list implementation.
-    >>> q = Queue()
-    >>> q.is_empty()
-    True
-    >>> q.size()
-    0
-    >>> q.enqueue(1)
-    >>> q.enqueue(2)
-    >>> q.enqueue(3)
-    >>> q.enqueue(4)
-    >>> q.size()
-    4
-    >>> q.is_empty()
-    False
-    >>> [item for item in q]
-    [1, 2, 3, 4]
-    >>> q.dequeue()
-    1
-    >>> q.dequeue()
-    2
-    >>> q.dequeue()
-    3
-    >>> q.dequeue()
-    4
-    >>> q.dequeue()
-    >>> q.dequeue()
-    >>> q.size()
-    0
-    >>> old = Queue()
-    >>> for i in range(5):
-    ...     old.enqueue(i)
-    ...
-    >>> new_queue = Queue(old)
-    >>> [i for i in new_queue]
-    [0, 1, 2, 3, 4]
-    >>> new_queue.enqueue(6)
-    >>> [i for i in old]
-    [0, 1, 2, 3, 4]
-    >>> [i for i in new_queue]
-    [0, 1, 2, 3, 4, 6]
     """
 
     # 1.3.41 practice
+    def __init__(self, exist_queue: Optional['Queue'] = None) -> None:
+        """Initial method for queue, if `exist_queue` is not None,
+           then copy all elements to current queue.
 
-    def __init__(self, q=None):
+        Args:
+            exist_queue ([Queue], optional): Existing Queue object.
+                                             Defaults to None.
+
+        >>> old = Queue()
+        >>> for i in range(5):
+        ...     old.enqueue(i)
+        ...
+        >>> new_queue = Queue(old)
+        >>> [i for i in new_queue]
+        [0, 1, 2, 3, 4]
+        >>> new_queue.enqueue(6)
+        >>> [i for i in old]
+        [0, 1, 2, 3, 4]
+        >>> [i for i in new_queue]
+        [0, 1, 2, 3, 4, 6]
+        """
         self._first = None
         self._last = None
         self._size = 0
-        if q:
-            for item in q:
+        if exist_queue:
+            for item in exist_queue:
                 self.enqueue(item)
 
     def __iter__(self):
@@ -224,13 +284,50 @@ class Queue(object):
             yield node.val
             node = node.next_node
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
+        """Check if queue is empty.
+
+        Returns:
+            bool: True if queue is empty else False
+
+        >>> queue = Queue()
+        >>> queue.is_empty()
+        True
+        >>> queue.enqueue('a')
+        >>> queue.is_empty()
+        False
+        """
         return self._first is None
 
-    def size(self):
+    def size(self) -> int:
+        """Return the size of queue.
+
+        Returns:
+            int: the size of queue
+
+        >>> queue = Queue()
+        >>> queue.size()
+        0
+        >>> queue.enqueue('b')
+        >>> queue.size()
+        1
+        """
         return self._size
 
-    def enqueue(self, val):
+    def enqueue(self, val: Any) -> None:
+        """Append element to queue.
+
+        Args:
+            val (Any): element to be appended
+
+        >>> queue = Queue()
+        >>> queue.enqueue(1)
+        >>> queue.enqueue(2)
+        >>> queue.enqueue(3)
+        >>> queue.enqueue(4)
+        >>> queue.size()
+        4
+        """
         old_last = self._last
         self._last = Node(val)
         self._last.next_node = None
@@ -240,7 +337,32 @@ class Queue(object):
             old_last.next_node = self._last
         self._size += 1
 
-    def dequeue(self):
+    def dequeue(self) -> Union[Any, None]:
+        """Remove element from the head of queue,
+           if queue is empty, return None.
+
+        Returns:
+            Union[Any, None]: dequeued element, if queue is empty,
+                              then return None
+
+        >>> queue = Queue()
+        >>> queue.enqueue(1)
+        >>> queue.enqueue(2)
+        >>> queue.enqueue(3)
+        >>> queue.enqueue(4)
+        >>> queue.dequeue()
+        1
+        >>> queue.dequeue()
+        2
+        >>> queue.dequeue()
+        3
+        >>> queue.dequeue()
+        4
+        >>> queue.dequeue()
+        >>> queue.dequeue()
+        >>> queue.size()
+        0
+        """
         if not self.is_empty():
             val = self._first.val
             self._first = self._first.next_node
@@ -252,9 +374,8 @@ class Queue(object):
 
 
 class Bag(object):
+    '''Bag data structure with linked-list implementation.
 
-    '''
-      Bag data structure linked-list implementation.
     >>> bag = Bag()
     >>> bag.size()
     0
@@ -281,7 +402,7 @@ class Bag(object):
             yield node.val
             node = node.next_node
 
-    def add(self, val):
+    def add(self, val: Any) -> None:
         node = Node(val)
         old = self._first
         self._first = node
@@ -414,7 +535,8 @@ class InfixToPostfix(object):
                     token = self._ops_stack.pop()
             else:
                 while (not self._ops_stack.is_empty() and
-                       InfixToPostfix.ops[self._ops_stack.peek()] >= InfixToPostfix.ops[i]):
+                       InfixToPostfix.ops[
+                           self._ops_stack.peek()] >= InfixToPostfix.ops[i]):
                     postfix_list.append(self._ops_stack.pop())
                 self._ops_stack.push(i)
 

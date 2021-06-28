@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
-from __future__ import print_function
+from __future__ import print_function, annotations
 
 import doctest
 import random
@@ -146,6 +146,31 @@ class Stack(object):
             return self._first.val
         return None
 
+    # 1.3.12 practice
+    @staticmethod
+    def copy(stack: Stack) -> Stack:
+        """Copy existing stack and return new stack.
+
+        Args:
+            stack (Stack): existing stack
+
+        Returns:
+            Stack: new stack
+
+        >>> old_stack = Stack()
+        >>> old_stack.push(1)
+        >>> old_stack.push(2)
+        >>> old_stack.push(3)
+        >>> old_stack.push(4)
+        >>> new_stack = Stack.copy(old_stack)
+        >>> [item for item in new_stack]
+        [1, 2, 3, 4]
+        """
+        new_stack = Stack()
+        for item in stack:
+            new_stack.push(item)
+        return new_stack
+
 
 class BaseConverter(object):
 
@@ -194,7 +219,7 @@ class Evaluate(object):
       Dijkstra Shunting-yard algorithm variant
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
             Initialize method.
         """
@@ -278,7 +303,7 @@ class Queue(object):
             for item in exist_queue:
                 self.enqueue(item)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         node = self._first
         while node:
             yield node.val
@@ -374,75 +399,106 @@ class Queue(object):
 
 
 class Bag(object):
-    '''Bag data structure with linked-list implementation.
+    """
+        Bag data structure with linked-list implementation.
+    """
 
-    >>> bag = Bag()
-    >>> bag.size()
-    0
-    >>> bag.is_empty()
-    True
-    >>> for i in range(1, 6):
-    ...     bag.add(i)
-    ...
-    >>> bag.size()
-    5
-    >>> [i for i in bag]
-    [5, 4, 3, 2, 1]
-    >>> bag.is_empty()
-    False
-    '''
-
-    def __init__(self):
+    def __init__(self) -> None:
+        """Intial method
+        """
         self._first = None
         self._size = 0
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
+        """Iterator method, yields each elements in bag
+
+        Yields:
+            Iterator[Any]: element in bag
+        """
         node = self._first
         while node is not None:
             yield node.val
             node = node.next_node
 
     def add(self, val: Any) -> None:
+        """Prepend element to bag
+
+        Args:
+            val (Any): element to be inserted
+
+        >>> bag = Bag()
+        >>> for i in range(1, 6):
+        ...     bag.add(i)
+        ...
+        >>> bag.size()
+        5
+        >>> [i for i in bag]
+        [5, 4, 3, 2, 1]
+        """
         node = Node(val)
         old = self._first
         self._first = node
         self._first.next_node = old
         self._size += 1
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
+        """Check if bag is empty
+
+        Returns:
+            bool: True if bag is empty else False
+        >>> bag = Bag()
+        >>> bag.is_empty()
+        True
+        """
         return self._first is None
 
-    def size(self):
+    def size(self) -> int:
+        """Return the size of bag
+
+        Returns:
+            int: the size of bag
+        >>> bag = Bag()
+        >>> bag.size()
+        0
+        """
         return self._size
 
 
 # stack example
 # 1.3.4 practice
 class Parentheses(object):
+    """
+        Using stack data structure for judging if parenthese is symmetric.
+    """
 
-    '''
-      Using stack data structure for judging if parenthese is symmetric.
-    >>> p = Parentheses()
-    >>> p.is_parenthese_symmetric('[()]{}{[()()]()}')
-    True
-    >>> p.is_parenthese_symmetric('[(])}}{}{]])')
-    False
-    >>> p.is_parenthese_symmetric('{{{{}}}')
-    False
-    >>> p.is_parenthese_symmetric('{}}}}}}}{{{')
-    False
-    '''
-
-    def __init__(self):
+    def __init__(self) -> None:
         self._left_parenthese_stack = Stack()
         self._left_parentheses = ('[', '{', '(')
         self._right_parentheses = (']', '}', ')')
 
-    def __is_match(self, left_parenthese, right_parenthese):
+    def __is_match(self, left_parenthese: str, right_parenthese: str) -> bool:
         return (self._left_parentheses.index(left_parenthese) ==
                 self._right_parentheses.index(right_parenthese))
 
-    def is_parenthese_symmetric(self, parenthese_string):
+    def is_parenthese_symmetric(self, parenthese_string: str) -> bool:
+        """Using stack data structure for judging if parenthese is symmetric.
+
+        Args:
+            parenthese_string (str): input string with all parentheses
+
+        Returns:
+            bool: True if parenthese string are symmetric else False
+
+        >>> p = Parentheses()
+        >>> p.is_parenthese_symmetric('[()]{}{[()()]()}')
+        True
+        >>> p.is_parenthese_symmetric('[(])}}{}{]])')
+        False
+        >>> p.is_parenthese_symmetric('{{{{}}}')
+        False
+        >>> p.is_parenthese_symmetric('{}}}}}}}{{{')
+        False
+        """
         for s in parenthese_string:
             if s in self._left_parentheses:
                 self._left_parenthese_stack.push(s)
@@ -475,20 +531,30 @@ def get_binary(integer):
 # 1.3.9 practice
 class CompleteInfixString(object):
 
-    '''
-      Using stack for complete infix string,
-    the basic principle is similar to dijkstra infix arithmetic algorithm.
-    >>> cis = CompleteInfixString()
-    >>> cis.complete_string('1+2)*3-4)*5-6)))')
-    '((1+2)*((3-4)*(5-6)))'
-    '''
+    """
+        Using stack for complete infix string,
+        the basic principle is similar to dijkstra infix arithmetic algorithm.
+    """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize method"""
         self._ops_stack = Stack()
         self._vals_stack = Stack()
         self._ops_char = ('+', '-', '*', '/')
 
-    def complete_string(self, incmplt_string):
+    def complete_string(self, incmplt_string: str) -> str:
+        """Complete infix string, `incmplt_string` can not include `(` character.
+
+        Args:
+            incmplt_string (str): in-completed infix string
+
+        Returns:
+            str: infix string with `(`
+
+        >>> cis = CompleteInfixString()
+        >>> cis.complete_string('1+2)*3-4)*5-6)))')
+        '((1+2)*((3-4)*(5-6)))'
+        """
         for i in incmplt_string:
             if i in self._ops_char:
                 self._ops_stack.push(i)
@@ -505,23 +571,36 @@ class CompleteInfixString(object):
 # 1.3.10 practice
 class InfixToPostfix(object):
 
-    '''
-      Turn infix string to postfix string using stack.
-    >>> itp = InfixToPostfix()
-    >>> itp.infix_to_postfix("(A+B)*(C+D)")
-    'A B + C D + *'
-    >>> itp.infix_to_postfix("(A+B)*C")
-    'A B + C *'
-    >>> itp.infix_to_postfix("A+B*C")
-    'A B C * +'
-    '''
+    """
+      Convert infix string to postfix string using stack.
+    """
+
     operand = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     ops = {'*': 3, '/': 3, '+': 2, '-': 2, '(': 1}
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize method"""
         self._ops_stack = Stack()
 
-    def infix_to_postfix(self, infix_string):
+    def infix_to_postfix(self, infix_string: str) -> str:
+        """Convert infix string to postfix string using stack.
+
+        Args:
+            infix_string (str): infix string
+
+        Returns:
+            str: postfix string
+
+        >>> itp = InfixToPostfix()
+        >>> itp.infix_to_postfix("(A+B)*(C+D)")
+        'A B + C D + *'
+        >>> itp.infix_to_postfix("(A+B)*C")
+        'A B + C *'
+        >>> itp.infix_to_postfix("A+B*C")
+        'A B C * +'
+        >>> itp.infix_to_postfix("A*B+C")
+        'A B * C +'
+        """
         postfix_list = []
         for i in infix_string:
             if i in InfixToPostfix.operand:
@@ -548,17 +627,28 @@ class InfixToPostfix(object):
 # 1.3.11 practice
 class PostfixEvaluate(object):
 
-    '''
-      Using stack for postfix evaluation.
-    >>> pfe = PostfixEvaluate()
-    >>> pfe.evaluate('78+32+/')
-    3.0
-    '''
+    """
+        Using stack for postfix evaluation.
+    """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize method"""
         self._operand_stack = Stack()
 
-    def evaluate(self, postfix_string):
+    def evaluate(self, postfix_string: string) -> float:
+        """Using stack for postfix evaluation.
+
+        Args:
+            postfix_string (string): postfix string
+
+        Returns:
+            float: postfix evaluation
+
+        Using stack for postfix evaluation.
+        >>> pfe = PostfixEvaluate()
+        >>> pfe.evaluate('78+32+/')
+        3.0
+        """
         for i in postfix_string:
             if i in string.digits:
                 self._operand_stack.push(int(i))

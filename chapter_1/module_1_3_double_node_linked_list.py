@@ -196,5 +196,6 @@ class LinkedList(object):
             if not flag:
                 tmp = tmp.next
 
+
 if __name__ == '__main__':
     doctest.testmod()

@@ -670,7 +670,7 @@ class PostfixEvaluate(object):
 class Steque(object):
 
     """
-      Steque data structure, combining stack operation and queue operation.
+      Steque, combining stack and queue operation.
     >>> s = Steque()
     >>> for i in range(1, 10):
     ...     s.push(i)
@@ -697,6 +697,7 @@ class Steque(object):
     """
 
     def __init__(self):
+        """Initialize method"""
         self._top = None
         self._bottom = None
         self._size = 0

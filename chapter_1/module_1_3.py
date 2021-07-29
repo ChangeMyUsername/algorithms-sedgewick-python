@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
-from __future__ import print_function, annotations
+from __future__ import annotations, print_function
 
 import doctest
 import random
 import string
 from abc import ABCMeta, abstractmethod
-from typing import Any, Optional, Union
 from collections.abc import Iterator
+from pathlib import Path
+from typing import Any, Optional, Union
 
 from common import DoubleNode, Node
 
@@ -33,7 +34,8 @@ class BaseDataType(metaclass=ABCMeta):
 class Stack(object):
     """Stack, a LIFO data structure with linked list implementation."""
 
-    def __init__(self) -> None:
+    # 1.3.42 practice
+    def __init__(self, old_stack: Stack) -> None:
         """Initial method, use `_first` to mark head of linked list,
            use `_size` to keep track of linked-list size.
            >>> s = Stack()
@@ -43,6 +45,9 @@ class Stack(object):
         """
         self._first = None
         self._size = 0
+        if isinstance(old_stack, Stack) and not old_stack.is_empty():
+            for item in old_stack:
+                self.push(item)
 
     def __iter__(self) -> Iterator[Any]:
         """Iterate all elements of current stack.
@@ -671,29 +676,6 @@ class Steque(object):
 
     """
       Steque, combining stack and queue operation.
-    >>> s = Steque()
-    >>> for i in range(1, 10):
-    ...     s.push(i)
-    ...
-    >>> s.pop()
-    9
-    >>> s.pop()
-    8
-    >>> s.enqueue(10)
-    >>> ' '.join([str(i) for i in s])
-    '7 6 5 4 3 2 1 10'
-    >>> s2 = Steque()
-    >>> for i in range(10):
-    ...     s2.enqueue(i)
-    ...
-    >>> ' '.join([str(i) for i in s2])
-    '0 1 2 3 4 5 6 7 8 9'
-    >>> print_list = []
-    >>> while not s2.is_empty():
-    ...     print_list.append(s2.pop())
-    ...
-    >>> print_list
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     """
 
     def __init__(self):
@@ -702,13 +684,25 @@ class Steque(object):
         self._bottom = None
         self._size = 0
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         tmp = self._top
         while tmp:
             yield tmp.val
             tmp = tmp.next_node
 
-    def push(self, val):
+    def push(self, val: Any) -> None:
+        """Add element at the top of steque.
+
+        Args:
+            val (Any): element to add
+
+        >>> steque = Steque()
+        >>> for i in range(1, 10):
+        ...     steque.push(i)
+        ...
+        >>> [i for i in steque]
+        [9, 8, 7, 6, 5, 4, 3, 2, 1]
+        """
         old = self._top
         self._top = Node(val)
         self._top.next_node = old
@@ -716,7 +710,24 @@ class Steque(object):
             self._bottom = self._top
         self._size += 1
 
-    def pop(self):
+    def pop(self) -> Union[None, Any]:
+        """Remove top element from steque.
+
+        Returns:
+            Union[None, Any]: removed element, None if steque is empty.
+
+        >>> steque = Steque()
+        >>> for i in range(1, 10):
+        ...     steque.push(i)
+        ...
+        >>> [steque.pop() for _ in range(1, 10)]
+        [9, 8, 7, 6, 5, 4, 3, 2, 1]
+        >>> steque.is_empty()
+        True
+        >>> steque.size()
+        0
+        >>> steque.pop()
+        """
         if self._top:
             out = self._top
             self._top = self._top.next_node
@@ -726,7 +737,19 @@ class Steque(object):
             return out.val
         return None
 
-    def enqueue(self, val):
+    def enqueue(self, val: Any) -> None:
+        """Append item to steque.
+
+        Args:
+            val (Any): element to append
+
+        >>> steque = Steque()
+        >>> for i in range(1, 10):
+        ...     steque.enqueue(i)
+        ...
+        >>> [i for i in steque]
+        [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        """
         if not self._bottom:
             self._bottom = self._top = Node(val)
             self._size += 1
@@ -736,10 +759,20 @@ class Steque(object):
         self._bottom = self._bottom.next_node
         self._size += 1
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
+        """Check if steque is empty
+
+        Returns:
+            bool: True if steque is empty else False
+        """
         return self._top is None
 
-    def size(self):
+    def size(self) -> int:
+        """Return the size of steque
+
+        Returns:
+            int: size of steque
+        """
         return self._size
 
 
@@ -747,7 +780,8 @@ class Steque(object):
 class Deque(object):
 
     '''
-      Double queue datastructure implementaion.
+      Double queue AKA Deque linked list version, deque iterates
+      elements from left to right.
     >>> d = Deque()
     >>> d.push_left(1)
     >>> d.push_right(2)
@@ -769,23 +803,50 @@ class Deque(object):
     0
     '''
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initial method"""
         self._left = self._right = None
         self._size = 0
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         tmp = self._left
         while tmp:
             yield tmp.val
             tmp = tmp.next_node
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
+        """Check if deque is empty
+
+        Returns:
+            bool: True if deque is empty else False
+        """
         return self._left is None and self._right is None
 
-    def size(self):
+    def size(self) -> int:
+        """Return the size of deque
+
+        Returns:
+            int: size of deque
+        """
         return self._size
 
-    def push_left(self, item):
+    def push_left(self, item: Any) -> None:
+        """Add element from the left of deque.
+
+        Args:
+            item (Any): element to add
+
+        >>> deque = Deque()
+        >>> for i in range(10):
+        ...     deque.push_left(i)
+        ...
+        >>> deque.size()
+        10
+        >>> deque.is_empty()
+        False
+        >>> [i for i in deque]
+        [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        """
         old = self._left
         self._left = Node(item)
         self._left.next_node = old
@@ -793,16 +854,32 @@ class Deque(object):
             self._right = self._left
         self._size += 1
 
-    def push_right(self, item):
+    def push_right(self, item: Any) -> None:
+        """Add element from the right of deque.
+
+        Args:
+            item (Any): element to add
+
+        >>> deque = Deque()
+        >>> for i in range(10):
+        ...     deque.push_right(i)
+        ...
+        >>> deque.size()
+        10
+        >>> deque.is_empty()
+        False
+        >>> [i for i in deque]
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        """
         old = self._right
         self._right = Node(item)
-        if self.is_empty():
+        if not self._left:
             self._left = self._right
         else:
             old.next_node = self._right
         self._size += 1
 
-    def pop_left(self):
+    def pop_left(self) -> Any:
         if self._left:
             old = self._left
             self._left = self._left.next_node
@@ -812,7 +889,7 @@ class Deque(object):
             return old.val
         return None
 
-    def pop_right(self):
+    def pop_right(self) -> Any:
         if self._right:
             tmp = self._left
             while tmp.next_node != self._right:
@@ -1015,6 +1092,24 @@ class MoveToFront(object):
         while tmp:
             yield tmp.val
             tmp = tmp.next
+
+
+# 1.3.43
+def print_files(directory: str) -> None:
+    def _print_files(indent: int, queue: Queue):
+        directory = queue.dequeue()
+        for item in Path(directory).glob('*'):
+            if item.is_dir():
+                print(f'{" " * indent} - {str(item)}/')
+                queue.enqueue(item)
+                _print_files(indent + 2, queue)
+            elif item.is_file():
+                print(f'{" " * indent} - {str(item)}')
+
+    queue = Queue()
+    print(f'- {directory}/')
+    queue.enqueue(directory)
+    _print_files(2, queue)
 
 
 BaseDataType.register(RandomBag)

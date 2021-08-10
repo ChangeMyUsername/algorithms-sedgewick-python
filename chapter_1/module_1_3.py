@@ -8,7 +8,7 @@ import string
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Iterable, Optional, Union
 
 from common import DoubleNode, Node
 
@@ -678,7 +678,7 @@ class Steque(object):
       Steque, combining stack and queue operation.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize method"""
         self._top = None
         self._bottom = None
@@ -907,53 +907,53 @@ class Deque(object):
 # 1.3.34 random bag implementation.
 class RandomBag(object):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._bag = []
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[Any]:
         random.shuffle(self._bag)
         for i in self._bag:
             yield i
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return len(self._bag) == 0
 
-    def size(self):
+    def size(self) -> int:
         return len(self._bag)
 
-    def add(self, item):
+    def add(self, item) -> None:
         self._bag.append(item)
 
 
 # 1.3.35 random queue implementation.
 class RandomQueue(object):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._queue = []
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return len(self._queue) == 0
 
-    def size(self):
+    def size(self) -> int:
         return len(self._queue)
 
-    def enqueue(self, item):
+    def enqueue(self, item: Any) -> None:
         self._queue.append(item)
 
-    def dequeue(self):
+    def dequeue(self) -> Union[Any, None]:
         if len(self._queue):
             index = random.randint(0, len(self._queue) - 1)
             return self._queue.pop(index)
         return None
 
-    def sample(self):
+    def sample(self) -> Union[Any, None]:
         if len(self._queue):
             index = random.randint(0, len(self._queue) - 1)
             return self._queue[index]
         return None
 
     # 1.3.36 practice
-    def __iter__(self):
+    def __iter__(self) -> Iterable[Any]:
         random.shuffle(self._queue)
         for i in self._queue:
             yield i
@@ -977,24 +977,24 @@ class GeneralizeQueue(object):
     '1 2 3 5 6 7 8'
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._first = None
         self._last = None
         self._size = 0
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[Any]:
         tmp = self._first
         while tmp:
             yield tmp.val
             tmp = tmp.next_node
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return self._first is None
 
-    def size(self):
+    def size(self) -> int:
         return self._size
 
-    def insert(self, item):
+    def insert(self, item: Any) -> None:
         old = self._last
         self._last = Node(item)
         if not self._first:
@@ -1003,7 +1003,7 @@ class GeneralizeQueue(object):
             old.next_node = self._last
         self._size += 1
 
-    def delete(self, k):
+    def delete(self, k: int) -> Any:
         if k > self._size:
             return
 
@@ -1054,11 +1054,11 @@ class MoveToFront(object):
     5
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._first = None
         self._set = set()
 
-    def push(self, item):
+    def push(self, item: Any) -> None:
         if not self._first:
             self._first = DoubleNode(item)
             self._set.add(item)
@@ -1087,7 +1087,7 @@ class MoveToFront(object):
             self._first.next = old
             old.prev = self._first
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[Any]:
         tmp = self._first
         while tmp:
             yield tmp.val

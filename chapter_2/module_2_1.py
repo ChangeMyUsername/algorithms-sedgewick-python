@@ -1,74 +1,163 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
 import doctest
+from typing import MutableSequence
+
+from common import CT, BaseSort
 
 
-def selection_sort(lst):
+class SelectionSort(BaseSort):
+
+    """Selection sort implementation
     """
-      Selection sort implemention, select the minimum value in the list and put it in first place,
-    then scan the whole list but exclude the first one element,
-    pick the second minimum value in the list and so on util the list is sorted.
-    every selection sort need N TIMES EXCHANGES,
-    and the running time is NOTHING TO DO WITH the size of the input array.
-    >>> lst = [9, 4, 5, 1, 0, 3, 6]
-    >>> selection_sort(lst)
-    >>> lst
-    [0, 1, 3, 4, 5, 6, 9]
+
+    def sort(self, seq: MutableSequence[CT]) -> None:
+        """Selection sort algorithm, sorts an array by repeatedly finding
+        the minimum element (considering ascending order) from
+        unsorted part and putting it at the beginning.
+
+        Selection sort is stable algorithm.
+        Time Complexity is O(n^2).
+        It uses ϴ(1) extra memory (not including the input array).
+
+        Args:
+            seq (MutableSequence[CT]): mutable sequence
+
+        >>> seq = [9, 4, 5, 1, 0, 3, 6]
+        >>> selection_sort = SelectionSort()
+        >>> selection_sort.sort(seq)
+        >>> selection_sort.is_sorted(seq)
+        True
+        >>> selection_sort.show(seq)
+        0 1 3 4 5 6 9
+        """
+        length = len(seq)
+        for i in range(length):
+            min_index = i
+            for j in range(i + 1, length):
+                if seq[j] < seq[min_index]:
+                    min_index = j
+            self.exch(seq, min_index, i)
+
+
+class InsertionSort(BaseSort):
+
+    """Insertion sort implementation
     """
-    length = len(lst)
-    for i in range(length):
-        min_index = i
-        for j in range(i + 1, length):
-            if lst[j] < lst[min_index]:
-                min_index = j
-        lst[min_index], lst[i] = lst[i], lst[min_index]
 
+    def sort(self, seq: MutableSequence[CT]) -> None:
+        """Insertion sort algorithm, it takes three steps to execute:
 
-def insertion_sort(lst):
-    """
-      Insertion sort implementation, exchange the current element
-    and the previous element util current element is larger than the previous element.
-    for a random list of N size, insertion sort need ~ N**2/4 comparisons
-    and ~N**2/4 exchanges on average condition,
-    the worst-case scenario would be ~ N**2/2 comparisons and ~N**2/2 exchanges,
-    the best-case scenario would be N-1
-    comparisons and no exchange.
-    >>> lst = [9, 4, 5, 1, 0, 3, 6]
-    >>> insertion_sort(lst)
-    >>> lst
-    [0, 1, 3, 4, 5, 6, 9]
-    """
-    length = len(lst)
-    for i in range(1, length):
-        j = i
-        while j and lst[j] < lst[j - 1]:
-            lst[j], lst[j - 1] = lst[j - 1], lst[j]
-            j -= 1
+        1: Iterate from seq[1] to seq[n] over the sequence.
 
+        2: Compare the current element (key) to its predecessor.
 
-def shell_sort(lst):
-    """
-      Shell sort implementation, exchange the j element
-    and j-h element util i element is larger than i-1 element.
-    the algorithms performance is depend on h
-    >>> lst = [9, 4, 5, 1, 0, 3, 6]
-    >>> shell_sort(lst)
-    >>> lst
-    [0, 1, 3, 4, 5, 6, 9]
-    """
-    length = len(lst)
-    h = 1
+        3: If the key element is smaller than its predecessor,
+           compare it to the elements before.
+           Move the greater elements one position up
+           to make space for the swapped element.
 
-    while h < length / 3:
-        h = 3 * h + 1
+        Insertion sort is stable algorithm.
+        Time Complexity is O(n^2).
+        It uses ϴ(1) extra memory (not including the input array).
 
-    while h >= 1:
-        for i in range(h, length):
+        Args:
+            seq (MutableSequence[CT]): mutable sequence
+
+        >>> seq = [9, 4, 5, 1, 0, 3, 6]
+        >>> sort_cls = InsertionSort()
+        >>> sort_cls.sort(seq)
+        >>> sort_cls.is_sorted(seq)
+        True
+        >>> sort_cls.show(seq)
+        0 1 3 4 5 6 9
+        """
+        length = len(seq)
+        for i in range(1, length):
             j = i
-            while j >= h and lst[j] < lst[j - h]:
-                lst[j], lst[j - h] = lst[j - h], lst[j]
-                j -= h
-        h //= 3
+            while j and seq[j] < seq[j - 1]:
+                self.exch(seq, j, j - 1)
+                j -= 1
+
+
+# 2.1.24 practice
+class InsertionSortSentinel(BaseSort):
+
+    """Insertion sort with sentinel
+    """
+
+    def sort(self, seq: MutableSequence[CT]) -> None:
+        """Insertion sort with sentinel and half exchange version.
+
+        Args:
+            seq (MutableSequence[CT]): mutable sequence
+
+        >>> seq = [9, 4, 5, 1, 0, 3, 6]
+        >>> sort_cls = InsertionSortSentinel()
+        >>> sort_cls.sort(seq)
+        >>> sort_cls.is_sorted(seq)
+        True
+        >>> sort_cls.show(seq)
+        0 1 3 4 5 6 9
+        """
+        exchanges = 0
+        length = len(seq) - 1
+        for i in range(length - 1, 0, -1):
+            if seq[i] < seq[i - 1]:
+                self.exch(seq, i, i - 1)
+                exchanges += 1
+        # seq sorted, return
+        if exchanges == 0:
+            return
+        # 2.1.25 practice, half exchange
+        for i in range(2, len(seq)):
+            val = seq[i]
+            j = i
+            while val < seq[j - 1]:
+                seq[j] = seq[j - 1]
+                j -= 1
+            seq[j] = val
+
+
+class ShellSort(BaseSort):
+
+    """Shell sort implementation
+    """
+
+    def sort(self, seq: MutableSequence[CT]) -> None:
+        """Shell sort, exchange the j element
+        and j-h element util i element is larger than i-1 element.
+        the algorithms performance is depend on h
+
+        Args:
+            seq (MutableSequence[CT]): mutable sequence
+
+        >>> seq = [9, 4, 5, 1, 0, 3, 6]
+        >>> sort_cls = ShellSort()
+        >>> sort_cls.sort(seq)
+        >>> sort_cls.sort(seq)
+        >>> sort_cls.is_sorted(seq)
+        True
+        >>> sort_cls.show(seq)
+        0 1 3 4 5 6 9
+        >>> sort_cls.check(seq)
+        False
+        >>> sort_cls.check([0, 3, 1, 7, 5])
+        True
+        """
+        length = len(seq)
+        h = 1
+
+        while h < length / 3:
+            h = 3 * h + 1
+
+        while h >= 1:
+            for i in range(h, length):
+                j = i
+                while j >= h and seq[j] < seq[j - h]:
+                    seq[j], seq[j - h] = seq[j - h], seq[j]
+                    j -= h
+            h //= 3
 
 
 if __name__ == '__main__':

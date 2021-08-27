@@ -1,41 +1,75 @@
 #!/usr/bin/env python
 # -*- encoding:UTF-8 -*-
 import doctest
+from typing import Generator, MutableSequence
+
+from common import CT
 
 
-def rank(lst, k):
+def rank(mseq: MutableSequence[CT], k: CT) -> CT:
+    """Return the `k` rank element of `seq`
+
+    Args:
+        seq (MutableSequence[CT]): input sequence
+        k (CT): element index
+
+    Returns:
+        CT: element in sequence
+
+    >>> import random
+    >>> seq = [i for i in range(10)]
+    >>> random.shuffle(seq)
+    >>> [rank(seq, i) for i in range(10)]
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     """
-    >>> rank([i for i in range(10)], 5)
-    4
-    """
-    def partition(lst, low, high):
-        val = lst[low]
-        left, right = low + 1, high
+    def partition(seq: MutableSequence[CT], low: int, high: int) -> int:
+        """Quick sort partition process, return pivot's changed position
+        after partition.
+
+        Args:
+            seq (MutableSequence[CT]): input array
+            low (int): start index
+            high (int): end index
+
+        Returns:
+            int: index of pivot
+        """
+        i, j = low + 1, high
+        val = seq[low]
         while 1:
-            while lst[left] < val:
-                left += 1
-            while lst[right] > val:
-                right -= 1
-            if right < left:
+            while i < high and seq[i] <= val:
+                i += 1
+            while j > low and seq[j] >= val:
+                j -= 1
+            if i >= j:
                 break
-            lst[left], lst[right] = lst[right], lst[left]
-        lst[left], lst[low] = lst[low], lst[left]
-        return left
-    low, high = 0, len(lst) - 1
+            seq[i], seq[j] = seq[j], seq[i]
+
+        seq[low], seq[j] = seq[j], seq[low]
+        return j
+
+    low, high = 0, len(mseq) - 1
     while high > low:
-        j = partition(lst, low, high)
+        j = partition(mseq, low, high)
         if j == k:
-            return lst[k]
+            return mseq[k]
         elif j > k:
             high = j - 1
         elif j < k:
             low = j + 1
-    return lst[k]
+    return mseq[k]
 
 
 # 2.5.4 practice, return a sorted and non-duplicated-item list
-def dedup(lst):
-    """
+def dedup(seq: MutableSequence[CT]) -> Generator[CT, None, None]:
+    """Return a new sorted and deduplicated sequence from `seq`.
+
+    Args:
+        seq (MutableSequence[CT]): input sequence
+
+    Yields:
+        Generator[CT]: generator with unique element
+
     >>> lst = [i for i in dedup([2, 1, 3, 1, 1, 3, 2, 3, 4, 7])]
     >>> lst
     [1, 2, 3, 4, 7]
@@ -46,9 +80,9 @@ def dedup(lst):
     >>> lst3
     [1, 2, 3, 4, 5]
     """
-    assert lst and len(lst) >= 2
+    assert seq and len(seq) >= 2
 
-    new_list = sorted(lst)
+    new_list = sorted(seq)
     val, count, length = new_list[0], 1, len(new_list)
     for i in range(1, length):
         if new_list[i] == val:
@@ -95,7 +129,8 @@ class Version(object):
         self._version = val
 
 
-# 2.5.14 practice, implement a domain class with __cmp__, compare the reversed order domain.
+# 2.5.14 practice, implement a domain class with __cmp__,
+# compare the reversed order domain.
 class Domain(object):
 
     """
@@ -129,21 +164,25 @@ class Domain(object):
         self._cmp_domain = '.'.join(reversed(self._domain.split('.')))
 
 
-# 2.5.16 practice, construct object which order by the name with a new alphabet order
+# 2.5.16 practice, construct object which
+# order by the name with a new alphabet order
 class California(object):
 
     """
-    >>> lst = [California(name) for name in ('RISBY', 'PATRICK', 'DAMIEN', 'GEORGE')]
-    >>> lst.sort()
-    >>> lst
+    >>> seq = [California(name) for name
+    ... in ('RISBY', 'PATRICK', 'DAMIEN', 'GEORGE')]
+    >>> seq.sort()
+    >>> seq
     [California(RISBY), California(GEORGE), California(PATRICK), California(DAMIEN)]
     """
-    alphabet = ('R', 'W', 'Q', 'O', 'J', 'M', 'V', 'A', 'H', 'B', 'S', 'G', 'Z', 'X', 'N',
+    alphabet = ('R', 'W', 'Q', 'O', 'J', 'M', 'V', 'A',
+                'H', 'B', 'S', 'G', 'Z', 'X', 'N',
                 'T', 'C', 'I', 'E', 'K', 'U', 'P', 'D', 'Y', 'F', 'L')
 
     def __init__(self, name):
         self._name = name
-        self._cmp_tuple = tuple(California.alphabet.index(i) for i in self._name)
+        self._cmp_tuple = tuple(California.alphabet.index(i)
+                                for i in self._name)
 
     def __eq__(self, other):
         return self._cmp_tuple == other._cmp_tuple
@@ -161,7 +200,8 @@ class California(object):
     @name.setter
     def name(self, val):
         self._name = val
-        self._cmp_tuple = tuple(California.alphabet.index(i) for i in self._name)
+        self._cmp_tuple = tuple(California.alphabet.index(i)
+                                for i in self._name)
 
 
 # 2.5.19 practice, kendall tau algorithm implementation
@@ -174,7 +214,8 @@ class KendallTau(object):
     """
 
     def kendall_tau_count(self, origin_list, count_list):
-        lst = [origin_list.index(count_list[i]) for i in range(len(count_list))]
+        lst = [origin_list.index(count_list[i])
+               for i in range(len(count_list))]
         aux = lst[:]
         return self.count(lst, aux, 0, len(lst) - 1)
 

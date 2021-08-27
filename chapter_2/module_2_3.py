@@ -272,23 +272,23 @@ class QuickThreeWay(BaseSort):
         random.shuffle(seq)
         self.__sort(seq, 0, len(seq) - 1)
 
-    def __sort(self, lst, low, high):
+    def __sort(self, seq: MutableSequence[CT], low: int, high: int) -> None:
         if high <= low:
             return
 
-        lt, i, gt, val = low, low + 1, high, lst[low]
+        lt, i, gt, val = low, low + 1, high, seq[low]
         while i <= gt:
-            if lst[i] < val:
-                lst[lt], lst[i] = lst[i], lst[lt]
+            if seq[i] < val:
+                seq[lt], seq[i] = seq[i], seq[lt]
                 lt += 1
                 i += 1
-            elif lst[i] > val:
-                lst[gt], lst[i] = lst[i], lst[gt]
+            elif seq[i] > val:
+                seq[gt], seq[i] = seq[i], seq[gt]
                 gt -= 1
             else:
                 i += 1
-        self.__sort(lst, low, lt - 1)
-        self.__sort(lst, gt + 1, high)
+        self.__sort(seq, low, lt - 1)
+        self.__sort(seq, gt + 1, high)
 
 
 if __name__ == '__main__':

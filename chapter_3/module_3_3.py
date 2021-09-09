@@ -141,7 +141,8 @@ class RBTree(object):
         rotate_node.color = node.color
         node.color = RED
         rotate_node.size = node.size
-        node.size = self.__node_size(node.left) + self.__node_size(node.right) + 1
+        node.size = self.__node_size(
+            node.left) + self.__node_size(node.right) + 1
         return rotate_node
 
     def __rotate_right(self, node):
@@ -153,7 +154,8 @@ class RBTree(object):
         rotate_node.color = node.color
         node.color = RED
         rotate_node.size = node.size
-        node.size = self.__node_size(node.left) + self.__node_size(node.right) + 1
+        node.size = self.__node_size(
+            node.left) + self.__node_size(node.right) + 1
         return rotate_node
 
     def __flip_colors(self, node):
@@ -219,7 +221,8 @@ class RBTree(object):
         if self.__is_red(node.left) and self.__is_red(node.right):
             self.__flip_colors(node)
 
-        node.size = self.__node_size(node.left) + self.__node_size(node.right) + 1
+        node.size = self.__node_size(
+            node.left) + self.__node_size(node.right) + 1
         return node
 
     def __balance(self, node):
@@ -234,7 +237,8 @@ class RBTree(object):
         if self.__is_red(node.left) and self.__is_red(node.right):
             self.__flip_colors(node)
 
-        node.size = self.__node_size(node.left) + self.__node_size(node.right) + 1
+        node.size = self.__node_size(
+            node.left) + self.__node_size(node.right) + 1
         return node
 
     def __move_red_left(self, node):
@@ -327,7 +331,8 @@ class RBTree(object):
                 node = self.__move_red_right(node)
 
             if key == node.key:
-                node.value = self.__get(node.right, self.__min_val(node.right).key)
+                node.value = self.__get(
+                    node.right, self.__min_val(node.right).key)
                 node.key = self.__min_val(node.right).key
                 node.right = self.__delete_min(node.right)
             else:

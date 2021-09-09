@@ -99,5 +99,6 @@ class LinearProbingHT(object):
             if k:
                 yield k
 
+
 if __name__ == '__main__':
     doctest.testmod()

@@ -98,7 +98,8 @@ class Digragh(object):
         return edge is not None
 
     def __repr__(self):
-        s = str(len(self._vertices)) + ' vertices, ' + str(self._edges_size) + ' edges\n'
+        s = str(len(self._vertices)) + ' vertices, ' + \
+            str(self._edges_size) + ' edges\n'
         for k in self._adj:
             try:
                 lst = ' '.join([vertex for vertex in self._adj[k]])
@@ -410,7 +411,8 @@ class Degrees(object):
 
         self._sources = (k for k, v in self._indegree.items() if v == 0)
         self._sinks = (k for k, v in self._outdegree.items() if v == 0)
-        self._is_map = len([k for k, v in self._outdegree.items() if v == 1]) == length
+        self._is_map = len(
+            [k for k, v in self._outdegree.items() if v == 1]) == length
 
     def indegree(self, vertex):
         return self._indegree[vertex]
@@ -581,6 +583,7 @@ class TopologicalWithDegree(object):
                     return 3
             return True
         return False
+
 
 if __name__ == '__main__':
     doctest.testmod()

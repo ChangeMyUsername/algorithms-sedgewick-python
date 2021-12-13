@@ -17,10 +17,13 @@ def rank(mseq: MutableSequence[CT], k: CT) -> CT:
         CT: element in sequence
 
     >>> import random
-    >>> seq = [i for i in range(10)]
+    >>> seq = [i for i in range(10)] + [9]
     >>> random.shuffle(seq)
-    >>> [rank(seq, i) for i in range(10)]
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    >>> [rank(seq, i) for i in range(11)]
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9]
+    >>> seq = [3, 3, 3, 3]
+    >>> rank(seq, 3)
+    3
     """
     def partition(seq: MutableSequence[CT], low: int, high: int) -> int:
         """Quick sort partition process, return pivot's changed position

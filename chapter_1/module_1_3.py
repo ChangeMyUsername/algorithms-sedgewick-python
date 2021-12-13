@@ -35,7 +35,7 @@ class Stack(object):
     """Stack, a LIFO data structure with linked list implementation."""
 
     # 1.3.42 practice
-    def __init__(self, old_stack: Stack) -> None:
+    def __init__(self, old_stack: Stack = None) -> None:
         """Initial method, use `_first` to mark head of linked list,
            use `_size` to keep track of linked-list size.
            >>> s = Stack()
@@ -169,10 +169,10 @@ class Stack(object):
         >>> old_stack.push(4)
         >>> new_stack = Stack.copy(old_stack)
         >>> [item for item in new_stack]
-        [1, 2, 3, 4]
+        [4, 3, 2, 1]
         """
         new_stack = Stack()
-        for item in stack:
+        for item in reversed(tuple(tmp for tmp in stack)):
             new_stack.push(item)
         return new_stack
 

@@ -42,11 +42,17 @@ class Stack(object):
            >>> s._first
            >>> s._size
            0
+           >>> for i in range(5):
+           ...    s.push(i)
+           ...
+           >>> new_stack = Stack(s)
+           >>> [item for item in new_stack]
+           [4, 3, 2, 1, 0]
         """
         self._first = None
         self._size = 0
         if isinstance(old_stack, Stack) and not old_stack.is_empty():
-            for item in old_stack:
+            for item in reversed(tuple(tmp for tmp in old_stack)):
                 self.push(item)
 
     def __iter__(self) -> Iterator[Any]:

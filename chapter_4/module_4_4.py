@@ -418,7 +418,7 @@ class BellmanFordSP(ShortestPath):
     it's a queue-based version. First enqueue the source vertex, and dequeue the vertex,
     'relax' all adjacent edges and put the adjacent vertices into the queue until the queue
     is empty or find the negative cycle. A negative cycle check is nessesary every V times
-    relaxtion.The cost of running time is proportional to O(V + E), the worst case is VE.
+    relaxation.The cost of running time is proportional to O(V + E), the worst case is VE.
     This is a universal algorithm for Shortest Path algorithm.
     >>> test_data = ((4, 5, 0.35), (5, 4, 0.35), (4, 7, 0.37), (5, 7, 0.28), (7, 5, 0.28),
     ...              (5, 1, 0.32), (0, 4, 0.38), (0, 2, 0.26), (7, 3, 0.39), (1, 3, 0.29),

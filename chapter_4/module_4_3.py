@@ -370,7 +370,7 @@ class PrimMST(object):
 class KruskalMST(object):
 
     """
-      Kruskal-Minimum-Spanning-Tree algorithm. This is a greedy stategy algorithm. First
+      Kruskal-Minimum-Spanning-Tree algorithm. This is a greedy strategy algorithm. First
     put all edges into the priority queue, then delete the minimum-weight edge in the
     priority queue. Check if those vertices on the both side of the edge is connected.
     If connected, ignore the edge, if not, then use a disjoint set to connect two vertices

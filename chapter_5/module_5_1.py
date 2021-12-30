@@ -56,7 +56,7 @@ class MSD(object):
     recursion depth exceeded, MSD switch to insertion sort when handling small arrays.
     The performance will be not fine when most of input strings are the same. And the cost
     of space is very expensive because each recursion sort need to create a counting array,
-    and some of recursions is unnessesary.
+    and some of recursions is unnecessary.
     >>> test_data = ['she', 'sells', 'seashells', 'by', 'the', 'sea', 'shore',
     ...              'the', 'shells', 'she', 'sells', 'are', 'surely', 'seashells']
     >>> msd = MSD()
@@ -118,7 +118,7 @@ class Quick3String(object):
     """
       Quick Three Way algorithm for string sorting purpose. This is almost the
     same as Quick Three Way, but it takes ith character of each string as comparison.
-    It's really helpful when large repetive strings as input strings.
+    It's really helpful when large repetitive strings as input strings.
     >>> test_data = ['she', 'sells', 'seashells', 'by', 'the', 'sea', 'shore',
     ...              'the', 'shells', 'she', 'sells', 'are', 'surely', 'seashells']
     >>> q3s = Quick3String()

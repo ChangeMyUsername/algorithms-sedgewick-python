@@ -16,7 +16,7 @@ MAX_VAL = sys.maxsize
 
 class MaxPQ(object):
 
-    """Max piority queue implementation.
+    """Max priority queue implementation.
     """
 
     def __init__(self, size: int) -> None:
@@ -83,8 +83,8 @@ class MaxPQ(object):
             pos = index
 
     def insert(self, val: CT) -> None:
-        """Insert element into piority queue, append `val` to priority queue,
-        then call `swim` method to restore piority queue's order.
+        """Insert element into priority queue, append `val` to priority queue,
+        then call `swim` method to restore priority queue's order.
 
         Args:
             val (CT): element to insert
@@ -113,7 +113,7 @@ class MaxPQ(object):
 
     # 2.4.27 practice
     def min_val(self) -> CT:
-        """Return minimum value in piority queue.
+        """Return minimum value in priority queue.
 
         Returns:
             CT: maximum value in priority queue
@@ -192,7 +192,7 @@ class MaxPQ(object):
         self.swim_effective(self._size)
 
     def max_val(self) -> CT:
-        """Return maximum value in piority queue.
+        """Return maximum value in priority queue.
 
         Returns:
             CT: maximum value in priority queue
@@ -281,8 +281,8 @@ class MinPQ(object):
             pos = index
 
     def insert(self, val: CT) -> None:
-        """Insert element into piority queue, append `val` to priority queue,
-        then call `swim` method to restore piority queue's order.
+        """Insert element into priority queue, append `val` to priority queue,
+        then call `swim` method to restore priority queue's order.
 
         Args:
             val (CT): element to insert
@@ -336,7 +336,7 @@ class MinPQ(object):
         return min_val
 
     def min_val(self) -> CT:
-        """Return minimum value in piority queue.
+        """Return minimum value in priority queue.
 
         Returns:
             CT: minimum value in priority queue
@@ -493,8 +493,8 @@ class MaxPQDynamic(object):
             pos = index
 
     def insert(self, val: CT) -> None:
-        """Insert element into piority queue, append `val` to priority queue,
-        then call `swim` method to restore piority queue's order.
+        """Insert element into priority queue, append `val` to priority queue,
+        then call `swim` method to restore priority queue's order.
 
         Args:
             val (CT): element to insert
@@ -547,7 +547,7 @@ class MaxPQDynamic(object):
         return max_val
 
     def max_val(self) -> CT:
-        """Return maximum value in piority queue.
+        """Return maximum value in priority queue.
 
         Returns:
             CT: maximum value in priority queue
@@ -638,8 +638,8 @@ class MinPQDynamic(object):
             pos = index
 
     def insert(self, val: CT) -> None:
-        """Insert element into piority queue, append `val` to priority queue,
-        then call `swim` method to restore piority queue's order.
+        """Insert element into priority queue, append `val` to priority queue,
+        then call `swim` method to restore priority queue's order.
 
         Args:
             val (CT): element to insert
@@ -692,7 +692,7 @@ class MinPQDynamic(object):
         return min_val
 
     def min_val(self) -> CT:
-        """Return minimum value in piority queue.
+        """Return minimum value in priority queue.
 
         Returns:
             CT: minimum value in priority queue
